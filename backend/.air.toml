@@ -1,0 +1,17 @@
+# .air.toml
+
+[build]
+# ビルドコマンド
+cmd = "go build -o ./tmp/main ."
+# ビルドの対象ファイル
+include_ext = ["go", "tmpl", "html"]
+# 再ビルドの間隔（秒）
+interval = 1
+
+[log]
+# ログレベル
+level = "debug"
+
+[run]
+# 実行コマンド
+cmd = "./tmp/main"
