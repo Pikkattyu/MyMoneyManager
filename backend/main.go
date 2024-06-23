@@ -1,28 +1,36 @@
 package main
 
 import (
-    "fmt"
-    "log"
-    "net/http"
-    "MyMoneyManager/backend/migrations"
+	"MyMoneyManager/backend/config"
+	"MyMoneyManager/backend/migrations"
+	"MyMoneyManager/backend/routes"
+	"MyMoneyManager/backend/utils"
+	"log"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-    // マイグレーションを実行する
-    if err := migrations.RunMigrations(); err != nil {
-        log.Fatalf("failed to run migrations: %v", err)
-    }
+	// 設定を読み込む
+	config.LoadConfig()
 
-    // ルーティングを設定する
-    http.HandleFunc("/", handlerFunc)
+	// データベースを初期化する
+	utils.InitDB()
 
-    // サーバーを起動し、ポート8080でリクエストを待機する
-    fmt.Println("Server listening on port 8080...")
-    http.ListenAndServe(":8080", nil)
-}
+	// マイグレーションを実行する
+	if err := migrations.RunMigrations(); err != nil {
+		log.Fatalf("failed to run migrations: %v", err)
+	}
 
-// リクエストを処理するハンドラー関数
-func handlerFunc(w http.ResponseWriter, r *http.Request) {
-    // レスポンスを書き込む
-    fmt.Fprintln(w, "Hello, World!")
+	// Ginのルーターを設定する
+	router := gin.Default()
+
+	// ルーティングを設定する
+	routes.InitializeRoutes(router)
+
+	// サーバーを起動し、ポート8080でリクエストを待機する
+	log.Println("Server listening on port 8080...")
+	if err := router.Run(":8080"); err != nil {
+		log.Fatalf("failed to start server: %v", err)
+	}
 }

@@ -10,7 +10,9 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': '/src'
+      '@': '/src/node_modules/',
+      'react-router-dom': 'react-router-dom', // react-router-dom のエイリアスを設定
+      'js-cookie': 'js-cookie' // 正しいエイリアスに修正
     }
   },
   build: {

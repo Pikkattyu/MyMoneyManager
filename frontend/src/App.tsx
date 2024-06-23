@@ -1,21 +1,23 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Header from './components/Header.tsx';
-import Footer from './components/Footer.tsx';
-import Home from './pages/Home.tsx';
-import Dashboard from './components/Dashboard.tsx';
-import './styles.css'; // CSSファイルのインポート
+import Home from './pages/Home';
+import Dashboard from './pages/Dashboard';
+import Login from './pages/LoginForm';
+import ProtectedRoute from './pages/ProtectedRoute';
+import RegisterForm from './pages/RegisterForm';
+import Header from './components/Header';
+import Footer from './components/Footer';
 
-const App: React.FC = () => {
+const App = () => {
   return (
     <Router>
       <Header />
-      <main>
-        <Routes>
-          <Route path="/home" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
-      </main>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/register" element={<RegisterForm />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      </Routes>
       <Footer />
     </Router>
   );

@@ -1,10 +1,15 @@
+# Goのベースイメージを指定
 FROM golang:latest
 
-# air をインストール
-RUN go install github.com/cosmtrek/air@latest
-
-# ワークディレクトリの設定
+# ワークディレクトリを設定
 WORKDIR /app
+
+# 必要な依存関係をインストール
+RUN apt-get update && apt-get install -y \
+    git
+
+# Airをインストール
+RUN go install github.com/air-verse/air@latest
 
 # Goモジュールファイルをコピー
 COPY go.mod ./
@@ -13,11 +18,11 @@ COPY go.sum ./
 # 依存関係のインストール
 RUN go mod download
 
+# .envファイルをコピー
+COPY .env ./
+
 # ソースコードをコピー
 COPY . .
-
-# Air の設定ファイルをコピー（もしあれば）
-COPY .air.toml ./
 
 # コンテナ起動時に air を実行
 CMD ["air"]
