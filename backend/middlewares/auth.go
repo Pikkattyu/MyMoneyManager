@@ -18,6 +18,12 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		userName := c.Request.Header.Get("userName")
+		if userName == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			return
+		}
+
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
 		// トークンの検証
@@ -30,7 +36,6 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-
 		c.Next()
 	}
 }
