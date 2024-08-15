@@ -22,13 +22,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             },
         }).then(response => {
             if (response.ok) {
+                console.log(response);
                 setLoading(false); // データの取得が成功した場合もローディングを終了
             } else {
                 localStorage.removeItem('token'); // ログインエラー時はトークンを削除
+                localStorage.removeItem('userNo');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('bookID');
                 setLoading(false); // ローディングを終了
             }
         }).catch(() => {
             localStorage.removeItem('token'); // エラー時もトークンを削除
+            localStorage.removeItem('userNo');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('bookID');
             setLoading(false); // ローディングを終了
         });
     }, []);

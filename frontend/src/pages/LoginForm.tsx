@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
 const Login = () => {
-    const [username, setUsername] = useState('');
+    const [userID, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = async (event) => {
+    const handleSubmit = async (event: any) => {
         event.preventDefault();
 
         const response = await fetch('/api/login', {
@@ -15,7 +15,7 @@ const Login = () => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify({ userID, password }),
         });
 
         if (response.ok) {
@@ -23,8 +23,11 @@ const Login = () => {
 
             // トークンをクッキーに保存
             localStorage.setItem('token', data.token);
+            localStorage.setItem('userNo', data.userNo);
+            localStorage.setItem('userName', data.userName);
+            localStorage.setItem('bookID', data.bookID);
 
-            navigate('/dashboard');
+            navigate('/home');
 
             // ページを再読み込みする
             window.location.reload();
@@ -41,7 +44,7 @@ const Login = () => {
         <form onSubmit={handleSubmit}>
             <input
                 type="text"
-                value={username}
+                value={userID}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Username"
             />

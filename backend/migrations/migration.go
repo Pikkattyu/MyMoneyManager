@@ -27,6 +27,12 @@ func RunMigrations() error {
 	if err := db.AutoMigrate(&models.User{}); err != nil {
 		return fmt.Errorf("failed to migrate: %v", err)
 	}
+	if err := db.AutoMigrate(&models.Book{}); err != nil {
+		return fmt.Errorf("failed to migrate: %v", err)
+	}
+	if err := db.AutoMigrate(&models.Assets{}); err != nil {
+		return fmt.Errorf("failed to migrate: %v", err)
+	}
 
 	fmt.Println("Migrations completed successfully.")
 	return nil

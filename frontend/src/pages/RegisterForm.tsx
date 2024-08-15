@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function RegisterForm() {
     const [userId, setUserId] = useState('');
@@ -6,6 +7,7 @@ function RegisterForm() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -19,9 +21,13 @@ function RegisterForm() {
             });
             const data = await response.json();
             if (response.ok) {
-                setMessage(data.message || 'User registered successfully');
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('userNo', data.userNo);
+                localStorage.setItem('userName', data.userName);
+                localStorage.setItem('bookID', data.bookID);
+                navigate('/home')
             } else {
-                setMessage(data.message || 'Registration failed');
+                setMessage(data.message || '作成中にエラーが発生しました。');
             }
         } catch (error) {
             setMessage('Error: ' + error.message);
