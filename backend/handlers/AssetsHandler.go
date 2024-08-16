@@ -19,6 +19,33 @@ func AssetsRegister(c *gin.Context) {
 		return
 	}
 
+	// CookieからUserIDを取得（数字返還）)
+	BookID, err := c.Cookie("bookID")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "帳簿IDの取得に失敗しました。"})
+		return
+	}
+
+	convint, err := strconv.Atoi(BookID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "文字から数字へ変換中にエラーが発生しました。"})
+		return
+	}
+	assets.BookID = convint
+
+	errflg := repository.CheckAssetsConflicting(assets)
+
+	log.Printf("チェック結果: " + strconv.Itoa(int(errflg)))
+	if errflg == 1 {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報が重複しています。"})
+		log.Printf("エラーしたよ♡")
+		return
+	} else if errflg == 2 {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報の取得に失敗しました。"})
+		return
+	}
+	log.Printf("チェック後処理")
+
 	if err := repository.CreateAssets(&assets); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ログの作成に失敗ました。"})
 		return
@@ -34,8 +61,6 @@ func GetAssetsAll(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": err.Error()})
 		return
 	}
-
-	log.Printf("BookID: " + BookID)
 
 	convint, err := strconv.Atoi(BookID)
 	if err != nil {

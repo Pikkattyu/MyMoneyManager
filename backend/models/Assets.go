@@ -10,8 +10,8 @@ import (
 type Assets struct {
 	AssetsID   int       `gorm:"primaryKey;autoIncrement"`  // 主キー
 	BookID     int       `gorm:"not null"`                  // NotNull制約
-	AssetsName string    `gorm:"not null;"`                 // NotNull制約
-	Tag        string    `gorm:""`                          // NotNull制約
+	AssetsName string    `gorm:"not null"`                  // NotNull制約
+	Tag        string    `gorm:"not null"`                  // NotNull制約
 	UserNo     int       `gorm:"not null"`                  // NotNull制約
 	Amount     int       `gorm:"default:0"`                 // デフォルト値0
 	Excluded   bool      `gorm:"default:false"`             // デフォルト値false
