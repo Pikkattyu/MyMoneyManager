@@ -11,8 +11,8 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
   // 状態変数を追加
   const [tag, setTag] = useState<string>('');
   const [assetsName, setAssetsName] = useState<string>('');
-  const [UserNo, setUserNo] = useState<string>('');
-  const [Amount, setAmount] = useState<number | string>('');
+  const [userNo, setUserNo] = useState<number>(-1);
+  const [Amount, setAmount] = useState<number>(0);
   const [Excluded, setIsExcluded] = useState<boolean>(false);
   const [flg, setFlg] = useState<number>(0);
 
@@ -53,7 +53,7 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
 
     // ローカルストレージからのデータ取得
     const UserNo = localStorage.getItem('userNo') || '';
-    setUserNo(UserNo);
+    setUserNo(Number(UserNo));
 
   }, []);
 
@@ -77,7 +77,7 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
       cnt++;
     }
 
-    if (UserNo === '所有者を入力してください') {
+    if (userNo === -1) {
       setErrorMessages((prevMessages) => [
         ...prevMessages,
         '※所有者を選択してください',
@@ -85,7 +85,7 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
       cnt++;
     }
 
-    if (Amount === '') {
+    if (Amount < 0) {
       setErrorMessages((prevMessages) => [
         ...prevMessages,
         '初期残高を入力してください',
@@ -100,7 +100,7 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
     try {
       const response = await fetch('/api/assetsregister', {
         method: 'POST',
-        body: JSON.stringify({ tag, assetsName, flg, UserNo, Amount, Excluded }),
+        body: JSON.stringify({ tag, assetsName, flg, userNo, Amount, Excluded }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -108,12 +108,12 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
 
       if (!response.ok) {
         const result = await response.json();
-        setErrorMessages(result.errorMessage);
+        setErrorMessages([result?.errorMessage]);
       } else {
         onClose(true);
       }
     } catch (error) {
-      console.error('Error:', error);
+      setErrorMessages(["例外エラーが発生しました。"]);
     }
   };
 
@@ -158,11 +158,11 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
       <div className='inputGroup'>
         <span className='label'>所有者</span>
         <select
-          value={UserNo}
-          onChange={(e) => setUserNo(e.target.value)}
+          value={userNo}
+          onChange={(e) => setUserNo(Number(e.target.value))}
           className='input'
         >
-          <option value="">所有者を選択</option>
+          <option value={-1}>所有者を選択</option>
           {getUsersData.map((user) => (
             <option key={user.UserNo} value={user.UserNo}>
               {user.UserName}
@@ -176,7 +176,7 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
         <input
           type="number"
           value={Amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={(e) => setAmount(Number(e.target.value))}
           placeholder="初期残高を入力してください"
           className='input'
         />

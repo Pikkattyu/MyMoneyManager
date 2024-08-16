@@ -40,3 +40,20 @@ func GetAssetsAll(BookID int) ([]models.AssetWithUserName, error) {
 	}
 	return assets, nil
 }
+
+// 重複チェック用
+func CheckAssetsConflicting(assets models.Assets) int64 {
+	var count int64
+
+	// 条件に基づいて件数をカウント
+	err := utils.DB.Table("assets").
+		Where("book_id = ? AND user_no = ? AND assets_name = ? AND flg != 2", assets.BookID, assets.UserNo, assets.AssetsName).
+		Count(&count).Error
+
+	if err != nil {
+		log.Printf("資産情報の取得に失敗しました。BookID: %d, UserNo: %d, AssetsName: %s, Error: %v", assets.BookID, assets.UserNo, assets.AssetsName, err)
+		return 2
+	}
+
+	return count
+}
