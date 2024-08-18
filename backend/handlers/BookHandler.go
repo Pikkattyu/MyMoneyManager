@@ -66,6 +66,39 @@ func BookRegister(c *gin.Context) {
 		}
 	}
 
+	catenames := []string{"食費", "交通費", "固定費", "病院"}
+	subcatenames := [][]string{
+		{"朝食", "昼食", "夕食", "夜食", "お菓子"},
+		{"仕事", "プライベート"},
+		{"家賃", "水道", "光熱費"},
+		{""},
+	}
+
+	for i := 0; i < 4; i++ {
+		Category := models.Category{
+			BookID:       book2.BookID,
+			CategoryName: catenames[i],
+			Flg:          0,
+		}
+		// 帳簿を新規作成
+		reCategory, err := repository.CreateCategory(&Category)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "カテゴリデータ作成時にエラーが発生しました。"})
+			return
+		}
+		for _, subcat := range subcatenames[i] {
+			Subcategory := models.Subcategory{
+				CategoryID:      reCategory.CategoryID,
+				SubcategoryName: subcat,
+			}
+			if err := repository.CreateSubcategory(&Subcategory); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "サブカテゴリデータ作成時にエラーが発生しました。"})
+				return
+			}
+		}
+
+	}
+
 	user.UserNo = convint
 	user.BookID = book2.BookID
 	// ユーザ情報に帳簿データを記載
@@ -79,7 +112,7 @@ func BookRegister(c *gin.Context) {
 	cookie := http.Cookie{Name: "bookID", Value: BookID, Expires: expiration, Path: "/", HttpOnly: true}
 	http.SetCookie(c.Writer, &cookie)
 
-	c.JSON(http.StatusOK, gin.H{"message": "帳簿を作成しました。"})
+	c.JSON(http.StatusOK, gin.H{"message": "帳簿を作成しました。", "bookID": BookID})
 }
 
 func GetBooks(c *gin.Context) {

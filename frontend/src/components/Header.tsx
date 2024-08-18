@@ -84,7 +84,7 @@ const Header: React.FC = () => {
             <a href="/assets"><li>資産</li></a>
             <a href="#"><li>統計</li></a>
             <a href="#"><li>メモ</li></a>
-            <a href="#"><li>設定</li></a>
+            <a href="setting"><li>設定</li></a>
           </ul>
         </nav>
       ) : null}

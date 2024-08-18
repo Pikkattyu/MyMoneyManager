@@ -58,8 +58,8 @@ const ChangeBook: React.FC<OpenButtonProps> = ({ onClose }) => {
         const result = await response.json();
         setErrorMessages(result.errorMessage);
       } else {
-        onClose(true);
         localStorage.setItem('bookID', bookID.toString());
+        onClose(true);
       }
     } catch (error) {
       console.log(error);

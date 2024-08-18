@@ -73,7 +73,7 @@ nav ul a:hover {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     width: 500px;
-    height: 550px;
+    height: 620px;
 }
 
 .overlay {
@@ -392,3 +392,168 @@ nav ul a:hover {
 }
 
 .customHeaderTitle {}
+
+.CategoryGroup {
+    border: 2px solid #e0e0e0;
+    /* 枠線のスタイル */
+    border-radius: 10px;
+    /* 角を丸く */
+    padding: 15px;
+    /* 内側の余白 */
+    margin-bottom: 5%;
+    /* 各カテゴリ間のスペース */
+    background-color: #f9f9f9;
+    /* 背景色 */
+}
+
+.CategoryGroup:hover {
+    background-color: #f0f0f0;
+}
+
+.Categorylabel {
+    font-weight: bold;
+    /* 太字 */
+    font-size: 1.2em;
+    /* 文字サイズ */
+    display: block;
+    /* ブロック表示 */
+    color: #333;
+    /* 文字色 */
+}
+
+.Categoryspan {
+    white-space: nowrap;
+    /* テキストを折り返さない */
+    background-color: #e0e0e0;
+    padding: 8px 12px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.SubGroup {
+    display: flex;
+    overflow-x: auto;
+    padding: 5px;
+    gap: 10px;
+    scrollbar-width: thin;
+    /* Firefox */
+}
+
+.SubGroup::-webkit-scrollbar {
+    height: 8px;
+}
+
+.SubGroup::-webkit-scrollbar-thumb {
+    background-color: #cccccc;
+    border-radius: 10px;
+}
+
+.SubGroup::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
+.Category {
+    max-height: 330px;
+    /* スクロール可能な最大高さを指定 */
+    overflow-y: auto;
+    /* 縦方向のスクロールを有効に */
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+}
+
+.Category::-webkit-scrollbar {
+    width: 8px;
+    /* 縦スクロールバーの幅 */
+}
+
+.Category::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+}
+
+.Category::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+
+/* 資産・負債の切り替えボタン */
+.TagSwitcher {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    /* 親要素の高さを100%に設定 */
+    width: 80%;
+    /* 親要素の幅を100%に設定 */
+}
+
+.TagSwitcher button {
+    background-color: #ddd;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.TagSwitcher button.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.TagSwitcher button:not(.active):hover {
+    background-color: #bbb;
+}
+
+.ChangeCategoryPopUp {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1200;
+    /* overlayの上に表示されるようにz-indexをさらに上に設定 */
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 600px;
+}
+
+.ChangeCategoryLabel {
+    width: 50px;
+    text-align: left;
+    margin-right: 10px;
+}
+
+.category-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.category-label {
+    font-weight: bold;
+    width: 20%;
+    font-size: 1.1em;
+}
+
+.category-name-input {
+    font-size: 1.1em;
+    color: #333;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex-grow: 1;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+}
+
+.category-label {
+    margin-right: 10px;
+}

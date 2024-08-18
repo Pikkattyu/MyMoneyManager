@@ -8,6 +8,7 @@ import RegisterForm from './pages/RegisterForm';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Assets from './pages/Assets';
+import Setting from './pages/Setting';
 
 const GetToken = () => {
   // ここで認証状態を確認するロジックを追加
@@ -23,6 +24,7 @@ const App = () => {
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/login" element={<Login />} />
         <Route path="/assets" element={<Assets />} />
+        <Route path="/setting" element={<Setting />} />
         <Route
           path="*"
           element={GetToken() ? <Navigate to="/home" /> : <Home />}

@@ -163,6 +163,12 @@ func UserInfomationChange(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "帳簿切替にエラーが発生しました。"})
 		return
 	}
+
+	expiration := time.Now().Add(30 * 24 * time.Hour)
+	BookID := strconv.Itoa(user.BookID)
+	cookie := http.Cookie{Name: "bookID", Value: BookID, Expires: expiration, Path: "/", HttpOnly: true}
+	http.SetCookie(c.Writer, &cookie)
+
 	c.JSON(http.StatusOK, gin.H{"message": "正常に処理が終了しました。"})
 }
 

@@ -23,4 +23,9 @@ func InitializeRoutes(router *gin.Engine) {
 	router.GET("/api/getassetsall", handlers.GetAssetsAll)
 	router.POST("/api/assetsregister", handlers.AssetsRegister)
 
+	/*カテゴリ関連*/
+	router.GET("/api/getcategoryall", handlers.GetCategoryAll)
+	router.GET("/api/getcategory", handlers.GetCategory)
+	router.GET("/api/changecategory", handlers.ChangeCategory)
+
 }

@@ -27,13 +27,14 @@ const CreateBook: React.FC<OpenButtonProps> = ({ onClose }) => {
         },
       });
 
+      const result = await response.json();
       if (!response.ok) {
-        const result = await response.json();
         setErrorMessages((prevMessages) => [
           ...prevMessages,
           result.errorMessage,
         ]);
       } else {
+        localStorage.setItem('bookID', result.bookID);
         onClose(true);
       }
     } catch (error) {

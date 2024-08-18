@@ -194,7 +194,7 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
 
       <div className='PopUpButtonGroup'>
         <button onClick={handleCreate} className='btn-style'>作成</button>
-        <button onClick={() => onClose(false)} className='btn-style'>キャンセル</button>
+        <button onClick={() => onClose(false)} className='btn-style'>閉じる</button>
       </div>
 
       {errorMessages.length > 0 && (

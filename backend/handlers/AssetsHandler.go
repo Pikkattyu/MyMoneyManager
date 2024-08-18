@@ -3,7 +3,6 @@ package handlers
 import (
 	"MyMoneyManager/backend/models"
 	"MyMoneyManager/backend/repository"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -35,16 +34,13 @@ func AssetsRegister(c *gin.Context) {
 
 	errflg := repository.CheckAssetsConflicting(assets)
 
-	log.Printf("チェック結果: " + strconv.Itoa(int(errflg)))
 	if errflg == 1 {
 		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報が重複しています。"})
-		log.Printf("エラーしたよ♡")
 		return
 	} else if errflg == 2 {
 		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報の取得に失敗しました。"})
 		return
 	}
-	log.Printf("チェック後処理")
 
 	if err := repository.CreateAssets(&assets); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ログの作成に失敗ました。"})
