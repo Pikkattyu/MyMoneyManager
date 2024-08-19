@@ -26,6 +26,7 @@ func InitializeRoutes(router *gin.Engine) {
 	/*カテゴリ関連*/
 	router.GET("/api/getcategoryall", handlers.GetCategoryAll)
 	router.GET("/api/getcategory", handlers.GetCategory)
-	router.GET("/api/changecategory", handlers.ChangeCategory)
+	router.POST("/api/changecategory", handlers.ChangeCategory)
+	router.POST("/api/createcategory", handlers.CreateCategory)
 
 }

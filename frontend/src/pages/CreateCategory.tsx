@@ -3,17 +3,15 @@ import '../styles.css'; // CSSファイルのインポート
 
 interface OpenButtonProps {
   onClose: (isButton: boolean, number: Number, index: Number) => void;
-  CategoryID: Number;
 }
 
 interface Subcategory {
-  UpdateFlg: boolean;
   SubcategoryNo: number | undefined;
   SubcategoryID: number | undefined;
   SubcategoryName: string;
 }
 
-const ChangeCategory: React.FC<OpenButtonProps> = ({ onClose, CategoryID }) => {
+const CreateCategory: React.FC<OpenButtonProps> = ({ onClose }) => {
   const [errorMessages, setErrorMessages] = useState<string>('');
   const [disSubcategory, setDisSubcategory] = useState<Subcategory[]>([]);
   const [disCategory, setDisCategory] = useState<string>("");
@@ -22,61 +20,14 @@ const ChangeCategory: React.FC<OpenButtonProps> = ({ onClose, CategoryID }) => {
   const [isTextFlg, setTextFlg] = useState<boolean>(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/getcategory?CategoryID=' + CategoryID, {
-          method: 'GET',
-        });
-
-        if (!response.ok) {
-          console.log(response.json)
-          throw new Error('帳簿情報の取得時にエラーが発生しました。');
-        }
-
-        const data = await response.json();
-        const category = data.data;
-
-        let categoryName = category[0].CategoryName;
-        let flg = category[0].Flg;
-        let subcategorys: Subcategory[] = [];
-
-        category.forEach((cate: any, index: number) => {
-          subcategorys.push({
-            UpdateFlg: false,
-            SubcategoryNo: index,
-            SubcategoryID: cate.SubcategoryID,
-            SubcategoryName: cate.SubcategoryName
-          });
-        });
-
-        if (subcategorys[subcategorys.length - 1].SubcategoryName !== "") {
-          subcategorys.push({
-            UpdateFlg: false,
-            SubcategoryNo: subcategorys.length,
-            SubcategoryID: 0,
-            SubcategoryName: "+"
-          });
-        } else {
-          subcategorys[subcategorys.length - 1].SubcategoryName = "+";
-        }
-
-        setDisSubcategory(subcategorys);
-        setDisCategory(categoryName);
-        setIsAssetsView(flg);
-
-      } catch (error) {
-        console.log(error)
-        if (error instanceof Error) {
-          setErrorMessages(error.message);
-        } else {
-          setErrorMessages('予期しないエラーが発生しました。');
-        }
-      }
-
+    const newSubcategory = {
+      SubcategoryNo: 1,
+      SubcategoryID: 0,
+      SubcategoryName: "+"
     };
 
-    fetchData();
-  }, [CategoryID]);
+    setDisSubcategory([newSubcategory]);
+  }, []);
 
   const EditSubCategory = (subcategory: Subcategory) => {
     if (subcategory.SubcategoryName === "+") {
@@ -94,6 +45,15 @@ const ChangeCategory: React.FC<OpenButtonProps> = ({ onClose, CategoryID }) => {
       return;
     }
 
+    const isDuplicate = disSubcategory.some(
+      item => item.SubcategoryName === isSubcategory.SubcategoryName && item.SubcategoryNo !== isSubcategory.SubcategoryNo
+    );
+
+    if (isDuplicate) {
+      setErrorMessages("重複するサブカテゴリ名があります。");
+      return;
+    }
+
     const updatedSubcategories = disSubcategory.map(subcate =>
       subcate.SubcategoryNo === isSubcategory.SubcategoryNo
         ? { ...subcate, SubcategoryName: isSubcategory.SubcategoryName, SubcategoryID: isSubcategory.SubcategoryID === 0 ? -1 : subcate.SubcategoryID, UpdateFlg: true }
@@ -102,7 +62,6 @@ const ChangeCategory: React.FC<OpenButtonProps> = ({ onClose, CategoryID }) => {
 
     if (isSubcategory.SubcategoryID === 0) {
       const newSubcategory: Subcategory = {
-        UpdateFlg: false,
         SubcategoryNo: updatedSubcategories.length,
         SubcategoryID: 0,
         SubcategoryName: "+" // 新しいサブカテゴリ名を設定
@@ -119,10 +78,17 @@ const ChangeCategory: React.FC<OpenButtonProps> = ({ onClose, CategoryID }) => {
       setErrorMessages('カテゴリ名が空のため、登録できません。');
       return;
     }
+
+    if (disSubcategory[disSubcategory.length - 1].SubcategoryName === "+") {
+      const updatedSubcategories = [...disSubcategory];
+      updatedSubcategories[updatedSubcategories.length - 1].SubcategoryName = "";
+      setDisSubcategory(updatedSubcategories);
+    }
+
     try {
-      const response = await fetch('/api/changecategory', {
+      const response = await fetch('/api/createcategory', {
         method: 'POST',
-        body: JSON.stringify({ CategoryID, disCategory, isAssetsView, disSubcategory }),
+        body: JSON.stringify({ disCategory, isAssetsView, disSubcategory }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -191,7 +157,7 @@ const ChangeCategory: React.FC<OpenButtonProps> = ({ onClose, CategoryID }) => {
             <input
               type="text"
               value={isSubcategory?.SubcategoryName || ''}
-              onChange={(e) => setSubcategory({ SubcategoryNo: isSubcategory?.SubcategoryNo, SubcategoryName: e.target.value, SubcategoryID: isSubcategory?.SubcategoryID, UpdateFlg: true })}
+              onChange={(e) => setSubcategory({ SubcategoryNo: isSubcategory?.SubcategoryNo, SubcategoryName: e.target.value, SubcategoryID: isSubcategory?.SubcategoryID })}
               placeholder="サブカテゴリを入力してください"
               className='input'
             />
@@ -203,4 +169,4 @@ const ChangeCategory: React.FC<OpenButtonProps> = ({ onClose, CategoryID }) => {
   );
 };
 
-export default ChangeCategory;
+export default CreateCategory;

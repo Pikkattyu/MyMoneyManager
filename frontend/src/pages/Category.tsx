@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import '../styles.css'; // CSSファイルのインポート
 import DisCategory from '../pages/DisCategory';
 import ChangeCategory from '../pages/ChangeCategory';
+import CreateCategory from '../pages/CreateCategory';
 
 interface OpenButtonProps {
   onClose: (isButton: boolean) => void;
@@ -39,7 +40,7 @@ const Category: React.FC<OpenButtonProps> = ({ onClose }) => {
       )}
       {isPageFlg == 3 && (
         <>
-          <DisCategory onClose={ChangePopUp} />
+          <CreateCategory onClose={ChangePopUp} />
         </>
       )}
     </div>
