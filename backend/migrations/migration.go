@@ -36,8 +36,13 @@ func RunMigrations() error {
 	if err := db.AutoMigrate(&models.Category{}); err != nil {
 		return fmt.Errorf("failed to migrate: %v", err)
 	}
-
 	if err := db.AutoMigrate(&models.Subcategory{}); err != nil {
+		return fmt.Errorf("failed to migrate: %v", err)
+	}
+	if err := db.AutoMigrate(&models.Transaction{}); err != nil {
+		return fmt.Errorf("failed to migrate: %v", err)
+	}
+	if err := db.AutoMigrate(&models.TransactionInfomation{}); err != nil {
 		return fmt.Errorf("failed to migrate: %v", err)
 	}
 

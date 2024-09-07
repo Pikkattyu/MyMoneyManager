@@ -557,3 +557,90 @@ nav ul a:hover {
 .category-label {
     margin-right: 10px;
 }
+
+/**/
+
+.transaction-container {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.transaction-header {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.transaction-date {
+    font-size: 18px;
+    color: #333;
+}
+
+.transaction-box {
+    border: 1px solid #ddd;
+    padding: 10px;
+    background-color: #fff;
+}
+
+.transaction-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.transaction-item:last-child {
+    border-bottom: none;
+}
+
+.transaction-category,
+.transaction-amount,
+.transaction-memo,
+.transaction-assets {
+    flex: 1;
+    text-align: center;
+}
+
+.transaction-category {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.transaction-amount {
+    color: #e74c3c;
+}
+
+.transaction-memo {
+    color: #7f8c8d;
+}
+
+.transaction-assets {
+    color: #3498db;
+}
+
+.floating-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    /* ボタンの幅を広げる */
+    height: 60px;
+    /* ボタンの高さを広げる */
+    background-color: #28a745;
+    color: white;
+    font-size: 28px;
+    /* 文字サイズを少し大きく調整 */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    /* 他の要素の上に配置 */
+}
+
+.floating-button:hover {
+    background-color: #218838;
+}

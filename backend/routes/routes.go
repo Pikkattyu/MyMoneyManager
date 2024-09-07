@@ -29,4 +29,9 @@ func InitializeRoutes(router *gin.Engine) {
 	router.POST("/api/changecategory", handlers.ChangeCategory)
 	router.POST("/api/createcategory", handlers.CreateCategory)
 
+	/*入出金関連*/
+	router.GET("/api/gettransactiondata", handlers.GetTransactionsAll)
+	router.GET("/api/gettransactionrelation", handlers.GetTransactionsAll)
+	router.POST("/api/createtransaction", handlers.TransactionRegister)
+
 }

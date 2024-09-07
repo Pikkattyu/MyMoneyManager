@@ -100,3 +100,21 @@ func CheckCategoryConflicting(category *models.Category) int64 {
 
 	return 0
 }
+
+// 更新チェック用
+func CheckCategoryUpdate(categoryID int, updateTime time.Time) int64 {
+
+	var count int64
+
+	// 条件に基づいて件数をカウント
+	err := utils.DB.Table("categories").
+		Where("category_id = ? AND update_time = ?", categoryID, updateTime).
+		Count(&count).Error
+
+	if err != nil {
+		log.Printf("資産情報の取得に失敗しました。CategoryID: %d, UpdateTime: %s, Error: %v", categoryID, updateTime, err)
+		return 2
+	}
+
+	return 0
+}

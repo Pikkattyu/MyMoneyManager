@@ -4,6 +4,7 @@ import (
 	"MyMoneyManager/backend/models"
 	"MyMoneyManager/backend/utils"
 	"log"
+	"time"
 )
 
 // 資産情報の作成
@@ -56,4 +57,41 @@ func CheckAssetsConflicting(assets models.Assets) int64 {
 	}
 
 	return count
+}
+
+// 更新チェック用
+func CheckAssetsUpdate(assetsID int, updateTime time.Time) int {
+	var asset models.Assets
+
+	// 資産情報を取得する
+	if err := utils.DB.Table("assets").
+		Select("flg, update_time").
+		Where("assets_id = ? AND flg <> 2", assetsID).
+		Scan(&asset).Error; err != nil {
+		log.Printf("資産情報の取得に失敗しました。AssetsID: %d, Error: %v", assetsID, err)
+		return -2
+	}
+
+	// 取得した update_time と引数の updateTime を比較
+	if !asset.UpdateTime.Equal(updateTime) {
+		log.Printf("資産情報が更新されています。再度やり直してください。AssetsID: %d", assetsID)
+		return -1
+	}
+
+	return asset.Flg
+}
+
+func GetAssetsSUM(BookID int) ([]models.Assets, error) {
+	var assets []models.Assets
+
+	if err := utils.DB.Table("assets").
+		Select("SUM(amount) as amount, flg").
+		Where("assets.book_id = ? AND assets.excluded = false", BookID).
+		Group("flg").
+		Find(&assets).Error; err != nil {
+		log.Printf("資産情報の取得に失敗しました。BookID: %d, Error: %v", BookID, err)
+		return nil, err
+	}
+	return assets, nil
+
 }

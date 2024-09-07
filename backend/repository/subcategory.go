@@ -70,3 +70,21 @@ func CheckSubcategoryConflicting(subcategory *models.Subcategory) int64 {
 
 	return 0
 }
+
+// 更新チェック用
+func CheckSubcategoryUpdate(subcategoryID int, updateTime time.Time) int64 {
+
+	var count int64
+
+	// 条件に基づいて件数をカウント
+	err := utils.DB.Table("subcategories").
+		Where("subcategory_id = ? AND update_time ? ", subcategoryID, updateTime).
+		Count(&count).Error
+
+	if err != nil {
+		log.Printf("サブカテゴリの取得に失敗しました。SubcategoryID: %d, UpdateTime: %s, Error: %v", subcategoryID, updateTime, err)
+		return 2
+	}
+
+	return 0
+}
