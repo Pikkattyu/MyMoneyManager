@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import '../styles.css'; // CSSファイルのインポート
+import '../../styles.css'; // CSSファイルのインポート
 
 interface OpenButtonProps {
-  onClose: (isButton: boolean) => void;
+  onClose: (isButton: boolean, number: number, index: number) => void;
 }
 
-const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
+const CreateAssets: React.FC<OpenButtonProps> = ({ onClose }) => {
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
   // 状態変数を追加
@@ -110,7 +110,7 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
         const result = await response.json();
         setErrorMessages([result?.errorMessage]);
       } else {
-        onClose(true);
+        onClose(true, 1, -1);
       }
     } catch (error) {
       setErrorMessages(["例外エラーが発生しました。"]);
@@ -194,7 +194,7 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
 
       <div className='PopUpButtonGroup'>
         <button onClick={handleCreate} className='btn-style'>作成</button>
-        <button onClick={() => onClose(false)} className='btn-style'>閉じる</button>
+        <button onClick={() => onClose(false, 1, 0)} className='btn-style'>閉じる</button>
       </div>
 
       {errorMessages.length > 0 && (
@@ -211,4 +211,4 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
   );
 };
 
-export default AssetsSetting;
+export default CreateAssets;

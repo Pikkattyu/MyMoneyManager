@@ -1,15 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
-import Login from './pages/LoginForm';
-import ProtectedRoute from './pages/ProtectedRoute';
-import RegisterForm from './pages/RegisterForm';
+import Home from './pages/other/Home';
+import Dashboard from './pages/other/Dashboard';
+import Login from './pages/Login/User/LoginForm';
+import ProtectedRoute from './pages/other/ProtectedRoute';
+import RegisterForm from './pages/Login/User/RegisterForm';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import Assets from './pages/Assets';
-import Setting from './pages/Setting';
-import Transaction from './pages/Transaction';
+import Assets from './pages/Assets/Assets';
+import Setting from './pages/Setting/Setting';
+import Transaction from './pages/Transaction/Transaction';
 
 const GetToken = () => {
   // ここで認証状態を確認するロジックを追加

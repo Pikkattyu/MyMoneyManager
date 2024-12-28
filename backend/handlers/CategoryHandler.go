@@ -120,13 +120,13 @@ func GetCategory(c *gin.Context) {
 		return
 	}
 
-	assetses, err := repository.GetCategory(convint)
+	categoris, err := repository.GetCategory(convint)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "カテゴリ情報取得時にエラーが発生しました。"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": assetses})
+	c.JSON(http.StatusOK, gin.H{"data": categoris})
 }
 
 func ChangeCategory(c *gin.Context) {

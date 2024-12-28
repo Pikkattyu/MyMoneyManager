@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../styles.css'; // CSSファイルのインポート
+import '../../styles.css'; // CSSファイルのインポート
 
 interface OpenButtonProps {
   onClose: (isButton: boolean) => void;

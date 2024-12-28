@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import CreateBook from '../pages/CreateBook';
-import ChangeBook from '../pages/ChangeBook';
+import CreateBook from '../pages/Book/CreateBook';
+import ChangeBook from '../pages/Book/ChangeBook';
 import '../styles.css'; // CSSファイルのインポート
 
 const Header: React.FC = () => {

@@ -3,6 +3,7 @@ package repository
 import (
 	"MyMoneyManager/backend/models"
 	"MyMoneyManager/backend/utils"
+	"errors"
 	"log"
 	"time"
 )
@@ -17,7 +18,7 @@ func CreateAssets(assets *models.Assets) error {
 }
 
 // GetAssetsByAssetsname retrieves a assets by their assetsname from the database
-func GetAssets(AssetsID int, UserNo int) ([]models.Assets, error) {
+func GetAssets(AssetsID int) ([]models.Assets, error) {
 	var assets []models.Assets
 
 	if err := utils.DB.Where("assets_id = ?", AssetsID).Find(&assets).Error; err != nil {
@@ -60,7 +61,7 @@ func CheckAssetsConflicting(assets models.Assets) int64 {
 }
 
 // 更新チェック用
-func CheckAssetsUpdate(assetsID int, updateTime time.Time) int {
+func CheckAssetsUpdate(assetsID int, updateTime time.Time) int64 {
 	var asset models.Assets
 
 	// 資産情報を取得する
@@ -69,16 +70,16 @@ func CheckAssetsUpdate(assetsID int, updateTime time.Time) int {
 		Where("assets_id = ? AND flg <> 2", assetsID).
 		Scan(&asset).Error; err != nil {
 		log.Printf("資産情報の取得に失敗しました。AssetsID: %d, Error: %v", assetsID, err)
-		return -2
+		return 1
 	}
 
 	// 取得した update_time と引数の updateTime を比較
 	if !asset.UpdateTime.Equal(updateTime) {
 		log.Printf("資産情報が更新されています。再度やり直してください。AssetsID: %d", assetsID)
-		return -1
+		return 2
 	}
 
-	return asset.Flg
+	return 0
 }
 
 func GetAssetsSUM(BookID int) ([]models.Assets, error) {
@@ -93,5 +94,38 @@ func GetAssetsSUM(BookID int) ([]models.Assets, error) {
 		return nil, err
 	}
 	return assets, nil
+}
 
+// 資産情報の更新
+func UpdateAssets(assets models.Assets) error {
+
+	updatedData := make(map[string]interface{})
+	if assets.AssetsID == 0 {
+		return errors.New("サブカテゴリIDがありません。")
+	}
+	updatedData["category_id"] = assets.AssetsID
+
+	// フィールドが空でない場合に、更新データに追加する
+	if assets.BookID != 0 {
+		updatedData["book_id"] = assets.BookID
+	}
+	if assets.AssetsName != "" {
+		updatedData["category_name"] = assets.AssetsName
+	}
+	if assets.Tag != "" {
+		updatedData["tag"] = assets.Tag
+	}
+	updatedData["update_time"] = time.Now()
+
+	// マップにデータがある場合のみ更新処理を行う
+	if len(updatedData) > 0 {
+		if err := utils.DB.Model(&assets).Updates(updatedData).Error; err != nil {
+			log.Printf("Error updating assets with subcategoryname %b: %v", assets.AssetsID, err)
+			return err
+		}
+	} else {
+		log.Printf("更新データがありません。")
+		return errors.New("更新データがありません。")
+	}
+	return nil
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import '../styles.css'; // CSSファイルのインポート
+import '../../styles.css'; // CSSファイルのインポート
 
 interface OpenButtonProps {
   onClose: (isButton: boolean, number: Number, index: Number) => void;
@@ -111,8 +111,8 @@ const CreateCategory: React.FC<OpenButtonProps> = ({ onClose }) => {
   }
 
   return (
-    <div>
-      <h1>カテゴリ編集</h1>
+    <div className='PopUp'>
+      <h1>カテゴリ登録</h1>
 
       <div className='Category'>
         <div className="category-container">
@@ -136,7 +136,7 @@ const CreateCategory: React.FC<OpenButtonProps> = ({ onClose }) => {
           <div><span>サブカテゴリ</span></div>
           <div className='SubGroup'>
             {disSubcategory.map((subcate) => (
-              <span key={subcate.SubcategoryID || subcate.SubcategoryNo} className='Categoryspan' onClick={() => EditSubCategory(subcate)}>
+              <span key={'CreateCategory' + subcate.SubcategoryNo} className='Categoryspan' onClick={() => EditSubCategory(subcate)}>
                 {subcate.SubcategoryName}
               </span>
             ))}

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import '../styles.css'; // CSSファイルのインポート
-import DisCategory from '../pages/DisCategory';
-import ChangeCategory from '../pages/ChangeCategory';
-import CreateCategory from '../pages/CreateCategory';
+import '../../styles.css'; // CSSファイルのインポート
+import DisCategory from './DisCategory';
+import ChangeCategory from './ChangeCategory';
+import CreateCategory from './CreateCategory';
 
 interface OpenButtonProps {
   onClose: (isButton: boolean) => void;

@@ -104,6 +104,8 @@ func TransactionRegister(c *gin.Context) {
 	transaction.Date = date
 	transaction.Memo = memo
 
+	log.Printf("テストここまで動いているよログ")
+
 	if flg != 2 {
 		categoryID, ok := requestBody["CategoryID"].(int)
 		if !ok {

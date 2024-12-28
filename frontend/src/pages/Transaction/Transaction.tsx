@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import '../styles.css'; // CSSファイルのインポート
+import '../../styles.css'; // CSSファイルのインポート
 //import TransactionSummary from '../pages/DisCategory';
 //import TransactionCalendar from '../pages/DisCategory';
-import DisTransactionDaily from '../pages/DisTransactionDaily';
-import ChangeTransaction from '../pages/ChangeTransaction';
-import CreateTransaction from '../pages/CreateTransaction';
+import DisTransactionDaily from './DisTransactionDaily';
+import ChangeTransaction from './ChangeTransaction';
+import CreateTransaction from './CreateTransaction';
 
 const Transaction: React.FC = () => {
-  const [isPageFlg, setPageFlg] = useState<Number>(0);
+  const [isPageFlg, setPageFlg] = useState<Number>(3);
   const [TransactionID, setTransactionID] = useState<Number>(0);
   const [isPopUpFlg, setPopUpFlg] = useState<Number>(0);
   const [DisDate, setDisDate] = useState<string>(() => {
@@ -143,7 +143,7 @@ const Transaction: React.FC = () => {
     if (button) {
       //保存されましたとか書く
     }
-    setPageFlg(number);
+    setPopUpFlg(number);
   };
 
   const MonthChange = (increment: number) => {
@@ -168,33 +168,35 @@ const Transaction: React.FC = () => {
 
 
   return (
-    <div>
+    <div className='transaction-form'>
       <div>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <div><button onClick={() => MonthChange(-1)}>◀</button></div>
+        <div className='transaction-header-month'>
+          <button onClick={() => MonthChange(-1)}>◀</button>
           <div><span>{DisDate.slice(0, 4)}年</span><span>{DisDate.slice(4)}月</span></div>
-          <div><button onClick={() => MonthChange(1)}>▶</button></div>
+          <button onClick={() => MonthChange(1)} >▶</button>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <div>
-            <span>収入</span>
-            <span>¥ {Income}</span>
+        <div className='transaction-header'>
+          <div className='text-center'>
+            <span className='text-block'>収入</span>
+            <span className='text-block'>¥ {Income}</span>
           </div>
-          <div>
-            <span>支出</span>
-            <span>¥ {Expenses}</span>
+          <div className='text-center'>
+            <span className='text-block'>支出</span>
+            <span className='text-block'>¥ {Expenses}</span>
           </div>
-          <div>
-            <span>合計</span>
-            <span>¥ {Total}</span>
+          <div className='text-center'>
+            <span className='text-block'>合計</span>
+            <span className='text-block'>¥ {Total}</span>
           </div>
-          <div>
-            <span>残高</span>
-            <span>¥ {Balance}</span>
+          <div className='text-center'>
+            <span className='text-block'>残高</span>
+            <span className='text-block'>¥ {Balance}</span>
           </div>
         </div>
-        <div>
-          <span onClick={() => setPageFlg(1)}>概要</span><span onClick={() => setPageFlg(1)}>カレンダー</span><span onClick={() => setPageFlg(1)}>日別</span>
+        <div className='transaction-header'>
+          <button onClick={() => setPageFlg(1)} className={isPageFlg === 1 ? 'active' : ''}>概要</button>
+          <button onClick={() => setPageFlg(2)} className={isPageFlg === 2 ? 'active' : ''}>カレンダー</button>
+          <button onClick={() => setPageFlg(3)} className={isPageFlg === 3 ? 'active' : ''}>日別</button>
         </div>
       </div>
 
@@ -221,11 +223,13 @@ const Transaction: React.FC = () => {
 
       {isPopUpFlg == 1 && (
         <>
+          <div className="overlay"></div>
           <CreateTransaction onClose={ChangePopUp} />
         </>
       )}
       {isPopUpFlg == 2 && (
         <>
+          <div className="overlay"></div>
           <ChangeTransaction transactionID={TransactionID} onClose={ChangePopUp} />
         </>
       )}

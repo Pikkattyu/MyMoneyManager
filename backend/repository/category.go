@@ -27,14 +27,11 @@ func UpdateCategory(subcategory *models.Category) error {
 	updatedData["category_id"] = subcategory.CategoryID
 
 	// フィールドが空でない場合に、更新データに追加する
-	if subcategory.CategoryID != 0 {
+	if subcategory.BookID != 0 {
 		updatedData["book_id"] = subcategory.BookID
 	}
 	if subcategory.CategoryName != "" {
 		updatedData["category_name"] = subcategory.CategoryName
-	}
-	if subcategory.Flg != 0 {
-		updatedData["flg"] = subcategory.Flg
 	}
 	updatedData["update_time"] = time.Now()
 

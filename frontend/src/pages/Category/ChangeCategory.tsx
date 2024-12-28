@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import '../styles.css'; // CSSファイルのインポート
+import '../../styles.css'; // CSSファイルのインポート
 
 interface OpenButtonProps {
   onClose: (isButton: boolean, number: Number, index: Number) => void;
@@ -72,7 +72,6 @@ const ChangeCategory: React.FC<OpenButtonProps> = ({ onClose, CategoryID }) => {
           setErrorMessages('予期しないエラーが発生しました。');
         }
       }
-
     };
 
     fetchData();
@@ -145,7 +144,7 @@ const ChangeCategory: React.FC<OpenButtonProps> = ({ onClose, CategoryID }) => {
   }
 
   return (
-    <div>
+    <div className='PopUp'>
       <h1>カテゴリ編集</h1>
 
       <div className='Category'>
@@ -170,7 +169,7 @@ const ChangeCategory: React.FC<OpenButtonProps> = ({ onClose, CategoryID }) => {
           <div><span>サブカテゴリ</span></div>
           <div className='SubGroup'>
             {disSubcategory.map((subcate) => (
-              <span key={subcate.SubcategoryID || subcate.SubcategoryNo} className='Categoryspan' onClick={() => EditSubCategory(subcate)}>
+              <span key={'ChangeCategory' + subcate.SubcategoryNo} className='Categoryspan' onClick={() => EditSubCategory(subcate)}>
                 {subcate.SubcategoryName}
               </span>
             ))}

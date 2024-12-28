@@ -20,6 +20,7 @@ func InitializeRoutes(router *gin.Engine) {
 	router.GET("/api/getbook", handlers.GetBooks)
 
 	/*帳簿資産関連*/
+	router.GET("/api/getassets", handlers.GetAssets)
 	router.GET("/api/getassetsall", handlers.GetAssetsAll)
 	router.POST("/api/assetsregister", handlers.AssetsRegister)
 
@@ -31,7 +32,7 @@ func InitializeRoutes(router *gin.Engine) {
 
 	/*入出金関連*/
 	router.GET("/api/gettransactiondata", handlers.GetTransactionsAll)
-	router.GET("/api/gettransactionrelation", handlers.GetTransactionsAll)
+	router.GET("/api/gettransactionrelation", handlers.GetTransactionsRelation)
 	router.POST("/api/createtransaction", handlers.TransactionRegister)
 
 }

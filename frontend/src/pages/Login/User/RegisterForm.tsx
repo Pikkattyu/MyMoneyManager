@@ -29,7 +29,7 @@ function RegisterForm() {
             } else {
                 setMessage(data.message || '作成中にエラーが発生しました。');
             }
-        } catch (error) {
+        } catch (error: any) {
             setMessage('Error: ' + error.message);
         }
     };

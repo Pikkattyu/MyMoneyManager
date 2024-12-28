@@ -83,7 +83,7 @@ nav ul a:hover {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 999;
+    z-index: 100;
 }
 
 .inputGroup {
@@ -370,7 +370,16 @@ nav ul a:hover {
     padding: 20px;
 }
 
-.customDetailTitle {
+.customDetailTitle-plus {
+    color: red;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.customDetailTitle-minus {
+    color: blue;
     font-size: 18px;
     font-weight: bold;
     margin-bottom: 10px;
@@ -406,10 +415,6 @@ nav ul a:hover {
     /* 背景色 */
 }
 
-.CategoryGroup:hover {
-    background-color: #f0f0f0;
-}
-
 .Categorylabel {
     font-weight: bold;
     /* 太字 */
@@ -425,6 +430,21 @@ nav ul a:hover {
     white-space: nowrap;
     /* テキストを折り返さない */
     background-color: #e0e0e0;
+    padding: 8px 12px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.Categoryspan:hover {
+    background-color: #11a37f;
+}
+
+.CategoryspanRed {
+    white-space: nowrap;
+    /* テキストを折り返さない */
+    background-color: #bb364c;
+
     padding: 8px 12px;
     border-radius: 5px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
@@ -481,9 +501,7 @@ nav ul a:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;
-    /* 親要素の高さを100%に設定 */
-    width: 80%;
+    width: 100%;
     /* 親要素の幅を100%に設定 */
 }
 
@@ -643,4 +661,201 @@ nav ul a:hover {
 
 .floating-button:hover {
     background-color: #218838;
+}
+
+.transaction-form {
+    width: 100vw;
+    min-width: 600px;
+    top: 130px;
+    position: absolute;
+}
+
+.transaction-header-group {
+    width: 6 00px;
+    margin: auto;
+}
+
+.transaction-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.transaction-header-month {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+
+}
+
+.transaction-header-month button {
+    background-color: #ddd;
+    border: none;
+    padding: 10px 20px;
+    width: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.transaction-header button {
+    background-color: #ddd;
+    border: none;
+    padding: 10px 20px;
+    width: 100px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.transaction-header button.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.DailyTransaction-form {
+    width: 700px;
+    margin: auto;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.DailyTransaction-frame {
+    width: 600px;
+    margin: auto;
+}
+
+/* スクロールバー全体のスタイル */
+.DailyTransaction-form::-webkit-scrollbar {
+    width: 4px;
+    /* スクロールバーをスマホ風に細くする */
+}
+
+/* スクロールバーのトラック部分（背景） */
+.DailyTransaction-form::-webkit-scrollbar-track {
+    background: transparent;
+    /* 目立たないように透明に */
+}
+
+/* スクロールバーのハンドル部分（つまみ） */
+.DailyTransaction-form::-webkit-scrollbar-thumb {
+    background-color: #bcbcbc;
+    /* ソフトな色で目立たないように */
+    border-radius: 10px;
+}
+
+/* ハンドルがホバーされた時のスタイル */
+.DailyTransaction-form::-webkit-scrollbar-thumb:hover {
+    background-color: #a0a0a0;
+    /* 少し濃い色 */
+}
+
+.text-center {
+    text-align: center;
+    width: 150px;
+}
+
+.text-block {
+    display: block;
+    white-space: pre;
+}
+
+/* styles/PopUp.module.css */
+.TransactionPopUp {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 500;
+    width: 500px;
+    height: 620px;
+}
+
+
+/* 親要素: 横並びにするために Flexbox を使用 */
+.TransactionAssetsContainer {
+    display: flex;
+    /* 子要素を横並びに */
+    gap: 10px;
+    /* ボタン間の隙間 */
+    justify-content: center;
+    /* 全体を中央揃え */
+    flex-wrap: wrap;
+    /* 子要素が横方向に収まらない場合に折り返さない */
+}
+
+/* 子要素: ボタンのスタイル */
+.TransactionAssetsButton {
+    width: 80px;
+    /* 固定幅 */
+    min-height: 80px;
+    /* 最小高さ */
+    padding: 5px;
+    /* 内側の余白 */
+    border: 1px solid black;
+    display: flex;
+    /* 子要素を中央に揃える */
+    justify-content: center;
+    /* 水平方向の中央揃え */
+    align-items: center;
+    /* 垂直方向の中央揃え */
+    text-align: center;
+    /* テキスト中央揃え */
+    line-height: 1.2;
+    /* 行の高さを設定 */
+    white-space: normal;
+    /* テキストを折り返す設定 */
+    word-break: break-word;
+    /* 長いテキストが折り返されるようにする */
+    font-size: 14px;
+    /* 初期フォントサイズ */
+}
+
+.TransactionLabel {
+    display: inline-block;
+    width: 100px;
+}
+
+.TransactionValue {
+    display: inline-block;
+    width: 100px;
+}
+
+.TransactionValueSelect {
+    display: inline-block;
+    white-space: nowrap;
+    /* テキストを折り返さない */
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+
+}
+
+.TransactionValueSelect:hover {
+    color: #4CAF50;
+}
+
+.TransactionMemoLabel {
+    margin: 10px;
+}
+
+.TransactionMemo {
+    width: 450px;
+    height: 130px;
+}
+
+.alignC {
+    text-align: center;
+}
+
+.TransactionSelectspan {
+    white-space: nowrap;
+    /* テキストを折り返さない */
+    width: 100px;
 }

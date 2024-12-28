@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import '../styles.css'; // CSSファイルのインポート
+import '../../styles.css'; // CSSファイルのインポート
 
 interface OpenButtonProps {
-  onClose: (isButton: boolean, number: Number, index: Number) => void;
+  onClose: (isButton: boolean, number: Number) => void;
   transactionID: Number;
 }
 
@@ -95,7 +95,7 @@ const CreateCategory: React.FC<OpenButtonProps> = ({ onClose, transactionID }) =
         console.log(response.json)
         throw new Error('帳簿情報の取得時にエラーが発生しました。');
       } else {
-        onClose(true, 1, 0)
+        onClose(true, 0)
       }
     } catch (error) {
       console.log(error)
@@ -175,7 +175,7 @@ const CreateCategory: React.FC<OpenButtonProps> = ({ onClose, transactionID }) =
 
       <div className='PopUpButtonGroup'>
         <button onClick={() => SaveCategoryData()} className='btn-style'>登録</button>
-        <button onClick={() => onClose(false, 1, 0)} className='btn-style'>閉じる</button>
+        <button onClick={() => onClose(false, 0)} className='btn-style'>閉じる</button>
       </div>
 
       {isTextFlg && (

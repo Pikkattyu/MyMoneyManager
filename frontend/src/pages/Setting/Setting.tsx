@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import Category from '../pages/Category';
-import AssetsSetting from '../pages/AssetsSetting';
+import Category from '../Category/Category';
+import CreateAssets from '../Assets/CreateAssets';
 
 const Asset: React.FC = () => {
   const [errorMessages, setErrorMessages] = useState<string>('');
@@ -46,7 +46,7 @@ const Asset: React.FC = () => {
       {isPopupFlg == 2 && (
         <>
           <div className='overlay'></div>
-          <AssetsSetting onClose={ClosePopup} />
+          <CreateAssets onClose={ClosePopup} />
         </>
       )}
     </div>
