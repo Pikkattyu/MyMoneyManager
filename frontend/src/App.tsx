@@ -10,6 +10,7 @@ import Footer from './components/Footer';
 import Assets from './pages/Assets/Assets';
 import Setting from './pages/Setting/Setting';
 import Transaction from './pages/Transaction/Transaction';
+import Statistics from './pages/Statistics/Statistics';
 
 const GetToken = () => {
   // ここで認証状態を確認するロジックを追加
@@ -25,6 +26,7 @@ const App = () => {
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/login" element={<Login />} />
         <Route path="/assets" element={<Assets />} />
+        <Route path="/statistics" element={<Statistics />} />
         <Route path="/setting" element={<Setting />} />
         <Route path="/transaction" element={<Transaction />} />
         <Route

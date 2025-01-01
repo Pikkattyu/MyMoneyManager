@@ -22,6 +22,7 @@ func InitializeRoutes(router *gin.Engine) {
 	/*帳簿資産関連*/
 	router.GET("/api/getassets", handlers.GetAssets)
 	router.GET("/api/getassetsall", handlers.GetAssetsAll)
+	router.POST("/api/changeassets", handlers.ChangeAssets)
 	router.POST("/api/assetsregister", handlers.AssetsRegister)
 
 	/*カテゴリ関連*/
@@ -35,4 +36,6 @@ func InitializeRoutes(router *gin.Engine) {
 	router.GET("/api/gettransactionrelation", handlers.GetTransactionsRelation)
 	router.POST("/api/createtransaction", handlers.TransactionRegister)
 
+	/*統計関連*/
+	router.GET("/api/getstatistics", handlers.GetStatisticsAll)
 }

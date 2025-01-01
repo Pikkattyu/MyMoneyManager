@@ -103,14 +103,14 @@ func UpdateAssets(assets models.Assets) error {
 	if assets.AssetsID == 0 {
 		return errors.New("サブカテゴリIDがありません。")
 	}
-	updatedData["category_id"] = assets.AssetsID
+	updatedData["assets_id"] = assets.AssetsID
 
 	// フィールドが空でない場合に、更新データに追加する
 	if assets.BookID != 0 {
 		updatedData["book_id"] = assets.BookID
 	}
 	if assets.AssetsName != "" {
-		updatedData["category_name"] = assets.AssetsName
+		updatedData["assets_name"] = assets.AssetsName
 	}
 	if assets.Tag != "" {
 		updatedData["tag"] = assets.Tag
@@ -120,7 +120,7 @@ func UpdateAssets(assets models.Assets) error {
 	// マップにデータがある場合のみ更新処理を行う
 	if len(updatedData) > 0 {
 		if err := utils.DB.Model(&assets).Updates(updatedData).Error; err != nil {
-			log.Printf("Error updating assets with subcategoryname %b: %v", assets.AssetsID, err)
+			log.Printf("Error updating assets with assets %b: %v", assets.AssetsID, err)
 			return err
 		}
 	} else {

@@ -110,7 +110,7 @@ const CreateAssets: React.FC<OpenButtonProps> = ({ onClose }) => {
         const result = await response.json();
         setErrorMessages([result?.errorMessage]);
       } else {
-        onClose(true, 1, -1);
+        onClose(true, 1, 0);
       }
     } catch (error) {
       setErrorMessages(["例外エラーが発生しました。"]);

@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import CreateAssets from './CreateAssets';
 import ChangeAssets from './ChangeAssets';
-import DisAssets from './DisAssets';
+import DisAssets from './SelAssets';
+
+interface OpenButtonProps {
+  onClose: (isButton: boolean) => void;
+  MovePageFlg: number;
+}
 
 interface Assets {
   AssetsID: number;
@@ -11,7 +16,7 @@ interface Assets {
   UpdateTime: Date;
 }
 
-const Asset: React.FC = () => {
+const Asset: React.FC<OpenButtonProps> = ({ onClose, MovePageFlg }) => {
   const [errorMessages, setErrorMessages] = useState<string>('');
 
   const [disTotal, setDisTotal] = useState<string>('0');
@@ -27,7 +32,8 @@ const Asset: React.FC = () => {
   const [disAssets_n, setDisAssets_n] = useState<Assets[][]>([]);
   const [disAssetsID, setAssetsID] = useState<number>(0);
 
-  const [isPageFlg, setPageFlg] = useState(0);
+  const [isPageFlg, setPageFlg] = useState(MovePageFlg || 0);
+  const [isStartFlg, setStartFlg] = useState(MovePageFlg || 0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -201,8 +207,11 @@ const Asset: React.FC = () => {
         setAssetsID(index);
       }
     }
-
-    setPageFlg(number);
+    if (number == 0 && isStartFlg == 1) {
+      onClose(false)
+    } else {
+      setPageFlg(number);
+    }
   };
 
   return (
@@ -279,7 +288,9 @@ const Asset: React.FC = () => {
       {isPageFlg == 3 && (
         <>
           <div className='overlay'></div>
-          <ChangeAssets onClose={ChangePage} />
+          <ChangeAssets
+            AssetsID={disAssetsID}
+            onClose={ChangePage} />
         </>
       )}
     </div>

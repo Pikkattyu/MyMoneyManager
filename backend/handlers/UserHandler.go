@@ -144,7 +144,7 @@ func UserInfomationChange(c *gin.Context) {
 	}
 
 	// CookieからUserIDを取得
-	userNoCookie, err := c.Cookie("UserNo")
+	userNoCookie, err := c.Cookie("userNo")
 	if err != nil {
 		log.Printf("ユーザIDの取得に失敗しました。: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "ユーザIDの取得に失敗しました。"})

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Category from '../Category/Category';
-import CreateAssets from '../Assets/CreateAssets';
+import Assets from '../Assets/Assets';
 
 const Asset: React.FC = () => {
   const [errorMessages, setErrorMessages] = useState<string>('');
@@ -23,15 +23,18 @@ const Asset: React.FC = () => {
   return (
     <div>
       <div className='errorMessage'>{errorMessages}</div>
-      <div className="customContainer">
-        <div className="row" onClick={() => OpenPopup(1)}>
+      <div className="SettingScroll">
+        <div className="SettingScrollLine" onClick={() => OpenPopup(1)}>
           カテゴリ設定
         </div>
-        <div className="row" onClick={() => OpenPopup(2)}>
+        <div className="SettingScrollLine" onClick={() => OpenPopup(2)}>
           資産設定
         </div>
-        <div className="row" onClick={() => OpenPopup(3)}>
-          カテゴリ設定3
+        <div className="SettingScrollLine" onClick={() => OpenPopup(3)}>
+          ユーザ設定
+        </div>
+        <div className="SettingScrollLine" onClick={() => OpenPopup(4)}>
+          CSVファイル IN/OUT
         </div>
         {/* 追加の行をここに追加できます */}
       </div>
@@ -46,7 +49,7 @@ const Asset: React.FC = () => {
       {isPopupFlg == 2 && (
         <>
           <div className='overlay'></div>
-          <CreateAssets onClose={ClosePopup} />
+          <Assets onClose={ClosePopup} MovePageFlg={1} />
         </>
       )}
     </div>

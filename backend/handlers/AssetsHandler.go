@@ -83,13 +83,13 @@ func GetAssets(c *gin.Context) {
 		return
 	}
 
-	assetses, err := repository.GetAssets(convint)
+	assets, err := repository.GetAssets(convint)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報取得時にエラーが発生しました。"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": assetses})
+	c.JSON(http.StatusOK, gin.H{"data": assets[0]})
 }
 func ChangeAssets(c *gin.Context) {
 	var requestBody map[string]interface{}
@@ -143,8 +143,9 @@ func ChangeAssets(c *gin.Context) {
 		return
 	}
 
-	UpdateTime, ok := requestBody["UpdateTime"].(time.Time)
-	if !ok {
+	UpdateTime := requestBody["UpdateTime"].(string)
+	parsedTime, state := time.Parse(time.RFC3339, UpdateTime)
+	if state != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "UpdateTime の型が不正です"})
 		return
 	}
@@ -157,7 +158,7 @@ func ChangeAssets(c *gin.Context) {
 	assets.Excluded = Excluded
 	assets.Flg = int(flg)
 	assets.AssetsID = int(AssetsID)
-	assets.UpdateTime = UpdateTime
+	assets.UpdateTime = parsedTime
 
 	errflg := repository.CheckAssetsConflicting(assets)
 	if errflg == 1 {
@@ -170,10 +171,10 @@ func ChangeAssets(c *gin.Context) {
 
 	errflg = repository.CheckAssetsUpdate(assets.AssetsID, assets.UpdateTime)
 	if errflg == 1 {
-		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報が重複しています。"})
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報の取得に失敗しました。"})
 		return
 	} else if errflg == 2 {
-		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報の取得に失敗しました。"})
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報が更新されています。再度やり直してください。"})
 		return
 	}
 
