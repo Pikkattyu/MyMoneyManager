@@ -30,18 +30,14 @@ const CreateCategory: React.FC<OpenButtonProps> = ({ onClose }) => {
   }, []);
 
   const EditSubCategory = (subcategory: Subcategory) => {
-    if (subcategory.SubcategoryName === "+") {
-      subcategory.SubcategoryName = "";
-      setSubcategory(subcategory);
-    } else {
-      setSubcategory(subcategory);
-    }
+    setSubcategory(subcategory);
     setTextFlg(true);
   };
 
   const CloseEditSubCategory = () => {
     if (!isSubcategory || isSubcategory.SubcategoryName.trim() === "" || isSubcategory.SubcategoryName === "+") {
-      setErrorMessages("空のサブカテゴリ名、または+のみを入力することはできません。");
+      setErrorMessages("空のサブカテゴリ名、または+のみを入力することはできません。"); 
+      setTextFlg(false);
       return;
     }
 
@@ -51,6 +47,7 @@ const CreateCategory: React.FC<OpenButtonProps> = ({ onClose }) => {
 
     if (isDuplicate) {
       setErrorMessages("重複するサブカテゴリ名があります。");
+      setTextFlg(false);
       return;
     }
 
@@ -62,16 +59,25 @@ const CreateCategory: React.FC<OpenButtonProps> = ({ onClose }) => {
 
     if (isSubcategory.SubcategoryID === 0) {
       const newSubcategory: Subcategory = {
-        SubcategoryNo: updatedSubcategories.length,
+        SubcategoryNo: (updatedSubcategories[updatedSubcategories.length - 1]?.SubcategoryNo ?? 10) + 1,
         SubcategoryID: 0,
         SubcategoryName: "+" // 新しいサブカテゴリ名を設定
       };
       updatedSubcategories.push(newSubcategory);
     }
 
+    setErrorMessages("")
     setDisSubcategory(updatedSubcategories);
     setTextFlg(false);
   };
+
+  const DeleteSubCategory = () => {
+    setDisSubcategory(prevSubcategories =>
+      prevSubcategories.filter(subcategory => subcategory.SubcategoryNo !== isSubcategory?.SubcategoryNo)
+    );
+    setErrorMessages("")
+    setTextFlg(false);
+  }
 
   const SaveCategoryData = async () => {
     if (disCategory == "") {
@@ -109,7 +115,6 @@ const CreateCategory: React.FC<OpenButtonProps> = ({ onClose }) => {
       }
     }
   }
-
   return (
     <div className='PopUp'>
       <h1>カテゴリ登録</h1>
@@ -148,19 +153,26 @@ const CreateCategory: React.FC<OpenButtonProps> = ({ onClose }) => {
         <button onClick={() => SaveCategoryData()} className='btn-style'>登録</button>
         <button onClick={() => onClose(false, 1, 0)} className='btn-style'>閉じる</button>
       </div>
+      <div>
+        <span>{errorMessages}</span>
+      </div>
 
       {isTextFlg && (
         <>
-          <div className='overlay'></div>
+          <div className='overlay'  onClick={() => CloseEditSubCategory()}>
+          </div>
           <div className='ChangeCategoryPopUp'>
             <span className='category-label'>サブカテゴリ</span>
             <input
               type="text"
-              value={isSubcategory?.SubcategoryName || ''}
+              value={isSubcategory?.SubcategoryName === "+" ? '' : isSubcategory?.SubcategoryName || ''}
               onChange={(e) => setSubcategory({ SubcategoryNo: isSubcategory?.SubcategoryNo, SubcategoryName: e.target.value, SubcategoryID: isSubcategory?.SubcategoryID })}
               placeholder="サブカテゴリを入力してください"
               className='input'
             />
+            {isSubcategory?.SubcategoryNo !== disSubcategory[disSubcategory.length - 1]?.SubcategoryNo &&(
+            <button onClick={DeleteSubCategory} className='btn-style'>削除</button>
+            )}
             <button onClick={CloseEditSubCategory} className='btn-style'>保存</button>
           </div>
         </>

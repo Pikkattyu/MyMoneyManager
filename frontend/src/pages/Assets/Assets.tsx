@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import CreateAssets from './CreateAssets';
 import ChangeAssets from './ChangeAssets';
-import DisAssets from './DisAssets';
+import DisAssets from './SelAssets';
+
+interface OpenButtonProps {
+  onClose: (isButton: boolean) => void;
+  MovePageFlg: number;
+}
 
 interface Assets {
   AssetsID: number;
@@ -11,23 +16,35 @@ interface Assets {
   UpdateTime: Date;
 }
 
-const Asset: React.FC = () => {
+const Asset: React.FC<OpenButtonProps> = ({ onClose, MovePageFlg }) => {
   const [errorMessages, setErrorMessages] = useState<string>('');
 
+  //合計
   const [disTotal, setDisTotal] = useState<string>('0');
+  //ユーザごとの合計
   const [disSubtotal, setDisSubtotal] = useState<string[]>([]);
+  //ユーザごとの資産合計
   const [disSubtotal_p, setDisSubtotal_p] = useState<string[]>([]);
-  const [disAmounts_p, setDisAmounts_p] = useState<string[][]>([]);
   const [disSubtotal_n, setDisSubtotal_n] = useState<string[]>([]);
+  //資産計上
   const [disAmounts_n, setDisAmounts_n] = useState<string[][]>([]);
+  const [disAmounts_p, setDisAmounts_p] = useState<string[][]>([]);
   const [disAssetsnames_p, setDisAssetsnames_p] = useState<string[][]>([]);
   const [disAssetsnames_n, setDisAssetsnames_n] = useState<string[][]>([]);
+  //資産非計上
+  const [disExAssetsnames_p, setDisExAssetsnames_p] = useState<string[][]>([]);
+  const [disExAssetsnames_n, setDisExAssetsnames_n] = useState<string[][]>([]);
+  const [disExAmounts_p, setDisExAmounts_p] = useState<string[][]>([]);
+  const [disExAmounts_n, setDisExAmounts_n] = useState<string[][]>([]);
+
   const [disUsernames, setDisUsernames] = useState<string[]>([]);
   const [disAssets_p, setDisAssets_p] = useState<Assets[][]>([]);
   const [disAssets_n, setDisAssets_n] = useState<Assets[][]>([]);
   const [disAssetsID, setAssetsID] = useState<number>(0);
 
-  const [isPageFlg, setPageFlg] = useState(0);
+  //表示内容切り替えフラグ
+  const [isPageFlg, setPageFlg] = useState(MovePageFlg || 0);
+  const [isStartFlg] = useState(MovePageFlg || 0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,7 +59,9 @@ const Asset: React.FC = () => {
         }
 
         const data = await response.json();
+        console.log(data)
         const assets = data.data; // データを状態変数に格納
+        const transactions = data.transactions; // データを状態変数に格納
 
         let hozUserNo = -1;
         let usernames: string[] = [];
@@ -51,57 +70,147 @@ const Asset: React.FC = () => {
         let total = 0;
         let subtotal_p: number[] = [];
         let subtotal_p_conv: string[] = [];
-        let amounts_p: string[][] = [];
-        let assetsnames_p: string[][] = [];
         let subtotal_n: number[] = [];
         let subtotal_n_conv: string[] = [];
+
+        let amounts_p: string[][] = [];
         let amounts_n: string[][] = [];
+        let assetsnames_p: string[][] = [];
         let assetsnames_n: string[][] = [];
+
+        let Examounts_p: string[][] = [];
+        let Examounts_n: string[][] = [];
+        let Exassetsnames_p: string[][] = [];
+        let Exassetsnames_n: string[][] = [];
 
         let subtotal_conv: string[] = [];
 
         let CorrectVal: number;
+        let CorrectValSum: number;
 
         // ユーザ情報ごとにデータを分ける
         assets.forEach((asset: any) => {
+          CorrectVal = 0
+          CorrectValSum = 0
+          transactions.forEach((transaction: any) => {
+            if(asset.AssetsID === transaction.AssetsID){
+              if(transaction.Kind === 0){
+                if(transaction.Flg === 0){
+                  CorrectVal += transaction.Amount
+                }else{
+                  CorrectVal -= transaction.Amount
+                }
+              }else if(transaction.Kind === 1){
+                if(transaction.Flg === 0){
+                  CorrectVal += transaction.Amount
+                }else{
+                  CorrectVal -= transaction.Amount
+                }
+              }else{
+                if(transaction.Flg === 0){
+                  CorrectVal += transaction.Amount
+                }else{
+                  CorrectVal -= transaction.Amount
+                }
+              }
+            }
+          })
           if (asset.Flg == 0) {
-            CorrectVal = asset.Amount;
+            CorrectValSum = asset.Amount + CorrectVal;
           } else {
-            CorrectVal = asset.Amount * -1;
+            CorrectValSum = asset.Amount * -1 + CorrectVal;
           }
+          CorrectVal += asset.Amount;
 
           if (hozUserNo !== asset.UserNo) {
             hozUserNo = asset.UserNo;
             usernames.push(asset.UserName);
             if (asset.Flg == 0) {
-              subtotal_p.push(asset.Amount);
-              amounts_p.push([asset.Amount.toLocaleString()]);
+              //資産非計上の場合、合計額に含まない
+              if (Boolean(asset.Excluded)){
+                subtotal_p.push(0)
+                
+                //資産計上は空
+                amounts_p.push([]);
+                assetsnames_p.push([]);
+
+                //資産非計上に値を入れる
+                Examounts_p.push([CorrectVal.toLocaleString()]);
+                Exassetsnames_p.push([asset.AssetsName]);
+              }else{
+                subtotal_p.push(CorrectVal);
+
+                //資産計上に値を入れる
+                amounts_p.push([CorrectVal.toLocaleString()]);
+                assetsnames_p.push([asset.AssetsName]);
+
+                //資産非計上は空
+                Examounts_p.push([]);
+                Exassetsnames_p.push([]);
+              }
               subtotal_n.push(0);
               amounts_n.push([]);
-              assetsnames_p.push([asset.AssetsName]);
               assetsnames_n.push([]);
+              Examounts_n.push([]);
+              Exassetsnames_n.push([]);
             } else {
+              //資産非計上の場合、合計額に含まない
+              if (Boolean(asset.Excluded)){
+                subtotal_n.push(0)
+                
+                //資産計上は空
+                amounts_n.push([]);
+                assetsnames_n.push([]);
+
+                //資産非計上に値を入れる
+                Examounts_n.push([CorrectVal.toLocaleString()]);
+                Exassetsnames_n.push([asset.AssetsName]);
+              }else{
+                subtotal_n.push(CorrectVal);
+
+                //資産計上に値を入れる
+                amounts_n.push([CorrectVal.toLocaleString()]);
+                assetsnames_n.push([asset.AssetsName]);
+
+                //資産非計上は空
+                Examounts_n.push([]);
+                Exassetsnames_n.push([]);
+              }
               subtotal_p.push(0);
               amounts_p.push([]);
-              subtotal_n.push(asset.Amount);
-              amounts_n.push([asset.Amount.toLocaleString()]);
               assetsnames_p.push([]);
-              assetsnames_n.push([asset.AssetsName]);
+              Exassetsnames_p.push([]);
+              Examounts_p.push([]);
             }
             index++;
           } else {
             if (asset.Flg == 0) {
-              amounts_p[index].push(asset.Amount.toLocaleString());
-              subtotal_p[index] += asset.Amount;
-              assetsnames_p[index].push(asset.AssetsName);
+              //資産非計上の場合、合計額に含まない
+              if (Boolean(asset.Excluded)){
+                Examounts_p[index].push(CorrectVal.toLocaleString());
+                Exassetsnames_p[index].push(asset.AssetsName);
+              }else{
+                subtotal_p[index] += CorrectVal;
+                amounts_p[index].push(CorrectVal.toLocaleString());
+                assetsnames_p[index].push(asset.AssetsName);
+              }
             } else {
-              amounts_n[index].push(asset.Amount.toLocaleString());
-              subtotal_n[index] += asset.Amount;
-              assetsnames_n[index].push(asset.AssetsName);
+              //資産非計上の場合、合計額に含まない
+              if (Boolean(asset.Excluded)){
+                Examounts_n[index].push(CorrectVal.toLocaleString());
+                Exassetsnames_n[index].push(asset.AssetsName);
+              }else{
+                subtotal_n[index] += CorrectVal;
+                amounts_n[index].push(CorrectVal.toLocaleString());
+                assetsnames_n[index].push(asset.AssetsName);
+              }
             }
           }
 
-          total += CorrectVal;
+          //資産非計上の場合、合計額に含まない
+          if (!Boolean(asset.Excluded)){
+            total += CorrectVal;
+          }
         });
 
         SetAssetsData(assets);
@@ -112,14 +221,24 @@ const Asset: React.FC = () => {
         subtotal_conv = subtotal_p.map((value, i) => (value - subtotal_n[i]).toLocaleString());
 
         // セット
+        //合計
         setDisTotal(total.toLocaleString());
+        //ユーザごと合計
         setDisSubtotal(subtotal_conv);
+        //ユーザごと資産/負債
         setDisSubtotal_p(subtotal_p_conv);
+        setDisSubtotal_n(subtotal_n_conv);
+        //ユーザごと資産名_資産額/負債名_負債額
         setDisAmounts_p(amounts_p);
         setDisAssetsnames_p(assetsnames_p);
-        setDisSubtotal_n(subtotal_n_conv);
         setDisAmounts_n(amounts_n);
         setDisAssetsnames_n(assetsnames_n);
+        //ユーザごと資産名_資産額/負債名_負債額（資産非計上）
+        setDisExAmounts_p(Examounts_p);
+        setDisExAssetsnames_p(Exassetsnames_p);
+        setDisExAmounts_n(Examounts_n);
+        setDisExAssetsnames_n(Exassetsnames_n);
+        //ユーザ名
         setDisUsernames(usernames);
 
       } catch (error) {
@@ -130,7 +249,7 @@ const Asset: React.FC = () => {
     fetchData();
   }, []);
 
-  const SetAssetsData = (assets: any) => {
+  const SetAssetsData = (assets: any[]) => {
     let hozUserNo = -1;
     let usernames: string[] = [];
 
@@ -183,7 +302,7 @@ const Asset: React.FC = () => {
         }
       }
     });
-
+    
     // セット
     setDisAssets_p(assetsnames_p);
     setDisAssets_n(assetsnames_n);
@@ -201,8 +320,11 @@ const Asset: React.FC = () => {
         setAssetsID(index);
       }
     }
-
-    setPageFlg(number);
+    if (number == 0 && isStartFlg == 1) {
+      onClose(false)
+    } else {
+      setPageFlg(number);
+    }
   };
 
   return (
@@ -235,19 +357,51 @@ const Asset: React.FC = () => {
             <div className="customDetailsWrapper">
               <div className="customLeftSection">
                 <div className="customDetailTitle-plus">資産</div>
+                {disAssetsnames_p[0]?.length > 0 && (
+                  <>
+                    <div className='littleHeader'>資産計上</div>
+                  </>
+                )}
                 {disAssetsnames_p[0]?.map((name, index) => (
                   <div className="customDetailItem" key={index}>
                     <span className="customDetailLabel">{name}</span>
                     <span className="customDetailAmount">¥ {disAmounts_p[0][index]}</span>
                   </div>
                 ))}
+                {disExAssetsnames_p[0]?.length > 0 && (
+                  <>
+                    <div className='littleHeader'>資産非計上</div>
+                  </>
+                )}
+                {disExAssetsnames_p[0]?.map((name, index) => (
+                  <div className="customDetailItem" key={index}>
+                    <span className="customDetailLabel">{name}</span>
+                    <span className="customDetailAmount">¥ {disExAmounts_p[0][index]}</span>
+                  </div>
+                ))}
               </div>
               <div className="customRightSection">
                 <div className="customDetailTitle-minus">負債</div>
+                {disAssetsnames_n[0]?.length > 0 && (
+                  <>
+                    <div className='littleHeader'>負債</div>
+                  </>
+                )}
                 {disAssetsnames_n[0]?.map((name, index) => (
                   <div className="customDetailItem" key={index}>
                     <span className="customDetailLabel">{name}</span>
                     <span className="customDetailAmount">¥ {disAmounts_n[0][index]}</span>
+                  </div>
+                ))}
+                {disExAssetsnames_n[0]?.length > 0 && (
+                  <>
+                    <div className='littleHeader'>負債非計上</div>
+                  </>
+                )}
+                {disExAssetsnames_n[0]?.map((name, index) => (
+                  <div className="customDetailItem" key={index}>
+                    <span className="customDetailLabel">{name}</span>
+                    <span className="customDetailAmount">¥ {disExAmounts_n[0][index]}</span>
                   </div>
                 ))}
               </div>
@@ -279,7 +433,9 @@ const Asset: React.FC = () => {
       {isPageFlg == 3 && (
         <>
           <div className='overlay'></div>
-          <ChangeAssets onClose={ChangePage} />
+          <ChangeAssets
+            AssetsID={disAssetsID}
+            onClose={ChangePage} />
         </>
       )}
     </div>

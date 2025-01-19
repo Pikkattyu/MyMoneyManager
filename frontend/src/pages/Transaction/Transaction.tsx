@@ -5,10 +5,13 @@ import '../../styles.css'; // CSSファイルのインポート
 import DisTransactionDaily from './DisTransactionDaily';
 import ChangeTransaction from './ChangeTransaction';
 import CreateTransaction from './CreateTransaction';
+import CreateMemo from './Memo/CreateMemo';
+import ChangeMemo from './Memo/ChangeMemo';
 
 const Transaction: React.FC = () => {
   const [isPageFlg, setPageFlg] = useState<Number>(3);
   const [TransactionID, setTransactionID] = useState<Number>(0);
+  const [MemoID, setMemoID] = useState<Number>(0);
   const [isPopUpFlg, setPopUpFlg] = useState<Number>(0);
   const [DisDate, setDisDate] = useState<string>(() => {
     const year = new Date().getFullYear(); // 現在の年を取得
@@ -18,6 +21,7 @@ const Transaction: React.FC = () => {
 
   const [errorMessages, setErrorMessages] = useState<string>('');
   const [TransactionData, setTransactionData] = useState<any[][]>([]);
+  const [MemoData, setMemoData] = useState<any[]>([]);
 
 
   const [Income, setIncome] = useState<string>('');
@@ -40,6 +44,8 @@ const Transaction: React.FC = () => {
         const transaction = data.transaction;
         const assets = data.assets;
         const transactionAll = data.transactionall;
+        const memos = data.memo;
+        setMemoData(memos);
 
         let sum = 0;
         assets.forEach((asset: any) => {
@@ -51,7 +57,7 @@ const Transaction: React.FC = () => {
         });
 
         transactionAll.forEach((ta: any) => {
-          if ((ta.Flg === 0 && ta.Kind === 0) || (ta.Flg === 1 && ta.Kind === 1)) {
+          if ((ta.Flg === 0 && ta.Kind === 0) || (ta.Flg === 0 && ta.Kind === 1)) {
             sum += ta.Amount;
           } else {
             sum -= ta.Amount;
@@ -83,12 +89,12 @@ const Transaction: React.FC = () => {
         let HozTransactionID = 0;
 
         for (let i = 0; i < sortedData.length; i++) {
-          if (sortedData[i].Date !== HozDate) {
+          if (sortedData[i].Date.split("T")[0] !== HozDate) {
             // 日付が変わった場合、現在のグループを保存し、新しいグループを開始
             transaction_for_date.push([sortedData[i]]);
 
             // 新しい日付に更新し、新しいグループを開始
-            HozDate = sortedData[i].Date;
+            HozDate = sortedData[i].Date.split("T")[0];
             index++;
           } else {
             // 同じ日付の場合、現在のグループに追加
@@ -103,7 +109,7 @@ const Transaction: React.FC = () => {
         let n_sum = 0;
         transaction.forEach((tran: any) => {
           if (tran.Kind !== 2) {
-            if ((tran.Kind === 0 && tran.Flg === 0) || (tran.Flg === 1 && tran.Kind === 1)) {
+            if ((tran.Kind === 0 && tran.Flg === 0) || (tran.Flg === 0 && tran.Kind === 1)) {
               p_sum += tran.Amount;
             } else {
               n_sum += tran.Amount;
@@ -131,11 +137,20 @@ const Transaction: React.FC = () => {
 
   const ChangePage = (button: boolean, number: Number, index: Number) => {
     //ページが変わるときはbutton:true, ポップアップの時はbutton:false
-    if (button) {
-      setPageFlg(number);
-    } else {
-      setPopUpFlg(number);
-      setTransactionID(index);
+    if(number === 4){
+      if (button) {
+        setPageFlg(number);
+      } else {
+        setPopUpFlg(number);
+        setMemoID(index);
+      }
+    }else{
+      if (button) {
+        setPageFlg(number);
+      } else {
+        setPopUpFlg(number);
+        setTransactionID(index);
+      }
     }
   };
 
@@ -200,6 +215,10 @@ const Transaction: React.FC = () => {
         </div>
       </div>
 
+      <div onClick={() => setPopUpFlg(3)} className="floating-button-memo">
+        <img src="MemoIcon.png" alt="MemoIcon" className="icon-style" />
+      </div>
+
       <div onClick={() => setPopUpFlg(1)} className="floating-button">
         +
       </div>
@@ -207,17 +226,17 @@ const Transaction: React.FC = () => {
 
       {isPageFlg == 1 && (
         <>
-          <DisTransactionDaily transactionData={TransactionData} onClose={ChangePage} />
+          <DisTransactionDaily transactionData={TransactionData} memoData={MemoData} onClose={ChangePage} />
         </>
       )}
       {isPageFlg == 2 && (
         <>
-          <DisTransactionDaily transactionData={TransactionData} onClose={ChangePage} />
+          <DisTransactionDaily transactionData={TransactionData} memoData={MemoData} onClose={ChangePage} />
         </>
       )}
       {isPageFlg == 3 && (
         <>
-          <DisTransactionDaily transactionData={TransactionData} onClose={ChangePage} />
+          <DisTransactionDaily transactionData={TransactionData} memoData={MemoData} onClose={ChangePage} />
         </>
       )}
 
@@ -231,6 +250,18 @@ const Transaction: React.FC = () => {
         <>
           <div className="overlay"></div>
           <ChangeTransaction transactionID={TransactionID} onClose={ChangePopUp} />
+        </>
+      )}
+      {isPopUpFlg == 3 && (
+        <>
+          <div className="overlay"></div>
+          <CreateMemo onClose={ChangePopUp} />
+        </>
+      )}
+      {isPopUpFlg == 4 && (
+        <>
+          <div className="overlay"></div>
+          <ChangeMemo memoID={MemoID} onClose={ChangePopUp} />
         </>
       )}
     </div>

@@ -34,13 +34,17 @@ const DisCategory: React.FC<OpenButtonProps> = ({ onClose }) => {
         const category = data.data;
 
         let CategoryID = -1;
-        let index = -1;
+        let pindex = -1;
+        let nindex = -1;
         let categoryName_p: Subcategory[] = [];
         let categoryName_n: Subcategory[] = [];
         let subcategoryName_p: string[][] = [];
         let subcategoryName_n: string[][] = [];
 
         category.forEach((cate: any) => {
+          if (cate.SubcategoryName === ""){
+            cate.SubcategoryName = "+"
+          }
           if (CategoryID !== cate.CategoryID) {
             CategoryID = cate.CategoryID;
             if (cate.Flg == 0) {
@@ -49,29 +53,33 @@ const DisCategory: React.FC<OpenButtonProps> = ({ onClose }) => {
                 CategoryName: cate.CategoryName
               });
               subcategoryName_p.push([cate.SubcategoryName]);
+              pindex++;
             } else {
               categoryName_n.push({
                 CategoryID: cate.CategoryID,
                 CategoryName: cate.CategoryName
               });
               subcategoryName_n.push([cate.SubcategoryName]);
+              nindex++;
             }
-            index++;
           } else {
             if (cate.Flg == 0) {
-              subcategoryName_p[index].push(cate.SubcategoryName);
+              subcategoryName_p[pindex].push(cate.SubcategoryName);
             } else {
-              subcategoryName_n[index].push(cate.SubcategoryName);
+              subcategoryName_n[nindex].push(cate.SubcategoryName);
             }
           }
         });
 
+        console.log(subcategoryName_p)
+        console.log(subcategoryName_n)
         setDisSubcategory_p(subcategoryName_p);
         setDisSubcategory_n(subcategoryName_n);
         setDisCategory_p(categoryName_p);
         setDisCategory_n(categoryName_n);
-
+        
       } catch (error) {
+        console.log(error)
         if (error instanceof Error) {
           setErrorMessages((prevMessages) => [
             ...prevMessages,
@@ -103,13 +111,13 @@ const DisCategory: React.FC<OpenButtonProps> = ({ onClose }) => {
             <div>
               <span className='Categorylabel'>{category.CategoryName}</span>
             </div>
-            {(isAssetsView ? disSubcategory_p[index][0] !== "" : disSubcategory_n[index][0] !== "") &&
-              <div className='SubGroup'>
-                {(isAssetsView ? disSubcategory_p[index] : disSubcategory_n[index]).map((subcategory, subIndex) => (
-                  <span key={subIndex} className='Categoryspan'>{subcategory}</span>
-                ))}
-              </div>
-            }
+            {((isAssetsView && disSubcategory_p[index][0] !== "+") || (!isAssetsView && disSubcategory_n[index][0] !== "+")) && (
+                <div className='SubGroup'>
+                  {(isAssetsView ? disSubcategory_p[index] : disSubcategory_n[index]).map((subcategory, subIndex) => (
+                    <span key={subIndex} className='Categoryspan'>{subcategory}</span>
+                  ))}
+                </div>
+              )}
           </div>
         ))}
       </div>

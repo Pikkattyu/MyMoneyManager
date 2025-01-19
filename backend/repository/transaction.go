@@ -9,18 +9,19 @@ import (
 )
 
 // 入出金履歴情報の作成
-func CreateTransaction(category *models.Transaction) (*models.Transaction, error) {
-	if err := utils.DB.Create(category).Error; err != nil {
-		log.Printf("カテゴリ情報の作成に失敗しました。")
-		return nil, err
+func CreateTransaction(transaction *models.Transaction) (int, error) {
+	if err := utils.DB.Create(transaction).Error; err != nil {
+		log.Printf("入出金履歴情報の作成に失敗しました。")
+		return 0, err
 	}
-	return category, nil
+	log.Printf("挿入後のTransactionID: %d", transaction.TransactionID)
+	return transaction.TransactionID, nil
 }
 
 // 入出金履歴詳細情報の作成
 func CreateTransactionInfomation(transactioninfomation *models.TransactionInfomation) error {
 	if err := utils.DB.Create(transactioninfomation).Error; err != nil {
-		log.Printf("カテゴリ情報の作成に失敗しました。")
+		log.Printf("入出金履歴詳細情報の作成に失敗しました。")
 		return err
 	}
 	return nil
@@ -39,18 +40,21 @@ func UpdateTransaction(transaction *models.Transaction) error {
 	updatedData["update_user_no"] = transaction.UpdateUserNo
 	updatedData["transaction_id"] = transaction.TransactionID
 
-	// フィールドが空でない場合に、更新データに追加する
-	if transaction.Memo != "" {
-		updatedData["memo"] = transaction.Memo
-	}
-	if transaction.Kind != 0 {
-		updatedData["kind"] = transaction.Kind
-	}
-	if transaction.CategoryID != 0 {
+	if transaction.DelFlg {
+		updatedData["del_flg"] = transaction.DelFlg
+	} else {
+		// フィールドが空でない場合に、更新データに追加する
+		if transaction.Memo != "" {
+			updatedData["memo"] = transaction.Memo
+		}
+		if transaction.Kind != 0 {
+			updatedData["kind"] = transaction.Kind
+		}
+		if !transaction.Date.IsZero() {
+			updatedData["date"] = transaction.Date
+		}
 		updatedData["category_id"] = transaction.CategoryID
-	}
-	if transaction.Date.IsZero() {
-		updatedData["date"] = transaction.Date
+		updatedData["subcategory_id"] = transaction.SubcategoryID
 	}
 	updatedData["update_time"] = time.Now()
 
@@ -76,15 +80,18 @@ func UpdateTransactionInfomation(transaction *models.TransactionInfomation) erro
 	}
 	updatedData["transaction_infomation_id"] = transaction.TransactionInfomationID
 
-	// フィールドが空でない場合に、更新データに追加する
-	if transaction.AssetsID != 0 {
-		updatedData["assets_id"] = transaction.AssetsID
+	if transaction.DelFlg {
+		updatedData["del_flg"] = transaction.DelFlg
+	} else {
+		// フィールドが空でない場合に、更新データに追加する
+		if transaction.AssetsID != 0 {
+			updatedData["assets_id"] = transaction.AssetsID
+		}
+		if transaction.Flg != 0 {
+			updatedData["flg"] = transaction.Flg
+		}
+		updatedData["amount"] = transaction.Amount
 	}
-	if transaction.Flg != 0 {
-		updatedData["flg"] = transaction.Flg
-	}
-	updatedData["amount"] = transaction.Amount
-	updatedData["update_time"] = time.Now()
 
 	// マップにデータがある場合のみ更新処理を行う
 	if len(updatedData) > 0 {
@@ -136,13 +143,17 @@ func GetTransactionInfomationMonth(BookID int, startDate time.Time, endDate time
             transaction_infomations.flg, 
             transaction_infomations.assets_id,
             assets.assets_name,
+            assets.user_no,
+            users.user_name,
             categories.category_name,
+            subcategories.subcategory_id, 
             subcategories.subcategory_name
         `).
 		Joins("INNER JOIN transaction_infomations ON transactions.transaction_id = transaction_infomations.transaction_id").
 		Joins("LEFT JOIN assets ON transaction_infomations.assets_id = assets.assets_id").
 		Joins("LEFT JOIN categories ON transactions.category_id = categories.category_id").
 		Joins("LEFT JOIN subcategories ON transactions.subcategory_id = subcategories.subcategory_id").
+		Joins("LEFT JOIN users ON users.user_no = assets.user_no").
 		Where("transactions.book_id = ? AND transactions.date >= ? AND transactions.date <= ?", BookID, startDate, endDate).
 		Order("transactions.date DESC, transactions.transaction_id DESC, transaction_infomations.transaction_infomation_id DESC").
 		Scan(&transactionInfomations).Error; err != nil {
@@ -150,4 +161,48 @@ func GetTransactionInfomationMonth(BookID int, startDate time.Time, endDate time
 		return nil, err
 	}
 	return transactionInfomations, nil
+}
+
+func GetTransaction(transactionID int) ([]models.Transaction_Infomation, error) {
+	var transactionInfomations []models.Transaction_Infomation
+	if err := utils.DB.Table("transactions t").
+		Select(`
+        t.transaction_id,
+        t.kind,
+        t.memo,
+        t.category_id,
+        t.subcategory_id,
+        t.date,
+        t.update_time,
+        ti.transaction_infomation_id,
+        ti.assets_id,
+        ti.amount,
+        ti.flg
+    `).
+		Joins("INNER JOIN transaction_infomations ti ON t.transaction_id = ti.transaction_id").
+		Where("ti.transaction_id = ? AND ti.del_flg = false AND t.del_flg = false", transactionID).
+		Order("ti.transaction_infomation_id ASC").
+		Scan(&transactionInfomations).
+		Error; err != nil {
+		log.Printf("取引情報の取得に失敗しました。TransactionID: %d, Error: %v", transactionID, err)
+		return nil, err
+	}
+
+	return transactionInfomations, nil
+}
+
+func GetTransactionInfomationGroup(BookID int) ([]models.Transaction_Infomation, error) {
+	var transactionInfomation []models.Transaction_Infomation
+
+	if err := utils.DB.Table("transactions t").
+		Select("t.kind, ti.assets_id, SUM(ti.amount) AS amount, ti.flg").
+		Joins("INNER JOIN transaction_infomations ti ON t.transaction_id = ti.transaction_id").
+		Where("t.book_id = ? AND ti.del_flg = false AND t.del_flg = false AND ti.assets_id <> 0", BookID).
+		Group("t.kind, ti.assets_id, ti.flg").
+		Order("ti.assets_id ASC").
+		Find(&transactionInfomation).Error; err != nil {
+		log.Printf("取引情報の取得に失敗しました。 BookID: %d, Error: %v", BookID, err)
+		return nil, err
+	}
+	return transactionInfomation, nil
 }

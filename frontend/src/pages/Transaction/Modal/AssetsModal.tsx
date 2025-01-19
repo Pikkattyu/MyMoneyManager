@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import CreateAssets from '../Assets/CreateAssets';
+import CreateAssets from '../../Assets/CreateAssets';
 
 interface SelectModalProps {
   flg: boolean;

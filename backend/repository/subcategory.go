@@ -10,8 +10,14 @@ import (
 
 // 資産情報の作成
 func CreateSubcategory(category *models.Subcategory) error {
+	log.Printf(string(category.CategoryID))
+	log.Printf(string(category.SubcategoryID))
+	log.Printf(string(category.Flg))
+	log.Printf(category.SubcategoryName)
+
 	if err := utils.DB.Create(category).Error; err != nil {
-		log.Printf("サブカテゴリ情報の作成に失敗しました。")
+		log.Printf("fサブカテゴリ情報の作成に失敗しました。")
+		log.Printf(err.Error())
 		return err
 	}
 	return nil
@@ -74,6 +80,7 @@ func CheckSubcategoryConflicting(subcategory *models.Subcategory) int64 {
 // 更新チェック用
 func CheckSubcategoryUpdate(subcategoryID int, updateTime time.Time) int64 {
 
+	return 0
 	var count int64
 
 	// 条件に基づいて件数をカウント

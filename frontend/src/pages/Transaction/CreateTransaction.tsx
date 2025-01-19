@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import '../../styles.css'; // CSSファイルのインポート
 import Category from '../Category/Category';
-import AssetsModal from './AssetsModal';
-import CategoryModal from './CategoryModal';
+import AssetsModal from './Modal/AssetsModal';
+import CategoryModal from './Modal/CategoryModal';
 
 interface OpenButtonProps {
   onClose: (isButton: boolean, number: Number) => void;
@@ -30,9 +30,6 @@ interface Subcategory {
 }
 
 interface Transfer {
-  Date: Date;
-  Flg: number;
-  Amount: number;
   Amount2: number;
   Assets: string;
   AssetsID: number;
@@ -40,13 +37,9 @@ interface Transfer {
   Assets2: string;
   Assets2ID: number;
   Assets2UpdateTime: Date;
-  Memo: string;
 }
 
 interface CreateData {
-  Date: Date;
-  Flg: number;
-  Amount: number;
   Assets: string;
   AssetsID: number;
   AssetsUpdateTime: Date;
@@ -56,7 +49,6 @@ interface CreateData {
   Subcategory: string;
   SubcategoryID: number;
   SubcategoryUpdateTime: Date;
-  Memo: string;
 }
 
 const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
@@ -74,7 +66,8 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
   const [pCreateData, setPCreateData] = useState<CreateData>();
   const [nCreateData, setNCreateData] = useState<CreateData>();
 
-  const [date, setDate] = useState<string>('');
+  const [date, setDate] = useState<string>(`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`);
+  const [time, setTime] = useState<string>(`${String(new Date().getHours()).padStart(2, "0")}:${String(new Date().getMinutes()).padStart(2, "0")}`);
   const [disDate, setDisDate] = useState<Date>(new Date());
   const [disAmount, setAmount] = useState<number>(0);
   const [dispAmount, setDisAmount] = useState<string>("0");
@@ -115,6 +108,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
         }
 
         const data = await response.json();
+        console.log(data)
         const assetses = data.assets;
         const categoryies = data.category;
 
@@ -151,6 +145,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
       SetCategoryData(categoryies);
 
     } catch (error) {
+      console.log(error)
       if (error instanceof Error) {
         setErrorMessages(error.message);
       } else {
@@ -218,9 +213,6 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
     setDisAssets_n(assetsnames_n);
 
     setPCreateData({
-      Date: disDate,
-      Flg: 0,
-      Amount: disAmount,
       Assets: disAssets,
       AssetsID: disAssetsID,
       AssetsUpdateTime: AssetsUpdateTime,
@@ -229,14 +221,10 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
       CategoryUpdateTime: CategoryUpdateTime,
       Subcategory: disSubcategory,
       SubcategoryID: disSubcategoryID,
-      SubcategoryUpdateTime: SubcategoryUpdateTime,
-      Memo: disMemo
+      SubcategoryUpdateTime: SubcategoryUpdateTime
     })
 
     setNCreateData({
-      Date: disDate,
-      Flg: 0,
-      Amount: disAmount,
       Assets: disAssets,
       AssetsID: disAssetsID,
       AssetsUpdateTime: AssetsUpdateTime,
@@ -245,14 +233,10 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
       CategoryUpdateTime: CategoryUpdateTime,
       Subcategory: disSubcategory,
       SubcategoryID: disSubcategoryID,
-      SubcategoryUpdateTime: SubcategoryUpdateTime,
-      Memo: disMemo
+      SubcategoryUpdateTime: SubcategoryUpdateTime
     })
 
     setTransferData({
-      Date: disDate,
-      Flg: 2,
-      Amount: disAmount,
       Amount2: disAmount2,
       Assets: disAssets,
       AssetsID: disAssetsID,
@@ -260,13 +244,13 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
       Assets2: disAssets2,
       Assets2ID: disAssets2ID,
       Assets2UpdateTime: Assets2UpdateTime,
-      Memo: disMemo,
     })
   }
 
   const SetCategoryData = (category: any) => {
     let CategoryID = -1;
-    let index = -1;
+    let pindex = -1;
+    let nindex = -1;
     let categoryName_p: Category[] = [];
     let categoryName_n: Category[] = [];
     let subcategoryName_p: Subcategory[][] = [];
@@ -282,44 +266,49 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
             UpdateTime: cate.UpdateTime
           });
           subcategoryName_p.push([{
-            SubcategoryNo: cate.SubcategoryName,
-            SubcategoryID: cate.SubcategoryName,
+            SubcategoryNo: cate.SubcategoryNo,
+            SubcategoryID: cate.SubcategoryID,
             SubcategoryName: cate.SubcategoryName,
             UpdateTime: cate.UpdateTime
           }]);
+          pindex++;
         } else {
           categoryName_n.push({
             CategoryID: cate.CategoryID,
             CategoryName: cate.CategoryName,
             UpdateTime: cate.UpdateTime
           });
-          subcategoryName_n.push([{
-            SubcategoryNo: cate.SubcategoryName,
-            SubcategoryID: cate.SubcategoryName,
-            SubcategoryName: cate.SubcategoryName,
-            UpdateTime: cate.UpdateTime
-          }]);
+          //if(cate.SubcategoryName !== ""){
+            subcategoryName_n.push([{
+              SubcategoryNo: cate.SubcategoryNo,
+              SubcategoryID: cate.SubcategoryID,
+              SubcategoryName: cate.SubcategoryName,
+              UpdateTime: cate.UpdateTime
+            }]);
+          //}
+          nindex++;
         }
-        index++;
       } else {
         if (cate.Flg == 0) {
-          subcategoryName_p[index].push({
-            SubcategoryNo: cate.SubcategoryName,
-            SubcategoryID: cate.SubcategoryName,
+          subcategoryName_p[pindex].push({
+            SubcategoryNo: cate.SubcategoryNo,
+            SubcategoryID: cate.SubcategoryID,
             SubcategoryName: cate.SubcategoryName,
             UpdateTime: cate.UpdateTime
           });
         } else {
-          subcategoryName_n[index].push({
-            SubcategoryNo: cate.SubcategoryName,
-            SubcategoryID: cate.SubcategoryName,
+          //if(cate.SubcategoryName !== ""){
+          subcategoryName_n[nindex].push({
+            SubcategoryNo: cate.SubcategoryNo,
+            SubcategoryID: cate.SubcategoryID,
             SubcategoryName: cate.SubcategoryName,
             UpdateTime: cate.UpdateTime
           });
+          //}
         }
       }
     });
-
+  
     setDisSubcategory_p(subcategoryName_p);
     setDisSubcategory_n(subcategoryName_n);
     setDisCategory_p(categoryName_p);
@@ -333,12 +322,15 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
     }
     setPageFlg(index);
 
-    switch (nowPage) {
+    SetNowDataTable(nowPage);
+    SetNowData(index);
+    
+  }
+
+  const SetNowDataTable = (PageIndex:number) => {
+    switch (PageIndex) {
       case 0:
         setPCreateData({
-          Date: disDate,
-          Flg: nowPage,
-          Amount: disAmount,
           Assets: disAssets,
           AssetsID: disAssetsID,
           AssetsUpdateTime: AssetsUpdateTime,
@@ -347,16 +339,12 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
           CategoryUpdateTime: CategoryUpdateTime,
           Subcategory: disSubcategory,
           SubcategoryID: disSubcategoryID,
-          SubcategoryUpdateTime: SubcategoryUpdateTime,
-          Memo: disMemo
+          SubcategoryUpdateTime: SubcategoryUpdateTime
         })
         break;
 
       case 1:
         setNCreateData({
-          Date: disDate,
-          Flg: nowPage,
-          Amount: disAmount,
           Assets: disAssets,
           AssetsID: disAssetsID,
           AssetsUpdateTime: AssetsUpdateTime,
@@ -366,31 +354,26 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
           Subcategory: disSubcategory,
           SubcategoryID: disSubcategoryID,
           SubcategoryUpdateTime: SubcategoryUpdateTime,
-          Memo: disMemo
         })
         break;
 
       case 2:
         setTransferData({
-          Date: disDate,
-          Flg: nowPage,
-          Amount: disAmount,
           Amount2: disAmount2,
           Assets: disAssets,
           AssetsID: disAssetsID,
           AssetsUpdateTime: AssetsUpdateTime,
           Assets2: disAssets2,
           Assets2ID: disAssets2ID,
-          Assets2UpdateTime: Assets2UpdateTime,
-          Memo: disMemo,
+          Assets2UpdateTime: Assets2UpdateTime
         })
         break;
     }
+  }
 
-    switch (index) {
+  const SetNowData = (PageIndex:number) => {
+    switch (PageIndex) {
       case 0:
-        setDisDate(pCreateData?.Date || new Date())
-        setAmount(pCreateData?.Amount || 0);
         setAssets(pCreateData?.Assets || "");
         setAssetsID(pCreateData?.AssetsID || 0);
         setAssetsUpdateTime(pCreateData?.AssetsUpdateTime || new Date());
@@ -400,12 +383,9 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
         setSubcategory(pCreateData?.Subcategory || "");
         setSubcategoryID(pCreateData?.SubcategoryID || 0);
         setSubcategoryUpdateTime(pCreateData?.SubcategoryUpdateTime || new Date());
-        setMemo(pCreateData?.Memo || "");
         break;
 
       case 1:
-        setDisDate(nCreateData?.Date || new Date())
-        setAmount(nCreateData?.Amount || 0);
         setAssets(nCreateData?.Assets || "");
         setAssetsID(nCreateData?.AssetsID || 0);
         setAssetsUpdateTime(nCreateData?.AssetsUpdateTime || new Date());
@@ -415,12 +395,9 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
         setSubcategory(nCreateData?.Subcategory || "");
         setSubcategoryID(nCreateData?.SubcategoryID || 0);
         setSubcategoryUpdateTime(nCreateData?.SubcategoryUpdateTime || new Date());
-        setMemo(nCreateData?.Memo || "");
         break;
 
       case 2:
-        setDisDate(transferData?.Date || new Date())
-        setAmount(transferData?.Amount || 0);
         setAmount2(transferData?.Amount2 || 0);
         setAssets(transferData?.Assets || "");
         setAssetsID(transferData?.AssetsID || 0);
@@ -428,21 +405,32 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
         setAssets2(transferData?.Assets2 || "");
         setAssets2ID(transferData?.Assets2ID || 0);
         setAssets2UpdateTime(transferData?.Assets2UpdateTime || new Date());
-        setMemo(transferData?.Memo || "");
         break;
     }
-
   }
 
   const SaveTransactionData = async () => {
-
+    SetNowData(isPageFlg)
     try {
       let response;
       switch (isPageFlg) {
         case 0:
           //データチェック
           setPCreateData({
-            Date: disDate,
+            Assets: disAssets,
+            AssetsID: disAssetsID,
+            AssetsUpdateTime: AssetsUpdateTime,
+            Category: disCategory,
+            CategoryID: disCategoryID,
+            CategoryUpdateTime: CategoryUpdateTime,
+            Subcategory: disSubcategory,
+            SubcategoryID: disSubcategoryID,
+            SubcategoryUpdateTime: SubcategoryUpdateTime
+          })
+
+          response = await fetch('/api/createtransaction', {
+            method: 'POST',
+            body: JSON.stringify({ Date: disDate,
             Flg: isPageFlg,
             Amount: disAmount,
             Assets: disAssets,
@@ -454,12 +442,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
             Subcategory: disSubcategory,
             SubcategoryID: disSubcategoryID,
             SubcategoryUpdateTime: SubcategoryUpdateTime,
-            Memo: disMemo
-          })
-
-          response = await fetch('/api/createtransaction', {
-            method: 'POST',
-            body: JSON.stringify({ pCreateData }),
+            Memo: disMemo }),
             headers: {
               'Content-Type': 'application/json',
             },
@@ -468,9 +451,6 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
         case 1:
           //データチェック
           setNCreateData({
-            Date: disDate,
-            Flg: isPageFlg,
-            Amount: disAmount,
             Assets: disAssets,
             AssetsID: disAssetsID,
             AssetsUpdateTime: AssetsUpdateTime,
@@ -479,13 +459,24 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
             CategoryUpdateTime: CategoryUpdateTime,
             Subcategory: disSubcategory,
             SubcategoryID: disSubcategoryID,
-            SubcategoryUpdateTime: SubcategoryUpdateTime,
-            Memo: disMemo
+            SubcategoryUpdateTime: SubcategoryUpdateTime
           })
 
           response = await fetch('/api/createtransaction', {
             method: 'POST',
-            body: JSON.stringify({ nCreateData }),
+            body: JSON.stringify({ Date: disDate,
+              Flg: isPageFlg,
+              Amount: disAmount,
+              Assets: disAssets,
+              AssetsID: disAssetsID,
+              AssetsUpdateTime: AssetsUpdateTime,
+              Category: disCategory,
+              CategoryID: disCategoryID,
+              CategoryUpdateTime: CategoryUpdateTime,
+              Subcategory: disSubcategory,
+              SubcategoryID: disSubcategoryID,
+              SubcategoryUpdateTime: SubcategoryUpdateTime,
+              Memo: disMemo }),
             headers: {
               'Content-Type': 'application/json',
             },
@@ -494,9 +485,6 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
         case 2:
           //データチェック  
           setTransferData({
-            Date: disDate,
-            Flg: isPageFlg,
-            Amount: disAmount,
             Amount2: disAmount2,
             Assets: disAssets,
             AssetsID: disAssetsID,
@@ -504,12 +492,21 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
             Assets2: disAssets2,
             Assets2ID: disAssets2ID,
             Assets2UpdateTime: Assets2UpdateTime,
-            Memo: disMemo,
           })
 
           response = await fetch('/api/createtransaction', {
             method: 'POST',
-            body: JSON.stringify({ transferData }),
+            body: JSON.stringify({ Date: disDate,
+              Flg: isPageFlg,
+              Amount: disAmount,
+              Amount2: disAmount2,
+              Assets: disAssets,
+              AssetsID: disAssetsID,
+              AssetsUpdateTime: AssetsUpdateTime,
+              Assets2: disAssets2,
+              Assets2ID: disAssets2ID,
+              Assets2UpdateTime: Assets2UpdateTime,
+              Memo: disMemo }),
             headers: {
               'Content-Type': 'application/json',
             },
@@ -538,9 +535,13 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
   }
 
   const ChangeDate = (date: string) => {
-
     setDate(date);
-    setDisDate(new Date(date));
+    setDisDate(new Date(date + "T" + time + "Z"));
+  }
+
+  const ChangeTime = (time: string) => {
+    setTime(time);
+    setDisDate(new Date(date + "T" + time + "Z"));
   }
 
   // モーダルを閉じる処理と、選択された値の保持
@@ -553,16 +554,18 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
 
       setCategoryID(category?.CategoryID);
       setCategory(category?.CategoryName);
-      setCategoryUpdateTime(category?.CategoryUpdateTime);
+      setCategoryUpdateTime(category?.UpdateTime);
 
-      if (subcategory?.SubcategoryID === "") {
-        setSubcategoryID(-1);
+      if(subcategory === null){
+        setSubcategoryID(0);
+      }else if (subcategory?.SubcategoryID === "") {
+        setSubcategoryID(0);
       } else {
         setSubcategoryID(subcategory?.SubcategoryID);
       }
 
       setSubcategory(subcategory?.SubcategoryName);
-      setSubcategoryUpdateTime(subcategory?.SubcategoryUpdateTime);
+      setSubcategoryUpdateTime(subcategory?.UpdateTime);
     }
 
     setisCategoryOpen(false); // モーダルを閉じる
@@ -570,18 +573,17 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
 
   // モーダルを閉じる処理と、選択された値の保持
   const handleAssetsValue = (value: any) => {
-    if (value === null) {
+    if (value === undefined) {
       fetchData()
-      return
-    } else if (value !== undefined) {
+    } else {
       if (value.Flg == 0) {
         setAssetsID(value?.AssetsID);
         setAssets(value?.AssetsName);
-        setAssetsUpdateTime(value?.AssetsUpdateTime);
+        setAssetsUpdateTime(value?.UpdateTime);
       } else {
         setAssets2ID(value?.AssetsID);
         setAssets2(value?.AssetsName);
-        setAssets2UpdateTime(value?.AssetsUpdateTime);
+        setAssets2UpdateTime(value?.UpdateTime);
       }
     }
     setisAssetsOpen(false); // モーダルを閉じる
@@ -591,7 +593,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
   const handleOpenCategory = () => {
     setisCategoryID(disCategoryID);
     setisSubcategoryID(disSubcategoryID);
-    setisCategoryOpen(true);
+    setisCategoryOpen(true);      
   };
 
   // モーダルを開く処理
@@ -672,6 +674,12 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
                 value={date}
                 onChange={(e) => ChangeDate(e.target.value.toString())}
               />
+              <input
+                className='TransactionValue'
+                type="time"
+                value={time}
+                onChange={(e) => ChangeTime(e.target.value.toString())}
+              />
             </div>
 
             {isPageFlg !== 2 && (
@@ -706,10 +714,11 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
                 <div className='TransactionGroup'>
                   <span className='TransactionLabel'>金額</span>
                   <input
+                    type="text"
+                    value={dispAmount}
+                    onChange={NumberCheck1}
+                    onBlur={FrontZeroDel}
                     className='TransactionValue'
-                    type="number"
-                    value={disAmount}
-                    onChange={(e) => setAmount(parseInt(e.target.value))}
                   />
                 </div>
                 <div className='TransactionGroup'>
@@ -739,7 +748,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
         </div>
 
         <div className='TransactionMemoLabel'>
-          <textarea className='TransactionMemo' />
+          <textarea className='TransactionMemo' value={disMemo} onChange={(e) => setMemo(e.target.value)} />
         </div>
       </div>
 

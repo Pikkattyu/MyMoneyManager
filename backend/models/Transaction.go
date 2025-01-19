@@ -19,6 +19,7 @@ type Transaction struct {
 	Date           time.Time `gorm:"not null;"`                          // 内容の日付、not null'
 	Register       time.Time `gorm:"not null;default:current_timestamp"` // 登録日時、デフォルトで現在のタイムスタンプ
 	UpdateTime     time.Time `gorm:"not null;default:current_timestamp"` // 更新日時、デフォルトで現在のタイムスタンプ
+	DelFlg         bool      `gorm:"not null;default:false"`             // 更新日時、デフォルトで現在のタイムスタンプ
 }
 type Transaction_Infomation struct {
 	Transaction

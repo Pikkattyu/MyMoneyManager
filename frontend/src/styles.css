@@ -392,6 +392,11 @@ nav ul a:hover {
     margin-bottom: 5px;
 }
 
+.littleHeader{
+    transform: translate(20px, 0px);
+    font-weight: bold;
+}
+
 .customDetailLabel {
     font-size: 16px;
 }
@@ -597,8 +602,12 @@ nav ul a:hover {
 
 .transaction-box {
     border: 1px solid #ddd;
-    padding: 10px;
     background-color: #fff;
+}
+
+.memo-box {
+    border: 1px solid #ddd;
+    background-color: #bbb;
 }
 
 .transaction-item {
@@ -606,27 +615,85 @@ nav ul a:hover {
     justify-content: space-between;
     padding: 8px 0;
     border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.transaction-item:hover {
+    background-color: #11a37f;
+    /*opacity: 0.5; /* 透明度50% */
 }
 
 .transaction-item:last-child {
     border-bottom: none;
 }
 
+.memo-item {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.memo-item:hover {
+    background-color: #11a37f;
+    /*opacity: 0.5; /* 透明度50% */
+}
+
+.memo-item:last-child {
+    border-bottom: none;
+}
+
+.memo-txt {
+    height: 24px;
+    flex: 1;
+    text-align: center;
+    overflow: hidden; /* 範囲外の内容を非表示にする */
+    flex-grow: 3;
+}
+
+.memo-title{
+    height: 24px;
+    flex: 1;
+    text-align: center;
+    overflow: hidden; /* 範囲外の内容を非表示にする */
+}
+
+.memo-label{
+    height: 24px;
+    flex: 1;
+    overflow: hidden; /* 範囲外の内容を非表示にする */
+}
+
 .transaction-category,
 .transaction-amount,
 .transaction-memo,
 .transaction-assets {
+    height: 24px;
     flex: 1;
     text-align: center;
+    overflow: hidden; /* 範囲外の内容を非表示にする */
 }
 
 .transaction-category {
     font-weight: bold;
     color: #2c3e50;
 }
+.transaction-category.income {
+    color: blue; /* 収入：青色 */
+}
+
+.transaction-category.expense {
+    color: red; /* 支出：赤色 */
+}
+
+.transaction-category.transfer {
+    color: #b8860b; /* 振替：黄色寄りの茶色 */
+}
 
 .transaction-amount {
     color: #e74c3c;
+    text-align: right;
+    padding-right: 10px;
 }
 
 .transaction-memo {
@@ -661,6 +728,37 @@ nav ul a:hover {
 
 .floating-button:hover {
     background-color: #218838;
+}
+
+.floating-button-memo {
+    position: fixed;
+    bottom: 20px;
+    right: 90px;
+    width: 60px;
+    /* ボタンの幅を広げる */
+    height: 60px;
+    /* ボタンの高さを広げる */
+    background-color: #28a745;
+    color: white;
+    font-size: 28px;
+    /* 文字サイズを少し大きく調整 */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    /* 他の要素の上に配置 */
+}
+
+.floating-button-memo:hover {
+    background-color: #218838;
+}
+
+.icon-style{
+    width: 25px;
+    height: 30px;
 }
 
 .transaction-form {
@@ -830,9 +928,6 @@ nav ul a:hover {
     display: inline-block;
     white-space: nowrap;
     /* テキストを折り返さない */
-    background-color: #e0e0e0;
-    border-radius: 5px;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
     cursor: pointer;
 
 }
@@ -857,5 +952,104 @@ nav ul a:hover {
 .TransactionSelectspan {
     white-space: nowrap;
     /* テキストを折り返さない */
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    margin-right: 5px;
     width: 100px;
+}
+
+.SettingScroll {
+    border: solid;
+    border-color: #555;
+    height: 600px;
+    width: 800px;
+    /* 縦スクロール */
+    overflow-y: auto;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.SettingScrollLine {
+    height: 50px;
+    /* 1行の高さ */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    /* 背景色変更のアニメーション */
+}
+
+/* 奇数番目の行は灰色 */
+.SettingScrollLine:nth-child(odd) {
+    background-color: #f0f0f0;
+    /* 灰色 */
+}
+
+/* 偶数番目の行は白色 */
+.SettingScrollLine:nth-child(even) {
+    background-color: white;
+    /* 白色 */
+}
+
+/* ホバー時、奇数番目の行が灰色の時 */
+.SettingScrollLine:nth-child(odd):hover {
+    background-color: #d77c6a;
+    /* 灰色のホバー時の色 */
+}
+
+/* ホバー時、偶数番目の行が白色の時 */
+.SettingScrollLine:nth-child(even):hover {
+    background-color: #d77c6a;
+    /* 白色のホバー時の色 */
+}
+
+.statistics-form {
+    width: 100vw;
+    min-width: 600px;
+    top: 130px;
+    position: absolute;
+}
+
+.statistics-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.statistics-header-month {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+
+}
+
+.statistics-header-month button {
+    background-color: #ddd;
+    border: none;
+    padding: 10px 20px;
+    width: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.statistics-header button {
+    background-color: #ddd;
+    border: none;
+    padding: 10px 20px;
+    width: 125px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.statistics-header button.active {
+    background-color: #4CAF50;
+    color: white;
 }

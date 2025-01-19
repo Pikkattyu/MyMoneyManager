@@ -16,7 +16,7 @@ import (
 )
 
 // Register handles user registration
-func Register(c *gin.Context) {
+func UserRegister(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -144,7 +144,7 @@ func UserInfomationChange(c *gin.Context) {
 	}
 
 	// CookieからUserIDを取得
-	userNoCookie, err := c.Cookie("UserNo")
+	userNoCookie, err := c.Cookie("userNo")
 	if err != nil {
 		log.Printf("ユーザIDの取得に失敗しました。: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "ユーザIDの取得に失敗しました。"})

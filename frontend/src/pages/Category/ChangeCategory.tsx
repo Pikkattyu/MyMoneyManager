@@ -49,16 +49,16 @@ const ChangeCategory: React.FC<OpenButtonProps> = ({ onClose, CategoryID }) => {
           });
         });
 
-        if (subcategorys[subcategorys.length - 1].SubcategoryName !== "") {
+        //if (subcategorys[subcategorys.length - 1].SubcategoryName !== "") {
           subcategorys.push({
             UpdateFlg: false,
             SubcategoryNo: subcategorys.length,
             SubcategoryID: 0,
             SubcategoryName: "+"
           });
-        } else {
-          subcategorys[subcategorys.length - 1].SubcategoryName = "+";
-        }
+        //} else {
+        //  subcategorys[subcategorys.length - 1].SubcategoryName = "+";
+        //}
 
         setDisSubcategory(subcategorys);
         setDisCategory(categoryName);
@@ -119,6 +119,7 @@ const ChangeCategory: React.FC<OpenButtonProps> = ({ onClose, CategoryID }) => {
       return;
     }
     try {
+      console.log(CategoryID, disCategory, isAssetsView, disSubcategory)
       const response = await fetch('/api/changecategory', {
         method: 'POST',
         body: JSON.stringify({ CategoryID, disCategory, isAssetsView, disSubcategory }),

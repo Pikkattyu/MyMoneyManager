@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import ChangeCategory from '../Category/ChangeCategory';
+import ChangeCategory from '../../Category/ChangeCategory';
 
 interface SelectModalProps {
   isPageFlg: number;
@@ -49,10 +49,9 @@ const AssetsModal: React.FC<SelectModalProps> = ({ isPageFlg, isCategoryID, isSu
             <div>
               <span className='Categorylabel'>{category.CategoryName}</span>
             </div>
-            {(isPageFlg == 0 ? disSubcategory_p[index][0] !== "" : disSubcategory_n[index][0] !== "") &&
               <div className='SubGroup'>
                 {(isPageFlg == 0 ? disSubcategory_p[index] : disSubcategory_n[index])
-                  .filter((subcategory: any) => subcategory.SubcategoryID !== "") // SubcategoryID が空文字でないものだけを対象にする
+                  .filter((subcategory: any) => subcategory.SubcategoryName !== "") // SubcategoryID が空文字でないものだけを対象にする
                   .map((subcategory: any, subIndex: number) => (
                     <span
                       key={subIndex}
@@ -78,7 +77,6 @@ const AssetsModal: React.FC<SelectModalProps> = ({ isPageFlg, isCategoryID, isSu
                   {"+"}
                 </span>
               </div>
-            }
           </div>
         ))}
       </div>

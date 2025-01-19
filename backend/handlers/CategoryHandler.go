@@ -197,11 +197,13 @@ func ChangeCategory(c *gin.Context) {
 
 	for _, item := range disSubcategoryInterface {
 		subcategory := &models.Subcategory{} // ポインタの初期化
-		no, ok := item.(map[string]interface{})["SubcategoryNo"].(float64)
-		if !ok {
-			c.JSON(http.StatusBadRequest, gin.H{"messageError": "SubcategoryNo の取得に失敗しました"})
-			return
-		}
+		/*
+			no, ok := item.(map[string]interface{})["SubcategoryNo"].(float64)
+			if !ok {
+				c.JSON(http.StatusBadRequest, gin.H{"messageError": "SubcategoryNo の取得に失敗しました"})
+				return
+			}
+		*/
 
 		if id, ok := item.(map[string]interface{})["SubcategoryID"].(float64); ok {
 			subcategory.SubcategoryID = int(id)
@@ -234,11 +236,11 @@ func ChangeCategory(c *gin.Context) {
 				return
 			}
 
-			if no == 0 {
+			if subcategory.SubcategoryID == -1 {
 				subcategory.CategoryID = int(categoryID)
 				err = repository.CreateSubcategory(subcategory)
 				if err != nil {
-					c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "サブカテゴリ情報の更新に失敗しました。"})
+					c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "サブカテゴリ情報の作成に失敗しました。"})
 					return
 				}
 			} else {

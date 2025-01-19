@@ -82,13 +82,15 @@ const CreateBook: React.FC<OpenButtonProps> = ({ onClose }) => {
       </div>
 
       <div className='PopUpErrorBorder'>
-        <span className='errorMessageHeader'>エラーメッセージ</span>
         {errorMessages.length > 0 && (
-          <span className='errorMessage'>
-            {errorMessages.map((message, index) => (
-              <div key={index}>{message}</div>
-            ))}
-          </span>
+          <>
+            <span className='errorMessageHeader'>エラーメッセージ</span>
+            <span className='errorMessage'>
+              {errorMessages.map((message, index) => (
+                <div key={index}>{message}</div>
+              ))}
+            </span>
+          </>
         )}
       </div>
     </div>

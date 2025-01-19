@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../../styles.css'; // CSSファイルのインポート
-import DisCategory from './DisCategory';
+import DisCategory from './SelCategory';
 import ChangeCategory from './ChangeCategory';
 import CreateCategory from './CreateCategory';
 

@@ -36,13 +36,14 @@ const CreateAssets: React.FC<OpenButtonProps> = ({ onClose, AssetsID }) => {
         const data = await response.json();
         const assets = data.data;
 
-        setTag(assets.tag)
-        setAssetsName(assets.assetsname)
-        setUserNo(assets.userno)
-        setAmount(assets.amount)
-        setIsExcluded(assets.excluded)
-        setFlg(assets.flg)
+        setTag(assets.Tag)
+        setAssetsName(assets.AssetsName)
+        setUserNo(assets.UserNo)
+        setAmount(assets.Amount)
+        setIsExcluded(assets.Excluded)
+        setFlg(assets.Flg)
         setUpdateTime(assets.UpdateTime)
+        /*setUpdateTime(new Date(assets.UpdateTime).toISOString())*/
 
       } catch (error) {
         // 'error'がError型であることを確認し、エラーメッセージを取得する
@@ -105,7 +106,7 @@ const CreateAssets: React.FC<OpenButtonProps> = ({ onClose, AssetsID }) => {
     }
 
     try {
-      const response = await fetch('/api/assetschange', {
+      const response = await fetch('/api/changeassets', {
         method: 'POST',
         body: JSON.stringify({ tag, assetsName, AssetsID, flg, userNo, Amount, Excluded, UpdateTime }),
         headers: {
@@ -126,7 +127,7 @@ const CreateAssets: React.FC<OpenButtonProps> = ({ onClose, AssetsID }) => {
 
   return (
     <div className='PopUp'>
-      <h1>新規作成</h1>
+      <h1>資産変更</h1>
 
       <div className='inputGroup'>
         <span className='label'>タグ</span>
@@ -200,7 +201,7 @@ const CreateAssets: React.FC<OpenButtonProps> = ({ onClose, AssetsID }) => {
       </div>
 
       <div className='PopUpButtonGroup'>
-        <button onClick={handleChange} className='btn-style'>作成</button>
+        <button onClick={handleChange} className='btn-style'>更新</button>
         <button onClick={() => onClose(false, 1, 0)} className='btn-style'>閉じる</button>
       </div>
 
