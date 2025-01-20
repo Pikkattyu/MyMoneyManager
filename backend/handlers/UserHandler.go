@@ -16,7 +16,7 @@ import (
 )
 
 // Register handles user registration
-func Register(c *gin.Context) {
+func UserRegister(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -144,7 +144,7 @@ func UserInfomationChange(c *gin.Context) {
 	}
 
 	// CookieからUserIDを取得
-	userNoCookie, err := c.Cookie("UserNo")
+	userNoCookie, err := c.Cookie("userNo")
 	if err != nil {
 		log.Printf("ユーザIDの取得に失敗しました。: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "ユーザIDの取得に失敗しました。"})
@@ -163,6 +163,12 @@ func UserInfomationChange(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "帳簿切替にエラーが発生しました。"})
 		return
 	}
+
+	expiration := time.Now().Add(30 * 24 * time.Hour)
+	BookID := strconv.Itoa(user.BookID)
+	cookie := http.Cookie{Name: "bookID", Value: BookID, Expires: expiration, Path: "/", HttpOnly: true}
+	http.SetCookie(c.Writer, &cookie)
+
 	c.JSON(http.StatusOK, gin.H{"message": "正常に処理が終了しました。"})
 }
 

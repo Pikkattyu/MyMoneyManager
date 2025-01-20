@@ -73,7 +73,7 @@ nav ul a:hover {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     width: 500px;
-    height: 550px;
+    height: 620px;
 }
 
 .overlay {
@@ -83,7 +83,7 @@ nav ul a:hover {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 999;
+    z-index: 100;
 }
 
 .inputGroup {
@@ -370,7 +370,16 @@ nav ul a:hover {
     padding: 20px;
 }
 
-.customDetailTitle {
+.customDetailTitle-plus {
+    color: red;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.customDetailTitle-minus {
+    color: blue;
     font-size: 18px;
     font-weight: bold;
     margin-bottom: 10px;
@@ -383,6 +392,11 @@ nav ul a:hover {
     margin-bottom: 5px;
 }
 
+.littleHeader{
+    transform: translate(20px, 0px);
+    font-weight: bold;
+}
+
 .customDetailLabel {
     font-size: 16px;
 }
@@ -392,3 +406,650 @@ nav ul a:hover {
 }
 
 .customHeaderTitle {}
+
+.CategoryGroup {
+    border: 2px solid #e0e0e0;
+    /* 枠線のスタイル */
+    border-radius: 10px;
+    /* 角を丸く */
+    padding: 15px;
+    /* 内側の余白 */
+    margin-bottom: 5%;
+    /* 各カテゴリ間のスペース */
+    background-color: #f9f9f9;
+    /* 背景色 */
+}
+
+.Categorylabel {
+    font-weight: bold;
+    /* 太字 */
+    font-size: 1.2em;
+    /* 文字サイズ */
+    display: block;
+    /* ブロック表示 */
+    color: #333;
+    /* 文字色 */
+}
+
+.Categoryspan {
+    white-space: nowrap;
+    /* テキストを折り返さない */
+    background-color: #e0e0e0;
+    padding: 8px 12px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.Categoryspan:hover {
+    background-color: #11a37f;
+}
+
+.CategoryspanRed {
+    white-space: nowrap;
+    /* テキストを折り返さない */
+    background-color: #bb364c;
+
+    padding: 8px 12px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.SubGroup {
+    display: flex;
+    overflow-x: auto;
+    padding: 5px;
+    gap: 10px;
+    scrollbar-width: thin;
+    /* Firefox */
+}
+
+.SubGroup::-webkit-scrollbar {
+    height: 8px;
+}
+
+.SubGroup::-webkit-scrollbar-thumb {
+    background-color: #cccccc;
+    border-radius: 10px;
+}
+
+.SubGroup::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
+.Category {
+    max-height: 330px;
+    /* スクロール可能な最大高さを指定 */
+    overflow-y: auto;
+    /* 縦方向のスクロールを有効に */
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+}
+
+.Category::-webkit-scrollbar {
+    width: 8px;
+    /* 縦スクロールバーの幅 */
+}
+
+.Category::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+}
+
+.Category::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+
+/* 資産・負債の切り替えボタン */
+.TagSwitcher {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    /* 親要素の幅を100%に設定 */
+}
+
+.TagSwitcher button {
+    background-color: #ddd;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.TagSwitcher button.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.TagSwitcher button:not(.active):hover {
+    background-color: #bbb;
+}
+
+.ChangeCategoryPopUp {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1200;
+    /* overlayの上に表示されるようにz-indexをさらに上に設定 */
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 600px;
+}
+
+.ChangeCategoryLabel {
+    width: 50px;
+    text-align: left;
+    margin-right: 10px;
+}
+
+.category-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.category-label {
+    font-weight: bold;
+    width: 20%;
+    font-size: 1.1em;
+}
+
+.category-name-input {
+    font-size: 1.1em;
+    color: #333;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex-grow: 1;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+}
+
+.category-label {
+    margin-right: 10px;
+}
+
+/**/
+
+.transaction-container {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.transaction-header {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.transaction-date {
+    font-size: 18px;
+    color: #333;
+}
+
+.transaction-box {
+    border: 1px solid #ddd;
+    background-color: #fff;
+}
+
+.memo-box {
+    border: 1px solid #ddd;
+    background-color: #bbb;
+}
+
+.transaction-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.transaction-item:hover {
+    background-color: #11a37f;
+    /*opacity: 0.5; /* 透明度50% */
+}
+
+.transaction-item:last-child {
+    border-bottom: none;
+}
+
+.memo-item {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.memo-item:hover {
+    background-color: #11a37f;
+    /*opacity: 0.5; /* 透明度50% */
+}
+
+.memo-item:last-child {
+    border-bottom: none;
+}
+
+.memo-txt {
+    height: 24px;
+    flex: 1;
+    text-align: center;
+    overflow: hidden; /* 範囲外の内容を非表示にする */
+    flex-grow: 3;
+}
+
+.memo-title{
+    height: 24px;
+    flex: 1;
+    text-align: center;
+    overflow: hidden; /* 範囲外の内容を非表示にする */
+}
+
+.memo-label{
+    height: 24px;
+    flex: 1;
+    overflow: hidden; /* 範囲外の内容を非表示にする */
+}
+
+.transaction-category,
+.transaction-amount,
+.transaction-memo,
+.transaction-assets {
+    height: 24px;
+    flex: 1;
+    text-align: center;
+    overflow: hidden; /* 範囲外の内容を非表示にする */
+}
+
+.transaction-category {
+    font-weight: bold;
+    color: #2c3e50;
+}
+.transaction-category.income {
+    color: blue; /* 収入：青色 */
+}
+
+.transaction-category.expense {
+    color: red; /* 支出：赤色 */
+}
+
+.transaction-category.transfer {
+    color: #b8860b; /* 振替：黄色寄りの茶色 */
+}
+
+.transaction-amount {
+    color: #e74c3c;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.transaction-memo {
+    color: #7f8c8d;
+}
+
+.transaction-assets {
+    color: #3498db;
+}
+
+.floating-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    /* ボタンの幅を広げる */
+    height: 60px;
+    /* ボタンの高さを広げる */
+    background-color: #28a745;
+    color: white;
+    font-size: 28px;
+    /* 文字サイズを少し大きく調整 */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    /* 他の要素の上に配置 */
+}
+
+.floating-button:hover {
+    background-color: #218838;
+}
+
+.floating-button-memo {
+    position: fixed;
+    bottom: 20px;
+    right: 90px;
+    width: 60px;
+    /* ボタンの幅を広げる */
+    height: 60px;
+    /* ボタンの高さを広げる */
+    background-color: #28a745;
+    color: white;
+    font-size: 28px;
+    /* 文字サイズを少し大きく調整 */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    /* 他の要素の上に配置 */
+}
+
+.floating-button-memo:hover {
+    background-color: #218838;
+}
+
+.icon-style{
+    width: 25px;
+    height: 30px;
+}
+
+.transaction-form {
+    width: 100vw;
+    min-width: 600px;
+    top: 130px;
+    position: absolute;
+}
+
+.transaction-header-group {
+    width: 6 00px;
+    margin: auto;
+}
+
+.transaction-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.transaction-header-month {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+
+}
+
+.transaction-header-month button {
+    background-color: #ddd;
+    border: none;
+    padding: 10px 20px;
+    width: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.transaction-header button {
+    background-color: #ddd;
+    border: none;
+    padding: 10px 20px;
+    width: 100px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.transaction-header button.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.DailyTransaction-form {
+    width: 700px;
+    margin: auto;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.DailyTransaction-frame {
+    width: 600px;
+    margin: auto;
+}
+
+/* スクロールバー全体のスタイル */
+.DailyTransaction-form::-webkit-scrollbar {
+    width: 4px;
+    /* スクロールバーをスマホ風に細くする */
+}
+
+/* スクロールバーのトラック部分（背景） */
+.DailyTransaction-form::-webkit-scrollbar-track {
+    background: transparent;
+    /* 目立たないように透明に */
+}
+
+/* スクロールバーのハンドル部分（つまみ） */
+.DailyTransaction-form::-webkit-scrollbar-thumb {
+    background-color: #bcbcbc;
+    /* ソフトな色で目立たないように */
+    border-radius: 10px;
+}
+
+/* ハンドルがホバーされた時のスタイル */
+.DailyTransaction-form::-webkit-scrollbar-thumb:hover {
+    background-color: #a0a0a0;
+    /* 少し濃い色 */
+}
+
+.text-center {
+    text-align: center;
+    width: 150px;
+}
+
+.text-block {
+    display: block;
+    white-space: pre;
+}
+
+/* styles/PopUp.module.css */
+.TransactionPopUp {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 500;
+    width: 500px;
+    height: 620px;
+}
+
+
+/* 親要素: 横並びにするために Flexbox を使用 */
+.TransactionAssetsContainer {
+    display: flex;
+    /* 子要素を横並びに */
+    gap: 10px;
+    /* ボタン間の隙間 */
+    justify-content: center;
+    /* 全体を中央揃え */
+    flex-wrap: wrap;
+    /* 子要素が横方向に収まらない場合に折り返さない */
+}
+
+/* 子要素: ボタンのスタイル */
+.TransactionAssetsButton {
+    width: 80px;
+    /* 固定幅 */
+    min-height: 80px;
+    /* 最小高さ */
+    padding: 5px;
+    /* 内側の余白 */
+    border: 1px solid black;
+    display: flex;
+    /* 子要素を中央に揃える */
+    justify-content: center;
+    /* 水平方向の中央揃え */
+    align-items: center;
+    /* 垂直方向の中央揃え */
+    text-align: center;
+    /* テキスト中央揃え */
+    line-height: 1.2;
+    /* 行の高さを設定 */
+    white-space: normal;
+    /* テキストを折り返す設定 */
+    word-break: break-word;
+    /* 長いテキストが折り返されるようにする */
+    font-size: 14px;
+    /* 初期フォントサイズ */
+}
+
+.TransactionLabel {
+    display: inline-block;
+    width: 100px;
+}
+
+.TransactionValue {
+    display: inline-block;
+    width: 100px;
+}
+
+.TransactionValueSelect {
+    display: inline-block;
+    white-space: nowrap;
+    /* テキストを折り返さない */
+    cursor: pointer;
+
+}
+
+.TransactionValueSelect:hover {
+    color: #4CAF50;
+}
+
+.TransactionMemoLabel {
+    margin: 10px;
+}
+
+.TransactionMemo {
+    width: 450px;
+    height: 130px;
+}
+
+.alignC {
+    text-align: center;
+}
+
+.TransactionSelectspan {
+    white-space: nowrap;
+    /* テキストを折り返さない */
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    margin-right: 5px;
+    width: 100px;
+}
+
+.SettingScroll {
+    border: solid;
+    border-color: #555;
+    height: 600px;
+    width: 800px;
+    /* 縦スクロール */
+    overflow-y: auto;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.SettingScrollLine {
+    height: 50px;
+    /* 1行の高さ */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    /* 背景色変更のアニメーション */
+}
+
+/* 奇数番目の行は灰色 */
+.SettingScrollLine:nth-child(odd) {
+    background-color: #f0f0f0;
+    /* 灰色 */
+}
+
+/* 偶数番目の行は白色 */
+.SettingScrollLine:nth-child(even) {
+    background-color: white;
+    /* 白色 */
+}
+
+/* ホバー時、奇数番目の行が灰色の時 */
+.SettingScrollLine:nth-child(odd):hover {
+    background-color: #d77c6a;
+    /* 灰色のホバー時の色 */
+}
+
+/* ホバー時、偶数番目の行が白色の時 */
+.SettingScrollLine:nth-child(even):hover {
+    background-color: #d77c6a;
+    /* 白色のホバー時の色 */
+}
+
+.statistics-form {
+    width: 100vw;
+    min-width: 600px;
+    top: 130px;
+    position: absolute;
+}
+
+.statistics-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.statistics-header-month {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+
+}
+
+.statistics-header-month button {
+    background-color: #ddd;
+    border: none;
+    padding: 10px 20px;
+    width: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.statistics-header button {
+    background-color: #ddd;
+    border: none;
+    padding: 10px 20px;
+    width: 125px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.statistics-header button.active {
+    background-color: #4CAF50;
+    color: white;
+}

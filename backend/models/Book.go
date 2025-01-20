@@ -10,7 +10,7 @@ import (
 type Book struct {
 	BookID        int       `gorm:"primaryKey;autoIncrement"`            // 主キー
 	UserNo        int       `gorm:"not null;index:idx_user_book,unique"` // NotNull制約 & UserIDとBookNameの一意制約
-	AttendUserNos string    `gorm:""`                                    //固定長で文字を出す…10桁区切り
+	AttendUserNos string    `gorm:""`                                    // 固定長で文字を出す…10桁区切り
 	BookName      string    `gorm:"not null;index:idx_user_book,unique"` // NotNull制約 & UserIDとBookNameの一意制約
 	StartDay      string    `gorm:"not null"`                            // NotNull制約
 	StartWeekDay  string    `gorm:"not null"`                            // NotNull制約

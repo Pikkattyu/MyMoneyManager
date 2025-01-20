@@ -37,3 +37,18 @@ func GetBooksByUserNo(userNo int) ([]models.Book, error) {
 	}
 	return books, nil
 }
+
+// ユーザNoで指定したデータを複数取得
+func GetStartBookDay(bookID int) (int, error) {
+	var startDay int
+
+	if err := utils.DB.Table("books").
+		Select("start_day").
+		Where("book_id = ?", bookID).
+		Scan(&startDay).Error; err != nil {
+		log.Printf("書籍情報の取得に失敗しました。 BookID: %d, Error: %v", bookID, err)
+		return 0, err
+	}
+
+	return startDay, nil
+}

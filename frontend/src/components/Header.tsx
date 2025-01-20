@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import CreateBook from '../pages/CreateBook';
-import ChangeBook from '../pages/ChangeBook';
+import CreateBook from '../pages/Book/CreateBook';
+import ChangeBook from '../pages/Book/ChangeBook';
 import '../styles.css'; // CSSファイルのインポート
 
 const Header: React.FC = () => {
@@ -80,11 +80,10 @@ const Header: React.FC = () => {
       {isLoggedIn ? (
         <nav>
           <ul>
-            <a href="#"><li>記録</li></a>
+            <a href="/transaction"><li>記録</li></a>
             <a href="/assets"><li>資産</li></a>
-            <a href="#"><li>統計</li></a>
-            <a href="#"><li>メモ</li></a>
-            <a href="#"><li>設定</li></a>
+            <a href="/statistics"><li>統計</li></a>
+            <a href="/setting"><li>設定</li></a>
           </ul>
         </nav>
       ) : null}

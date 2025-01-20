@@ -3,9 +3,9 @@ package handlers
 import (
 	"MyMoneyManager/backend/models"
 	"MyMoneyManager/backend/repository"
-	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,6 +16,30 @@ func AssetsRegister(c *gin.Context) {
 	// JSONを構造体にバインド
 	if err := c.ShouldBindJSON(&assets); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": err.Error()})
+		return
+	}
+
+	// CookieからUserIDを取得（数字返還）)
+	BookID, err := c.Cookie("bookID")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "帳簿IDの取得に失敗しました。"})
+		return
+	}
+
+	convint, err := strconv.Atoi(BookID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "文字から数字へ変換中にエラーが発生しました。"})
+		return
+	}
+	assets.BookID = convint
+
+	errflg := repository.CheckAssetsConflicting(assets)
+
+	if errflg == 1 {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報が重複しています。"})
+		return
+	} else if errflg == 2 {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報の取得に失敗しました。"})
 		return
 	}
 
@@ -35,8 +59,6 @@ func GetAssetsAll(c *gin.Context) {
 		return
 	}
 
-	log.Printf("BookID: " + BookID)
-
 	convint, err := strconv.Atoi(BookID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "文字から数字へ変換中にエラーが発生しました。"})
@@ -49,5 +71,124 @@ func GetAssetsAll(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": assetses})
+	transactions, err := repository.GetTransactionInfomationGroup(convint)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "帳簿の取得時にエラーが発生しました。"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": assetses, "transactions": transactions})
+}
+
+func GetAssets(c *gin.Context) {
+	assetsID := c.Query("AssetsID")
+
+	convint, err := strconv.Atoi(assetsID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "文字から数字へ変換中にエラーが発生しました。"})
+		return
+	}
+
+	assets, err := repository.GetAssets(convint)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報取得時にエラーが発生しました。"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": assets[0]})
+}
+func ChangeAssets(c *gin.Context) {
+	var requestBody map[string]interface{}
+	assets := models.Assets{} // ポインタの初期化
+
+	// リクエストボディをバインド
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "無効なリクエストデータ"})
+		return
+	}
+
+	tag, ok := requestBody["tag"].(string)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "tag の型が不正です"})
+		return
+	}
+
+	assetsName, ok := requestBody["assetsName"].(string)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "assetsName の型が不正です"})
+		return
+	}
+
+	flg, ok := requestBody["flg"].(float64)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "flg の型が不正です"})
+		return
+	}
+
+	AssetsID, ok := requestBody["AssetsID"].(float64)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "AssetsID の型が不正です"})
+		return
+	}
+
+	userNo, ok := requestBody["userNo"].(float64)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "userNo の型が不正です"})
+		return
+	}
+
+	Amount, ok := requestBody["Amount"].(float64)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "Amount の型が不正です"})
+		return
+	}
+
+	Excluded, ok := requestBody["Excluded"].(bool)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "Excluded の型が不正です"})
+		return
+	}
+
+	UpdateTime := requestBody["UpdateTime"].(string)
+	parsedTime, state := time.Parse(time.RFC3339, UpdateTime)
+	if state != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "UpdateTime の型が不正です"})
+		return
+	}
+
+	assets.Tag = tag
+	assets.AssetsName = assetsName
+	assets.Tag = tag
+	assets.UserNo = int(userNo)
+	assets.Amount = int(Amount)
+	assets.Excluded = Excluded
+	assets.Flg = int(flg)
+	assets.AssetsID = int(AssetsID)
+	assets.UpdateTime = parsedTime
+
+	errflg := repository.CheckAssetsConflicting(assets)
+	if errflg == 1 {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報が重複しています。"})
+		return
+	} else if errflg == 2 {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報の取得に失敗しました。"})
+		return
+	}
+
+	errflg = repository.CheckAssetsUpdate(assets.AssetsID, assets.UpdateTime)
+	if errflg == 1 {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報の取得に失敗しました。"})
+		return
+	} else if errflg == 2 {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報が更新されています。再度やり直してください。"})
+		return
+	}
+
+	err := repository.UpdateAssets(assets)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "資産情報の更新に失敗しました。"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "資産情報が更新されました。"})
 }

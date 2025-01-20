@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../styles.css'; // CSSファイルのインポート
+import '../../styles.css'; // CSSファイルのインポート
 
 interface OpenButtonProps {
   onClose: (isButton: boolean) => void;
@@ -27,13 +27,14 @@ const CreateBook: React.FC<OpenButtonProps> = ({ onClose }) => {
         },
       });
 
+      const result = await response.json();
       if (!response.ok) {
-        const result = await response.json();
         setErrorMessages((prevMessages) => [
           ...prevMessages,
           result.errorMessage,
         ]);
       } else {
+        localStorage.setItem('bookID', result.bookID);
         onClose(true);
       }
     } catch (error) {
@@ -81,13 +82,15 @@ const CreateBook: React.FC<OpenButtonProps> = ({ onClose }) => {
       </div>
 
       <div className='PopUpErrorBorder'>
-        <span className='errorMessageHeader'>エラーメッセージ</span>
         {errorMessages.length > 0 && (
-          <span className='errorMessage'>
-            {errorMessages.map((message, index) => (
-              <div key={index}>{message}</div>
-            ))}
-          </span>
+          <>
+            <span className='errorMessageHeader'>エラーメッセージ</span>
+            <span className='errorMessage'>
+              {errorMessages.map((message, index) => (
+                <div key={index}>{message}</div>
+              ))}
+            </span>
+          </>
         )}
       </div>
     </div>

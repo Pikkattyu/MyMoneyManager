@@ -3,7 +3,9 @@ package repository
 import (
 	"MyMoneyManager/backend/models"
 	"MyMoneyManager/backend/utils"
+	"errors"
 	"log"
+	"time"
 )
 
 // 資産情報の作成
@@ -16,7 +18,7 @@ func CreateAssets(assets *models.Assets) error {
 }
 
 // GetAssetsByAssetsname retrieves a assets by their assetsname from the database
-func GetAssets(AssetsID int, UserNo int) ([]models.Assets, error) {
+func GetAssets(AssetsID int) ([]models.Assets, error) {
 	var assets []models.Assets
 
 	if err := utils.DB.Where("assets_id = ?", AssetsID).Find(&assets).Error; err != nil {
@@ -39,4 +41,101 @@ func GetAssetsAll(BookID int) ([]models.AssetWithUserName, error) {
 		return nil, err
 	}
 	return assets, nil
+}
+
+// 重複チェック用
+func CheckAssetsConflicting(assets models.Assets) int64 {
+	var count int64
+
+	// 条件に基づいて件数をカウント
+	err := utils.DB.Table("assets").
+		Where("book_id = ? AND user_no = ? AND assets_name = ? AND flg != 2", assets.BookID, assets.UserNo, assets.AssetsName).
+		Count(&count).Error
+
+	if err != nil {
+		log.Printf("資産情報の取得に失敗しました。BookID: %d, UserNo: %d, AssetsName: %s, Error: %v", assets.BookID, assets.UserNo, assets.AssetsName, err)
+		return 2
+	}
+
+	return count
+}
+
+// 更新チェック用
+func CheckAssetsUpdate(assetsID int, updateTime time.Time) int64 {
+	var asset models.Assets
+	//一旦後回し
+	return 0
+
+	// 資産情報を取得する
+	if err := utils.DB.Table("assets").
+		Select("flg, update_time").
+		Where("assets_id = ? AND flg <> 2", assetsID).
+		Scan(&asset).Error; err != nil {
+		log.Printf("資産情報の取得に失敗しました。AssetsID: %d, Error: %v", assetsID, err)
+		return 1
+	}
+
+	// 取得した update_time と引数の updateTime を比較
+	if !asset.UpdateTime.Equal(updateTime) {
+		log.Printf("資産情報が更新されています。再度やり直してください。AssetsID: %d", assetsID)
+		return 2
+	}
+
+	return 0
+}
+
+func GetAssetsSUM(BookID int) ([]models.Assets, error) {
+	var assets []models.Assets
+
+	if err := utils.DB.Table("assets").
+		Select("SUM(amount) as amount, flg").
+		Where("assets.book_id = ? AND assets.excluded = false", BookID).
+		Group("flg").
+		Find(&assets).Error; err != nil {
+		log.Printf("資産情報の取得に失敗しました。BookID: %d, Error: %v", BookID, err)
+		return nil, err
+	}
+	return assets, nil
+}
+
+// 資産情報の更新
+func UpdateAssets(assets models.Assets) error {
+
+	updatedData := make(map[string]interface{})
+	if assets.AssetsID == 0 {
+		return errors.New("資産IDがありません。")
+	}
+	updatedData["assets_id"] = assets.AssetsID
+
+	// フィールドが空でない場合に、更新データに追加する
+	if assets.BookID != 0 {
+		updatedData["book_id"] = assets.BookID
+	}
+	if assets.AssetsName != "" {
+		updatedData["assets_name"] = assets.AssetsName
+	}
+	if assets.Tag != "" {
+		updatedData["tag"] = assets.Tag
+	}
+	if assets.Tag != "" {
+		updatedData["amount"] = assets.Amount
+	}
+	if assets.Tag != "" {
+		updatedData["user_no"] = assets.UserNo
+	}
+
+	updatedData["excluded"] = assets.Excluded
+	updatedData["update_time"] = time.Now()
+
+	// マップにデータがある場合のみ更新処理を行う
+	if len(updatedData) > 0 {
+		if err := utils.DB.Model(&assets).Updates(updatedData).Error; err != nil {
+			log.Printf("Error updating assets with assets %b: %v", assets.AssetsID, err)
+			return err
+		}
+	} else {
+		log.Printf("更新データがありません。")
+		return errors.New("更新データがありません。")
+	}
+	return nil
 }

@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import '../styles.css'; // CSSファイルのインポート
+import '../../styles.css'; // CSSファイルのインポート
 
 interface OpenButtonProps {
-  onClose: (isButton: boolean) => void;
+  onClose: (isButton: boolean, number: number, index: number) => void;
+  AssetsID: number;
 }
 
-const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
+const CreateAssets: React.FC<OpenButtonProps> = ({ onClose, AssetsID }) => {
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
   // 状態変数を追加
   const [tag, setTag] = useState<string>('');
   const [assetsName, setAssetsName] = useState<string>('');
-  const [UserNo, setUserNo] = useState<string>('');
-  const [Amount, setAmount] = useState<number | string>('');
+  const [userNo, setUserNo] = useState<number>(-1);
+  const [Amount, setAmount] = useState<number>(0);
   const [Excluded, setIsExcluded] = useState<boolean>(false);
   const [flg, setFlg] = useState<number>(0);
+  const [UpdateTime, setUpdateTime] = useState<string>("");
 
   const [getUsersData, setUsersData] = useState<any[]>([]);
 
@@ -22,16 +24,27 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/getuserassets', {
+        const response = await fetch('/api/getassets?AssetsID=' + AssetsID, {
           method: 'GET',
         });
 
         if (!response.ok) {
+          console.log(response.json)
           throw new Error('帳簿情報の取得時にエラーが発生しました。');
         }
 
         const data = await response.json();
-        setUsersData(data.data);
+        const assets = data.data;
+
+        setTag(assets.Tag)
+        setAssetsName(assets.AssetsName)
+        setUserNo(assets.UserNo)
+        setAmount(assets.Amount)
+        setIsExcluded(assets.Excluded)
+        setFlg(assets.Flg)
+        setUpdateTime(assets.UpdateTime)
+        /*setUpdateTime(new Date(assets.UpdateTime).toISOString())*/
+
       } catch (error) {
         // 'error'がError型であることを確認し、エラーメッセージを取得する
         if (error instanceof Error) {
@@ -50,14 +63,9 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
     };
 
     fetchData();
-
-    // ローカルストレージからのデータ取得
-    const UserNo = localStorage.getItem('userNo') || '';
-    setUserNo(UserNo);
-
   }, []);
 
-  const handleCreate = async () => {
+  const handleChange = async () => {
     setErrorMessages([]);
 
     let cnt = 0;
@@ -77,7 +85,7 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
       cnt++;
     }
 
-    if (UserNo === '所有者を入力してください') {
+    if (userNo === -1) {
       setErrorMessages((prevMessages) => [
         ...prevMessages,
         '※所有者を選択してください',
@@ -85,7 +93,7 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
       cnt++;
     }
 
-    if (Amount === '') {
+    if (Amount < 0) {
       setErrorMessages((prevMessages) => [
         ...prevMessages,
         '初期残高を入力してください',
@@ -98,9 +106,9 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
     }
 
     try {
-      const response = await fetch('/api/assetsregister', {
+      const response = await fetch('/api/changeassets', {
         method: 'POST',
-        body: JSON.stringify({ tag, assetsName, flg, UserNo, Amount, Excluded }),
+        body: JSON.stringify({ tag, assetsName, AssetsID, flg, userNo, Amount, Excluded, UpdateTime }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -108,18 +116,18 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
 
       if (!response.ok) {
         const result = await response.json();
-        setErrorMessages(result.errorMessage);
+        setErrorMessages([result?.errorMessage]);
       } else {
-        onClose(true);
+        onClose(true, 1, AssetsID);
       }
     } catch (error) {
-      console.error('Error:', error);
+      setErrorMessages(["例外エラーが発生しました。"]);
     }
   };
 
   return (
     <div className='PopUp'>
-      <h1>新規作成</h1>
+      <h1>資産変更</h1>
 
       <div className='inputGroup'>
         <span className='label'>タグ</span>
@@ -158,11 +166,11 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
       <div className='inputGroup'>
         <span className='label'>所有者</span>
         <select
-          value={UserNo}
-          onChange={(e) => setUserNo(e.target.value)}
+          value={userNo}
+          onChange={(e) => setUserNo(Number(e.target.value))}
           className='input'
         >
-          <option value="">所有者を選択</option>
+          <option value={-1}>所有者を選択</option>
           {getUsersData.map((user) => (
             <option key={user.UserNo} value={user.UserNo}>
               {user.UserName}
@@ -176,7 +184,7 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
         <input
           type="number"
           value={Amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={(e) => setAmount(Number(e.target.value))}
           placeholder="初期残高を入力してください"
           className='input'
         />
@@ -193,8 +201,8 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
       </div>
 
       <div className='PopUpButtonGroup'>
-        <button onClick={handleCreate} className='btn-style'>作成</button>
-        <button onClick={() => onClose(false)} className='btn-style'>キャンセル</button>
+        <button onClick={handleChange} className='btn-style'>更新</button>
+        <button onClick={() => onClose(false, 1, 0)} className='btn-style'>閉じる</button>
       </div>
 
       {errorMessages.length > 0 && (
@@ -211,4 +219,4 @@ const AssetsSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
   );
 };
 
-export default AssetsSetting;
+export default CreateAssets;
