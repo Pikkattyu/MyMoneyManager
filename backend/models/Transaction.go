@@ -24,10 +24,12 @@ type Transaction struct {
 type Transaction_Infomation struct {
 	Transaction
 	TransactionInfomation
-	TransactionID   int
-	AssetsName      string
-	CategoryName    string
-	SubcategoryName string
+	TransactionID           int
+	AssetsName              string
+	CategoryName            string
+	SubcategoryName         string
+	AssetsBackgroundColor   string `gorm:"column:backgroundcolor" json:"assets_backgroundcolor"`   // 変更
+	CategoryBackgroundColor string `gorm:"column:backgroundcolor" json:"category_backgroundcolor"` // 変更
 }
 
 func (u *Transaction) BeforeCreate(tx *gorm.DB) (err error) {

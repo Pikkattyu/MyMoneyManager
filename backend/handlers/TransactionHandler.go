@@ -221,8 +221,8 @@ func TransactionRegister(c *gin.Context) {
 	}
 
 	if flg == 2 {
-
-		assets2ID, ok := requestBody["Assets2ID"].(int)
+		transaction_infomation2 := &models.TransactionInfomation{}
+		assets2ID, ok := requestBody["Assets2ID"].(float64)
 		if !ok {
 			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "Assets2ID の型が不正です"})
 			return
@@ -241,7 +241,7 @@ func TransactionRegister(c *gin.Context) {
 
 		if assets2ID != 0 {
 			// 更新チェック
-			assetsFlg := repository.CheckAssetsUpdate(assets2ID, assets2UpdateTime)
+			assetsFlg := repository.CheckAssetsUpdate(int(assets2ID), assets2UpdateTime)
 			if assetsFlg == -1 {
 				c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報が更新されています。再度やり直してください。"})
 				return
@@ -251,23 +251,51 @@ func TransactionRegister(c *gin.Context) {
 			}
 
 			if assetsFlg == 0 {
-				transaction_infomation.Flg = 0
+				transaction_infomation2.Flg = 1
 			} else {
-				transaction_infomation.Flg = 1
+				transaction_infomation2.Flg = 0
 			}
 		}
 
-		amount2, ok := requestBody["Amount2"].(int)
+		amount2, ok := requestBody["Amount2"].(float64)
 		if !ok {
 			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "Amount2 の型が不正です"})
 			return
 		}
-		transaction_infomation.Amount = amount2
+		transaction_infomation2.Amount = int(amount)
+		transaction_infomation2.TransactionID = retransactionID
+		transaction_infomation2.AssetsID = int(assets2ID)
 
-		err = repository.CreateTransactionInfomation(transaction_infomation)
+		err = repository.CreateTransactionInfomation(transaction_infomation2)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "サブカテゴリ情報の更新に失敗しました。"})
+			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "取引記録情報の作成に失敗しました。2"})
 			return
+		}
+		if amount2 != 0 {
+			// 帳簿を新規作成
+			var transaction2 models.Transaction
+			transaction2.Kind = 1
+			transaction2.UpdateUserNo = cuserNo_int
+			transaction2.RegisterUserNo = cuserNo_int
+			transaction2.BookID = BookID_int
+			transaction2.Date = date
+
+			retransactionID2, err := repository.CreateTransaction(&transaction2)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "入出金履歴情報作成時にエラーが発生しました。2"})
+				return
+			}
+
+			transaction_infomation3 := &models.TransactionInfomation{}
+			transaction_infomation3.TransactionID = retransactionID2
+			transaction_infomation3.Flg = 0
+			transaction_infomation3.Amount = int(amount2)
+
+			err = repository.CreateTransactionInfomation(transaction_infomation3)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "取引記録情報の作成に失敗しました。3"})
+				return
+			}
 		}
 	}
 
@@ -326,8 +354,13 @@ func GetTransactionsAll(c *gin.Context) {
 
 	// 作成できる日付まで引く処理
 	nextMonthDate := initialDate.AddDate(0, 1, 0)
+	if month == 12 {
+		month = 1
+	} else {
+		month += 1
+	}
 	for {
-		if nextMonthDate.Month() == month+1 {
+		if nextMonthDate.Month() == month {
 			break
 		}
 		// 月の範囲外の日付は、日付を1日ずつ減らして調整する
@@ -349,7 +382,7 @@ func GetTransactionsAll(c *gin.Context) {
 	}
 
 	// BookIDに基づいて帳簿を取得
-	transactionAll, err := repository.GetTransactionInfomationAll(convint)
+	transactionAll, err := repository.GetTransactionInfomationAll(convint, nextMonthDate)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "帳簿の取得時にエラーが発生しました。"})
 		return
@@ -672,6 +705,7 @@ func ChangeTransaction(c *gin.Context) {
 	}
 
 	if beforeflg == 2 && flg != beforeflg {
+		//前回振替で今回そうではない場合
 		transactioninfomationID2, ok := requestBody["TransactionInfomationID2"].(float64)
 		if !ok {
 			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "TransactionInfomationID2 の型が不正です"})
@@ -681,13 +715,15 @@ func ChangeTransaction(c *gin.Context) {
 		transaction_infomation2.TransactionInfomationID = int(transactioninfomationID2)
 		transaction_infomation2.DelFlg = true
 
-		err = repository.CreateTransactionInfomation(transaction_infomation2)
+		//削除する
+		err = repository.UpdateTransactionInfomation(transaction_infomation2)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "サブカテゴリ情報の作成に失敗しました。1"})
 			return
 		}
 	} else if flg == 2 && flg != beforeflg {
-		assets2ID, ok := requestBody["Assets2ID"].(int)
+		//前回普通で今回振替の場合
+		assets2ID, ok := requestBody["Assets2ID"].(float64)
 		if !ok {
 			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "Assets2ID の型が不正です"})
 			return
@@ -706,7 +742,7 @@ func ChangeTransaction(c *gin.Context) {
 
 		if assets2ID != 0 {
 			// 更新チェック
-			assetsFlg := repository.CheckAssetsUpdate(assets2ID, assets2UpdateTime)
+			assetsFlg := repository.CheckAssetsUpdate(int(assets2ID), assets2UpdateTime)
 			if assetsFlg == -1 {
 				c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報が更新されています。再度やり直してください。"})
 				return
@@ -722,24 +758,75 @@ func ChangeTransaction(c *gin.Context) {
 			}
 		}
 
-		amount2, ok := requestBody["Amount2"].(int)
+		amount2, ok := requestBody["Amount2"].(float64)
 		if !ok {
 			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "Amount2 の型が不正です"})
 			return
 		}
-		transaction_infomation.Amount = amount2
-		if flg == 2 && flg == beforeflg {
-			err = repository.UpdateTransactionInfomation(transaction_infomation)
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "サブカテゴリ情報の更新に失敗しました。2"})
+		transaction_infomation.Amount = int(amount2)
+
+		//新規作成
+		err = repository.UpdateTransactionInfomation(transaction_infomation)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "サブカテゴリ情報の作成に失敗しました。2"})
+			return
+		}
+	} else if beforeflg == 2 && flg == 2 {
+		transactioninfomationID2, ok := requestBody["TransactionInfomationID2"].(float64)
+		if !ok {
+			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "TransactionInfomationID2 の型が不正です"})
+			return
+		}
+		transaction_infomation2 := &models.TransactionInfomation{}
+		transaction_infomation2.TransactionInfomationID = int(transactioninfomationID2)
+
+		assets2ID, ok := requestBody["Assets2ID"].(float64)
+		if !ok {
+			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "Assets2ID の型が不正です"})
+			return
+		}
+
+		assets2UpdateTimeS, ok := requestBody["Assets2UpdateTime"].(string)
+		if !ok {
+			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "Assets2UpdateTime の型が不正です"})
+			return
+		}
+		assets2UpdateTime, state := time.Parse(time.RFC3339, assets2UpdateTimeS)
+		if state != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "AategoryUpdateTimeS の型が不正です"})
+			return
+		}
+
+		if assets2ID != 0 {
+			// 更新チェック
+			assetsFlg := repository.CheckAssetsUpdate(int(assets2ID), assets2UpdateTime)
+			if assetsFlg == -1 {
+				c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報が更新されています。再度やり直してください。"})
+				return
+			} else if assetsFlg == -2 {
+				c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報の取得に失敗しました。"})
 				return
 			}
-		} else {
-			err = repository.CreateTransactionInfomation(transaction_infomation)
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "サブカテゴリ情報の作成に失敗しました。2"})
-				return
+
+			if assetsFlg == 0 {
+				transaction_infomation2.Flg = 0
+			} else {
+				transaction_infomation2.Flg = 1
 			}
+		}
+
+		amount2, ok := requestBody["Amount"].(float64)
+		if !ok {
+			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "Amount2 の型が不正です"})
+			return
+		}
+		transaction_infomation2.Amount = int(amount2)
+
+		// 構造体の内容を出力
+		err = repository.UpdateTransactionInfomation(transaction_infomation2)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "サブカテゴリ情報の作成に失敗しました。1"})
+			return
 		}
 	}
 

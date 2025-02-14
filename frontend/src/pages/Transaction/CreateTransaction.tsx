@@ -1,11 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import '../../styles.css'; // CSSファイルのインポート
-import Category from '../Category/Category';
-import AssetsModal from './Modal/AssetsModal';
-import CategoryModal from './Modal/CategoryModal';
+import AssetsModal from '../Modal/AssetsModal';
+import CategoryModal from '../Modal/CategoryModal';
+import { getDate } from 'date-fns';
 
 interface OpenButtonProps {
-  onClose: (isButton: boolean, number: Number) => void;
+  moveKind:           number;
+  moveDate:           Date;
+  moveAmount:         number;
+  moveMemo:           string;
+  moveAssetsID:       number;
+  moveCategoryID:     number;
+  moveSubcategoryID:  number;
+  moveAmount2:        number;
+  moveAssets2ID:      number;
+
+  onClose: (isButton: boolean, number: Number, move:any) => void;
 }
 
 interface Category {
@@ -15,10 +25,12 @@ interface Category {
 }
 
 interface Assets {
-  AssetsID: number;
-  UserID: number;
-  UserName: string
+  AssetsID:   number;
+  UserNo:     number;
+  UserName:   string;
+  Tag:        string;
   AssetsName: string;
+  Amount:     string;
   UpdateTime: Date;
 }
 
@@ -51,7 +63,7 @@ interface CreateData {
   SubcategoryUpdateTime: Date;
 }
 
-const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
+const CreateTransaction: React.FC<OpenButtonProps> = ({ moveKind, moveDate, moveAmount, moveMemo, moveAssetsID, moveCategoryID, moveSubcategoryID, onClose }) => {
   const [errorMessages, setErrorMessages] = useState<string>('');
   const [isPageFlg, setPageFlg] = useState<number>(0);
 
@@ -59,6 +71,8 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
   const [discategory_n, setDisCategory_n] = useState<Category[]>([]);
   const [disAssets_p, setDisAssets_p] = useState<Assets[][]>([]);
   const [disAssets_n, setDisAssets_n] = useState<Assets[][]>([]);
+  const [disNotAssets_p, setDisNotAssets_p] = useState<Assets[][]>([]);
+  const [disNotAssets_n, setDisNotAssets_n] = useState<Assets[][]>([]);
   const [disSubcategory_p, setDisSubcategory_p] = useState<Subcategory[][]>([]);
   const [disSubcategory_n, setDisSubcategory_n] = useState<Subcategory[][]>([]);
 
@@ -68,7 +82,6 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
 
   const [date, setDate] = useState<string>(`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`);
   const [time, setTime] = useState<string>(`${String(new Date().getHours()).padStart(2, "0")}:${String(new Date().getMinutes()).padStart(2, "0")}`);
-  const [disDate, setDisDate] = useState<Date>(new Date());
   const [disAmount, setAmount] = useState<number>(0);
   const [dispAmount, setDisAmount] = useState<string>("0");
   const [disAmount2, setAmount2] = useState<number>(0);
@@ -94,8 +107,6 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
   const [isAssets, setisAssets] = useState<boolean>(false);
   const [isAssetsID, setisAssetsID] = useState<number>(0);
 
-
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -108,12 +119,22 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
         }
 
         const data = await response.json();
-        console.log(data)
         const assetses = data.assets;
         const categoryies = data.category;
 
         SetAssetsData(assetses);
         SetCategoryData(categoryies);
+
+        let tran:any = {};
+        tran.Kind = moveKind;
+        tran.Date = moveDate || new Date();
+        tran.Memo = moveMemo;
+        tran.Amount = moveAmount;
+        tran.AssetsID = moveAssetsID;
+        tran.CategoryID = moveCategoryID;
+        tran.SubcategoryID = moveSubcategoryID;
+        SetTransactionData(tran, assetses, categoryies)
+
 
       } catch (error) {
         if (error instanceof Error) {
@@ -154,6 +175,60 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
     }
   };
 
+  const SetTransactionData = (transaction:any, assets:any[], categoryies:any[]) => {
+    setPageFlg(transaction.Kind)
+
+    const newDate = new Date(transaction.Date.getTime() + 9 * 60 * 60 * 1000);
+    // 日付と時刻を取得
+    const nd = newDate.toISOString()
+    const date = nd.split("T")[0]; // "2025-01-15"
+    const time = nd.split("T")[1].slice(0, 5); // "00:00:00"
+    setDate(date)
+    setTime(time)
+
+    NumberCheck1(String(transaction.Amount) || "0")
+    setMemo(transaction.Memo || "");
+    
+    SearchAssets(transaction.AssetsID, assets, true)
+    SearchCategory(transaction.CategoryID, transaction.SubcategoryID, categoryies)
+    
+  } 
+
+  const SearchAssets = (assetID:number, assets:any[], flg:boolean) =>{
+      
+    assets.forEach((asset: any) => {
+      if(assetID === Number(asset.AssetsID)){
+        if(flg){
+          setAssets(asset.AssetsName || "");
+          setAssetsID(asset.AssetsID || 0);
+          setAssetsUpdateTime(asset.UpdateTime || new Date());
+        }else{
+          setAssets2(asset.AssetsName || "");
+          setAssets2ID(asset.AssetsID || 0);
+          setAssets2UpdateTime(asset.UpdateTime || new Date());
+        }
+      }
+    })
+  }
+
+  const SearchCategory = (categoryID:number, subcategoryID:number, categorys:any[]) =>{
+    categorys.forEach((category: any) => {
+      if(subcategoryID === 0 && categoryID === category.CategoryID){
+        setCategory(category.CategoryName || "");
+        setCategoryID(category.CategoryID || 0);
+        setCategoryUpdateTime(category.UpdateTime || new Date());
+        setSubcategory("");
+      }else if(subcategoryID === category.SubcategoryID){
+        setCategory(category.CategoryName || "");
+        setCategoryID(category.CategoryID || 0);
+        setCategoryUpdateTime(category.UpdateTime || new Date());
+        setSubcategory(category.SubcategoryName || "");
+        setSubcategoryID(category.SubcategoryID || 0);
+        setSubcategoryUpdateTime(category.UpdateTime || new Date());
+      }
+    })
+  }
+
   const SetAssetsData = (assets: any) => {
     let hozUserNo = -1;
     let usernames: string[] = [];
@@ -161,49 +236,117 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
     let index = -1;
     let assetsnames_p: Assets[][] = [];
     let assetsnames_n: Assets[][] = [];
+    let not_assetsnames_p: Assets[][] = [];
+    let not_assetsnames_n: Assets[][] = [];
 
     // ユーザ情報ごとにデータを分ける
     assets.forEach((asset: any) => {
       if (hozUserNo !== asset.UserNo) {
         hozUserNo = asset.UserNo;
         usernames.push(asset.UserName);
-        if (asset.Flg == 0) {
-          assetsnames_p.push([{
-            UserID: asset.UserID,
-            UserName: asset.UserName,
-            AssetsID: asset.AssetsID,
-            AssetsName: asset.AssetsName,
-            UpdateTime: asset.UpdateTime,
-          }]);
-          assetsnames_n.push([]);
-        } else {
-          assetsnames_p.push([]);
-          assetsnames_n.push([{
-            UserID: asset.UserID,
-            UserName: asset.UserName,
-            AssetsID: asset.AssetsID,
-            AssetsName: asset.AssetsName,
-            UpdateTime: asset.UpdateTime,
-          }]);
+        if(!Boolean(asset.Excluded)){
+          if (asset.Flg == 0) {
+            assetsnames_p.push([{
+              UserNo: asset.UserNo,
+              UserName: asset.UserName,
+              AssetsID: asset.AssetsID,
+              Tag: asset.Tag,
+              AssetsName: asset.AssetsName,
+              Amount: asset.Amount.toLocaleString(),
+              UpdateTime: asset.UpdateTime,
+            }]);
+            assetsnames_n.push([]);
+            not_assetsnames_p.push([]);
+            not_assetsnames_n.push([]);
+          } else {
+            assetsnames_p.push([]);
+            assetsnames_n.push([{
+              UserNo: asset.UserNo,
+              UserName: asset.UserName,
+              AssetsID: asset.AssetsID,
+              Tag: asset.Tag,
+              AssetsName: asset.AssetsName,
+              Amount: asset.Amount.toLocaleString(),
+              UpdateTime: asset.UpdateTime,
+            }]);
+            not_assetsnames_p.push([]);
+            not_assetsnames_n.push([]);
+          }
+        }else{
+          if (asset.Flg == 0) {
+            assetsnames_p.push([]);
+            assetsnames_n.push([]);
+            not_assetsnames_p.push([{
+              UserNo: asset.UserNo,
+              UserName: asset.UserName,
+              AssetsID: asset.AssetsID,
+              Tag: asset.Tag,
+              AssetsName: asset.AssetsName,
+              Amount: asset.Amount.toLocaleString(),
+              UpdateTime: asset.UpdateTime,
+            }]);
+            not_assetsnames_n.push([]);
+          } else {
+            assetsnames_p.push([]);
+            assetsnames_n.push([]);
+            not_assetsnames_p.push([]);
+            not_assetsnames_n.push([{
+              UserNo: asset.UserNo,
+              UserName: asset.UserName,
+              AssetsID: asset.AssetsID,
+              Tag: asset.Tag,
+              AssetsName: asset.AssetsName,
+              Amount: asset.Amount.toLocaleString(),
+              UpdateTime: asset.UpdateTime,
+            }]);
+          }
         }
         index++;
       } else {
-        if (asset.Flg == 0) {
-          assetsnames_p[index].push({
-            UserID: asset.UserID,
-            UserName: asset.UserName,
-            AssetsID: asset.AssetsID,
-            AssetsName: asset.AssetsName,
-            UpdateTime: asset.UpdateTime,
-          });
-        } else {
-          assetsnames_n[index].push({
-            UserID: asset.UserID,
-            UserName: asset.UserName,
-            AssetsID: asset.AssetsID,
-            AssetsName: asset.AssetsName,
-            UpdateTime: asset.UpdateTime,
-          });
+        if(!Boolean(asset.Excluded)){
+          if (asset.Flg == 0) {
+            assetsnames_p[index].push({
+              UserNo: asset.UserNo,
+              UserName: asset.UserName,
+              AssetsID: asset.AssetsID,
+              Tag: asset.Tag,
+              AssetsName: asset.AssetsName,
+              Amount: asset.Amount.toLocaleString(),
+              UpdateTime: asset.UpdateTime,
+            });
+          } else {
+            assetsnames_n[index].push({
+              UserNo: asset.UserNo,
+              UserName: asset.UserName,
+              AssetsID: asset.AssetsID,
+              Tag: asset.Tag,
+              AssetsName: asset.AssetsName,
+              Amount: asset.Amount.toLocaleString(),
+              UpdateTime: asset.UpdateTime,
+            });
+          }
+        }else{
+          if (asset.Flg == 0) {
+            not_assetsnames_p[index].push({
+              UserNo: asset.UserNo,
+              UserName: asset.UserName,
+              AssetsID: asset.AssetsID,
+              Tag: asset.Tag,
+              AssetsName: asset.AssetsName,
+              Amount: asset.Amount.toLocaleString(),
+              UpdateTime: asset.UpdateTime,
+            });
+          } else {
+            not_assetsnames_n[index].push({
+              UserNo: asset.UserNo,
+              UserName: asset.UserName,
+              AssetsID: asset.AssetsID,
+              Tag: asset.Tag,
+              AssetsName: asset.AssetsName,
+              Amount: asset.Amount.toLocaleString(),
+              UpdateTime: asset.UpdateTime,
+            });
+          }
         }
       }
     });
@@ -211,6 +354,8 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
     // セット
     setDisAssets_p(assetsnames_p);
     setDisAssets_n(assetsnames_n);
+    setDisNotAssets_p(not_assetsnames_p);
+    setDisNotAssets_n(not_assetsnames_n);
 
     setPCreateData({
       Assets: disAssets,
@@ -410,6 +555,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
   }
 
   const SaveTransactionData = async () => {
+    const disDate = new Date(date + "T" + time + "Z")
     SetNowData(isPageFlg)
     try {
       let response;
@@ -522,7 +668,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
         setErrorMessages('予期しないエラーが発生しました。');
       }
       else {
-        onClose(true, 0)
+        onClose(true, 0, null)
       }
     } catch (error) {
       console.log(error)
@@ -534,21 +680,16 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
     }
   }
 
-  const ChangeDate = (date: string) => {
-    setDate(date);
-    setDisDate(new Date(date + "T" + time + "Z"));
-  }
-
-  const ChangeTime = (time: string) => {
-    setTime(time);
-    setDisDate(new Date(date + "T" + time + "Z"));
-  }
-
   // モーダルを閉じる処理と、選択された値の保持
   const handleCategoryValue = (category: any, subcategory: any) => {
     if (category === null && subcategory === null) {
+      setCategoryID(0)
+      setCategory("未選択")
+
+      setSubcategoryID(0)
+      setSubcategory("未選択");
+
       fetchData()
-      return
     }
     else if (!(category === undefined && subcategory === undefined)) {
 
@@ -575,7 +716,13 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
   const handleAssetsValue = (value: any) => {
     if (value === undefined) {
       fetchData()
-    } else {
+    } else if(value === false) {
+      setAssetsID(0)
+      setAssets("未選択")
+    }else if(value === true){
+      setAssets2ID(0)
+      setAssets2("未選択")
+    }else {
       if (value.Flg == 0) {
         setAssetsID(value?.AssetsID);
         setAssets(value?.AssetsName);
@@ -607,36 +754,42 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
     setisAssetsOpen(true);
   };
 
+  const NumberCheck1 = (e: string) => {
+    let inputValue = e;
 
-  const NumberCheck1 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let inputValue = e.target.value;
+    // **全角数字を半角に変換**
+    inputValue = inputValue.replace(/[０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
 
-    // 数字のみを抽出（非数字を削除）
+    // **数字のみを抽出（非数字を削除）**
     inputValue = inputValue.replace(/[^0-9]/g, "");
 
-    // 先頭のゼロを削除
+    // **先頭のゼロを削除**
     if (inputValue.startsWith("0")) {
       inputValue = inputValue.replace(/^0+/, "");
     }
 
-    // カンマ区切りに変換
+    // **カンマ区切りに変換**
     const formattedValue = inputValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-    setAmount(parseInt(inputValue))
+    setAmount(parseInt(inputValue));
     setDisAmount(formattedValue);
   };
-  const NumberCheck2 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let inputValue = e.target.value;
 
-    // 数字のみを抽出（非数字を削除）
+  const NumberCheck2 = (e: string) => {
+    let inputValue = e;
+
+    // **全角数字を半角に変換**
+    inputValue = inputValue.replace(/[０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+
+    // **数字のみを抽出（非数字を削除）**
     inputValue = inputValue.replace(/[^0-9]/g, "");
 
-    // 先頭のゼロを削除
+    // **先頭のゼロを削除**
     if (inputValue.startsWith("0")) {
       inputValue = inputValue.replace(/^0+/, "");
     }
 
-    // カンマ区切りに変換
+    // **カンマ区切りに変換**
     const formattedValue = inputValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
     setAmount2(parseInt(inputValue))
@@ -672,13 +825,13 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
                 className='TransactionValue'
                 type="date"
                 value={date}
-                onChange={(e) => ChangeDate(e.target.value.toString())}
+                onChange={(e) => setDate(e.target.value.toString())}
               />
               <input
                 className='TransactionValue'
                 type="time"
                 value={time}
-                onChange={(e) => ChangeTime(e.target.value.toString())}
+                onChange={(e) => setTime(e.target.value.toString())}
               />
             </div>
 
@@ -689,7 +842,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
                   <input
                     type="text"
                     value={dispAmount}
-                    onChange={NumberCheck1}
+                    onChange={e => {NumberCheck1(e.target.value)}}
                     onBlur={FrontZeroDel}
                     className='TransactionValue'
                   />
@@ -716,7 +869,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
                   <input
                     type="text"
                     value={dispAmount}
-                    onChange={NumberCheck1}
+                    onChange={e => {NumberCheck1(e.target.value)}}
                     onBlur={FrontZeroDel}
                     className='TransactionValue'
                   />
@@ -726,7 +879,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
                   <input
                     type="text"
                     value={dispAmount2}
-                    onChange={NumberCheck2}
+                    onChange={e => {NumberCheck2(e.target.value)}}
                     onBlur={FrontZeroDel}
                     className='TransactionValue'
                   />
@@ -739,7 +892,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
                 </div>
                 <div className='TransactionGroup'>
                   <span className='TransactionLabel'>振替先</span>
-                  <div className='TransactionValueSelect' onClick={() => handleOpenAssets(false)}>
+                  <div className='TransactionValueSelect' onClick={() => handleOpenAssets(true)}>
                     <span className='TransactionSelectspan'>{disAssets2}</span>
                   </div>
                 </div>
@@ -761,6 +914,8 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
               assetsID={isAssetsID}
               disAssets_p={disAssets_p}
               disAssets_n={disAssets_n}
+              disNotAssets_p={disNotAssets_p}
+              disNotAssets_n={disNotAssets_n}
               onSelect={(value) => handleAssetsValue(value)}
             />
           </>
@@ -768,8 +923,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
         {isCategoryOpen && (
           <>
             <CategoryModal
-              isPageFlg={isPageFlg}
-              isCategoryID={isCategoryID}
+              isLockPageFlg={isPageFlg}
               isSubcategoryID={isSubcategoryID}
               disSubcategory_n={disSubcategory_n}
               disSubcategory_p={disSubcategory_p}
@@ -783,7 +937,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
 
       <div className='PopUpButtonGroup'>
         <button onClick={() => SaveTransactionData()} className='btn-style'>登録</button>
-        <button onClick={() => onClose(false, 0)} className='btn-style'>閉じる</button>
+        <button onClick={() => onClose(false, 0, null)} className='btn-style'>閉じる</button>
       </div>
     </div>
   );

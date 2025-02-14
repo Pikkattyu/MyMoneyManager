@@ -45,6 +45,9 @@ const Asset: React.FC<OpenButtonProps> = ({ onClose, MovePageFlg }) => {
   //表示内容切り替えフラグ
   const [isPageFlg, setPageFlg] = useState(MovePageFlg || 0);
   const [isStartFlg] = useState(MovePageFlg || 0);
+  
+  const [isShowZeroAmountItems, setShowZeroAmountItems] = useState<boolean>(false);
+  const [isShowZeroAmountItemsHidden, setShowZeroAmountItemsHidden] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,8 +61,11 @@ const Asset: React.FC<OpenButtonProps> = ({ onClose, MovePageFlg }) => {
           return;
         }
 
+        if (localStorage.getItem('ShowZeroAmountItems') === 'true'){
+          setShowZeroAmountItemsHidden(true)
+        }
+
         const data = await response.json();
-        console.log(data)
         const assets = data.data; // データを状態変数に格納
         const transactions = data.transactions; // データを状態変数に格納
 
@@ -86,12 +92,10 @@ const Asset: React.FC<OpenButtonProps> = ({ onClose, MovePageFlg }) => {
         let subtotal_conv: string[] = [];
 
         let CorrectVal: number;
-        let CorrectValSum: number;
 
         // ユーザ情報ごとにデータを分ける
         assets.forEach((asset: any) => {
           CorrectVal = 0
-          CorrectValSum = 0
           transactions.forEach((transaction: any) => {
             if(asset.AssetsID === transaction.AssetsID){
               if(transaction.Kind === 0){
@@ -108,18 +112,13 @@ const Asset: React.FC<OpenButtonProps> = ({ onClose, MovePageFlg }) => {
                 }
               }else{
                 if(transaction.Flg === 0){
-                  CorrectVal += transaction.Amount
-                }else{
                   CorrectVal -= transaction.Amount
+                }else{
+                  CorrectVal += transaction.Amount
                 }
               }
             }
           })
-          if (asset.Flg == 0) {
-            CorrectValSum = asset.Amount + CorrectVal;
-          } else {
-            CorrectValSum = asset.Amount * -1 + CorrectVal;
-          }
           CorrectVal += asset.Amount;
 
           if (hozUserNo !== asset.UserNo) {
@@ -244,10 +243,11 @@ const Asset: React.FC<OpenButtonProps> = ({ onClose, MovePageFlg }) => {
       } catch (error) {
         setErrorMessages('エラーしました。');
       }
+      
     };
 
     fetchData();
-  }, []);
+  }, [isPageFlg]);
 
   const SetAssetsData = (assets: any[]) => {
     let hozUserNo = -1;
@@ -349,6 +349,17 @@ const Asset: React.FC<OpenButtonProps> = ({ onClose, MovePageFlg }) => {
               </div>
             </div>
 
+            {isShowZeroAmountItemsHidden &&(
+              <div>
+                <span className='UserSettingLabel'>0円の項目を資産一覧表示しない</span>
+                <input
+                  className='TransactionValue'
+                  type="checkbox"
+                  checked={isShowZeroAmountItems}
+                  onChange={(e) => setShowZeroAmountItems(Boolean(e.target.checked))}
+                />
+              </div>
+            )}
             <div className="customHeaderWrapper">
               <span className="customHeaderTitle">使用者 {disUsernames[0]}</span>
               <span className="customHeaderAmount">¥ {disSubtotal[0]}</span>
@@ -362,48 +373,72 @@ const Asset: React.FC<OpenButtonProps> = ({ onClose, MovePageFlg }) => {
                     <div className='littleHeader'>資産計上</div>
                   </>
                 )}
-                {disAssetsnames_p[0]?.map((name, index) => (
-                  <div className="customDetailItem" key={index}>
-                    <span className="customDetailLabel">{name}</span>
-                    <span className="customDetailAmount">¥ {disAmounts_p[0][index]}</span>
-                  </div>
-                ))}
+                {disAssetsnames_p[0]?.map((name, index) => {
+                  const amount = disAmounts_p[0]?.[index];
+                  if (!(amount === "0" && isShowZeroAmountItems)) {
+                    return (
+                      <div className="customDetailItem" key={index}>
+                        <span className="customDetailLabel">{name}</span>
+                        <span className="customDetailAmount">¥ {amount}</span>
+                      </div>
+                    );
+                  }
+                  return null; // 条件を満たさない場合は何もレンダリングしない
+                })}
                 {disExAssetsnames_p[0]?.length > 0 && (
                   <>
                     <div className='littleHeader'>資産非計上</div>
                   </>
                 )}
-                {disExAssetsnames_p[0]?.map((name, index) => (
-                  <div className="customDetailItem" key={index}>
-                    <span className="customDetailLabel">{name}</span>
-                    <span className="customDetailAmount">¥ {disExAmounts_p[0][index]}</span>
-                  </div>
-                ))}
+                {disExAssetsnames_p[0]?.map((name, index) => {
+                  const amount = disExAmounts_p[0]?.[index];
+                  if (!(amount === "0" && isShowZeroAmountItems)) {
+                    return (
+                      <div className="customDetailItem" key={index}>
+                        <span className="customDetailLabel">{name}</span>
+                        <span className="customDetailAmount">¥ {amount}</span>
+                      </div>
+                    );
+                  }
+                  return null; // 条件を満たさない場合は何もレンダリングしない
+                })}
               </div>
               <div className="customRightSection">
                 <div className="customDetailTitle-minus">負債</div>
                 {disAssetsnames_n[0]?.length > 0 && (
                   <>
-                    <div className='littleHeader'>負債</div>
+                    <div className='littleHeader'>負債計上</div>
                   </>
                 )}
-                {disAssetsnames_n[0]?.map((name, index) => (
-                  <div className="customDetailItem" key={index}>
-                    <span className="customDetailLabel">{name}</span>
-                    <span className="customDetailAmount">¥ {disAmounts_n[0][index]}</span>
-                  </div>
-                ))}
+                {disAssetsnames_n[0]?.map((name, index) => {
+                  const amount = disAmounts_n[0]?.[index];
+                  if (!(amount === "0" && isShowZeroAmountItems)) {
+                    return (
+                      <div className="customDetailItem" key={index}>
+                        <span className="customDetailLabel">{name}</span>
+                        <span className="customDetailAmount">¥ {amount}</span>
+                      </div>
+                    );
+                  }
+                  return null; // 条件を満たさない場合は何もレンダリングしない
+                })}
                 {disExAssetsnames_n[0]?.length > 0 && (
                   <>
                     <div className='littleHeader'>負債非計上</div>
                   </>
                 )}
-                {disExAssetsnames_n[0]?.map((name, index) => (
-                  <div className="customDetailItem" key={index}>
-                    <span className="customDetailLabel">{name}</span>
-                    <span className="customDetailAmount">¥ {disExAmounts_n[0][index]}</span>
-                  </div>
-                ))}
+                {disExAssetsnames_n[0]?.map((name, index) => {
+                  const amount = disExAmounts_n[0]?.[index];
+                  if (!(amount === "0" && isShowZeroAmountItems)) {
+                    return (
+                      <div className="customDetailItem" key={index}>
+                        <span className="customDetailLabel">{name}</span>
+                        <span className="customDetailAmount">¥ {amount}</span>
+                      </div>
+                    );
+                  }
+                  return null; // 条件を満たさない場合は何もレンダリングしない
+                })}
               </div>
             </div>
             <div>

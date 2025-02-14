@@ -8,6 +8,13 @@ import (
 	"time"
 )
 
+type TransactionSummary struct {
+	Amount float64 `json:"amount"` // SUM(t1.amount) の結果
+	FlgT1  int     `json:"flg_t1"` // t1.flg
+	Kind   int     `json:"kind"`   // t2.kind
+	FlgA1  int     `json:"flg_a1"` // a1.flg
+}
+
 // 入出金履歴情報の作成
 func CreateTransaction(transaction *models.Transaction) (int, error) {
 	if err := utils.DB.Create(transaction).Error; err != nil {
@@ -106,18 +113,26 @@ func UpdateTransactionInfomation(transaction *models.TransactionInfomation) erro
 	return nil
 }
 
-func GetTransactionInfomationAll(BookID int) ([]models.Transaction_Infomation, error) {
-	var transactionInfomations []models.Transaction_Infomation
+func GetTransactionInfomationAll(BookID int, endDate time.Time) ([]TransactionSummary, error) {
+	var transactionInfomations []TransactionSummary
 
 	if err := utils.DB.Table("transaction_infomations t1").
 		Select(`
-            SUM(t1.amount) AS amount, 
-            t1.flg, 
-            t2.kind
-        `).
+		SUM(t1.amount) AS amount, 
+        t1.flg AS flg_t1, 
+        t2.kind AS kind, 
+        a1.flg AS flg_a1
+		`).
 		Joins("INNER JOIN transactions t2 ON t1.transaction_id = t2.transaction_id").
-		Where("t2.kind <> 2 AND t2.book_id = ?", BookID).
-		Group("t1.flg, t2.kind").
+		Joins("INNER JOIN assets a1 ON a1.assets_id = t1.assets_id").
+		Where(`
+			t1.del_flg = false 
+			AND t2.del_flg = false 
+			AND (t2.kind <> 2 OR (t2.kind = 2 AND a1.excluded = true))
+			AND t2.book_id = ?
+			AND t2.date <= ?
+		`, BookID, endDate).
+		Group("t1.flg, t2.kind, a1.flg").
 		Order("t1.flg ASC").
 		Scan(&transactionInfomations).Error; err != nil {
 		log.Printf("取引情報の取得に失敗しました。 BookID: %d, Error: %v", BookID, err)
@@ -144,8 +159,10 @@ func GetTransactionInfomationMonth(BookID int, startDate time.Time, endDate time
             transaction_infomations.assets_id,
             assets.assets_name,
             assets.user_no,
+            assets.backgroundcolor,
             users.user_name,
             categories.category_name,
+            categories.backgroundcolor,
             subcategories.subcategory_id, 
             subcategories.subcategory_name
         `).
@@ -154,7 +171,7 @@ func GetTransactionInfomationMonth(BookID int, startDate time.Time, endDate time
 		Joins("LEFT JOIN categories ON transactions.category_id = categories.category_id").
 		Joins("LEFT JOIN subcategories ON transactions.subcategory_id = subcategories.subcategory_id").
 		Joins("LEFT JOIN users ON users.user_no = assets.user_no").
-		Where("transactions.book_id = ? AND transactions.date >= ? AND transactions.date <= ?", BookID, startDate, endDate).
+		Where("transactions.del_flg = false AND transaction_infomations.del_flg = false AND transactions.book_id = ? AND transactions.date >= ? AND transactions.date <= ?", BookID, startDate, endDate).
 		Order("transactions.date DESC, transactions.transaction_id DESC, transaction_infomations.transaction_infomation_id DESC").
 		Scan(&transactionInfomations).Error; err != nil {
 		log.Printf("取引情報の取得に失敗しました。 BookID: %d, Error: %v", BookID, err)

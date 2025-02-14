@@ -60,6 +60,7 @@ const ChangeBook: React.FC<OpenButtonProps> = ({ onClose }) => {
       } else {
         localStorage.setItem('bookID', bookID.toString());
         onClose(true);
+        window.location.reload();
       }
     } catch (error) {
       console.log(error);

@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import '../../styles.css'; // CSSファイルのインポート
-import Transaction from './Transaction';
 
 interface OpenButtonProps {
   transactionData: any[][];
   memoData: any[];
-  onClose: (isButton: boolean, number: Number, index: Number) => void;
+  onClose: (isButton: boolean, number: Number, index: Number, move:any) => void;
 }
 
 const TransactionDaily: React.FC<OpenButtonProps> = ({ transactionData, memoData, onClose }) => {
-  const [errorMessages, setErrorMessages] = useState<string>('');
   const [TransactionData, setTransactionData] = useState<
     { date: string; transactions: any[]; memos: any[] }[]
   >([]);
@@ -47,16 +45,17 @@ const TransactionDaily: React.FC<OpenButtonProps> = ({ transactionData, memoData
     });
   
     // memoDataを日付ごとに整理
-    memoData.forEach((memo) => {
-      const date = formatDateToJapanese(memo.Date);
-      if (!groupedData[date]) {
-        groupedData[date] = { transactions: [], memos: [] };
-      }
-      memo.Txt = truncateText(memo.Txt || "");
-      groupedData[date].memos.push(memo);
-    });
+    if(memoData !== null){
+      memoData.forEach((memo) => {
+        const date = formatDateToJapanese(memo.Date);
+        if (!groupedData[date]) {
+          groupedData[date] = { transactions: [], memos: [] };
+        }
+        memo.Txt = truncateText(memo.Txt || "");
+        groupedData[date].memos.push(memo);
+      });
+    }
   
-    console.log(groupedData)
     // 日付キーをすべて取得して昇順にソート
     const sortedDates = Object.keys(groupedData).sort(
       (a, b) =>
@@ -91,7 +90,7 @@ const TransactionDaily: React.FC<OpenButtonProps> = ({ transactionData, memoData
                   <div
                     key={memo.MemoID}
                     className="memo-item"
-                    onDoubleClick={() => onClose(false, 4, memo.MemoID)}
+                    onDoubleClick={() => onClose(false, 4, memo.MemoID, null)}
                   >
                     <span className="memo-label">メモ</span>
                     <span className="memo-title">{memo.Title}</span>
@@ -107,28 +106,27 @@ const TransactionDaily: React.FC<OpenButtonProps> = ({ transactionData, memoData
               {transactions.map((transaction) => (
                 <div
                   key={transaction.TransactionID}
-                  className="transaction-item"
+                  className={`transaction-item ${
+                    transaction.Kind === 0 ? 'back-income'
+                      : transaction.Kind === 1 ? 'back-expense'
+                      : transaction.Kind === 2 ? 'back-transfer'
+                      : ''
+                  }`}
                   onDoubleClick={() =>
-                    onClose(false, 2, transaction.TransactionID)
+                    onClose(false, 2, transaction.TransactionID, null)
                   }
                 >
                   <span
                     className={`transaction-category ${
-                      transaction.Kind === 0
-                        ? 'income'
-                        : transaction.Kind === 1
-                        ? 'expense'
-                        : transaction.Kind === 2
-                        ? 'transfer'
+                      transaction.Kind === 0 ? 'income'
+                        : transaction.Kind === 1 ? 'expense'
+                        : transaction.Kind === 2 ? 'transfer'
                         : ''
                     }`}
                   >
-                    {transaction.Kind === 0
-                      ? '収入'
-                      : transaction.Kind === 1
-                      ? '支出'
-                      : transaction.Kind === 2
-                      ? '振替'
+                    {transaction.Kind === 0 ? '収入'
+                      : transaction.Kind === 1 ? '支出'
+                      : transaction.Kind === 2 ? '振替'
                       : 'その他'}
                   </span>
                   <span className="transaction-category">
@@ -139,7 +137,13 @@ const TransactionDaily: React.FC<OpenButtonProps> = ({ transactionData, memoData
                   </span>
                   <span className="transaction-memo">{transaction.Memo}</span>
                   <span className="transaction-assets">
-                    {transaction.AssetsName}
+                    {transaction.Assets2Name !== undefined &&  (
+                      <>{transaction.Assets2Name + ' → ' + transaction.AssetsName}</>
+                    )}
+
+                    {transaction.Assets2Name === undefined &&  (
+                      <>{transaction.AssetsName}</>
+                    )}
                   </span>
                 </div>
               ))}

@@ -1,10 +1,13 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Chart, PieController, ArcElement, Tooltip, Legend } from 'chart.js';
 
 const Statistics: React.FC = () => {
     // Canvas要素への参照
     const chartRef = useRef<HTMLCanvasElement | null>(null);
     const chartInstanceRef = useRef<Chart | null>(null);
+
+    const [chartData, setChartData] = useState({});
+    
 
     // Chart.jsモジュールを登録
     useEffect(() => {

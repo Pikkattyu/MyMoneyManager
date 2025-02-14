@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import '../../styles.css'; // CSSファイルのインポート
-import Category from '../Category/Category';
-import AssetsModal from './Modal/AssetsModal';
-import CategoryModal from './Modal/CategoryModal';
+import AssetsModal from '../Modal/AssetsModal';
+import CategoryModal from '../Modal/CategoryModal';
+import { toDate } from 'date-fns';
 
 interface OpenButtonProps {
-  onClose: (isButton: boolean, number: Number) => void;
+  onClose: (isButton: boolean, number: Number, move:any) => void;
   transactionID: Number
 }
 
@@ -17,9 +17,11 @@ interface Category {
 
 interface Assets {
   AssetsID: number;
-  UserID: number;
+  UserNo: number;
   UserName: string
+  Tag: string;
   AssetsName: string;
+  Amount: string;
   UpdateTime: Date;
 }
 
@@ -64,6 +66,8 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
   const [discategory_n, setDisCategory_n] = useState<Category[]>([]);
   const [disAssets_p, setDisAssets_p] = useState<Assets[][]>([]);
   const [disAssets_n, setDisAssets_n] = useState<Assets[][]>([]);
+  const [disNotAssets_n, setDisNotAssets_n] = useState<Assets[][]>([]);
+  const [disNotAssets_p, setDisNotAssets_p] = useState<Assets[][]>([]);
   const [disSubcategory_p, setDisSubcategory_p] = useState<Subcategory[][]>([]);
   const [disSubcategory_n, setDisSubcategory_n] = useState<Subcategory[][]>([]);
 
@@ -113,7 +117,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
         }
 
         const data = await response.json();
-        console.log(data)
+        
         const assetses = data.assets;
         const categoryies = data.category;
         const transaction = data.transaction;
@@ -168,49 +172,117 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
     let index = -1;
     let assetsnames_p: Assets[][] = [];
     let assetsnames_n: Assets[][] = [];
+    let not_assetsnames_p: Assets[][] = [];
+    let not_assetsnames_n: Assets[][] = [];
 
     // ユーザ情報ごとにデータを分ける
     assets.forEach((asset: any) => {
       if (hozUserNo !== asset.UserNo) {
         hozUserNo = asset.UserNo;
         usernames.push(asset.UserName);
-        if (asset.Flg == 0) {
-          assetsnames_p.push([{
-            UserID: asset.UserID,
-            UserName: asset.UserName,
-            AssetsID: asset.AssetsID,
-            AssetsName: asset.AssetsName,
-            UpdateTime: asset.UpdateTime,
-          }]);
-          assetsnames_n.push([]);
-        } else {
-          assetsnames_p.push([]);
-          assetsnames_n.push([{
-            UserID: asset.UserID,
-            UserName: asset.UserName,
-            AssetsID: asset.AssetsID,
-            AssetsName: asset.AssetsName,
-            UpdateTime: asset.UpdateTime,
-          }]);
+        if(!Boolean(asset.Excluded)){
+          if (asset.Flg == 0) {
+            assetsnames_p.push([{
+              UserNo: asset.UserNo,
+              UserName: asset.UserName,
+              AssetsID: asset.AssetsID,
+              Tag: asset.Tag,
+              AssetsName: asset.AssetsName,
+              Amount: asset.Amount.toLocaleString(),
+              UpdateTime: asset.UpdateTime,
+            }]);
+            assetsnames_n.push([]);
+            not_assetsnames_p.push([]);
+            not_assetsnames_n.push([]);
+          } else {
+            assetsnames_p.push([]);
+            assetsnames_n.push([{
+              UserNo: asset.UserNo,
+              UserName: asset.UserName,
+              AssetsID: asset.AssetsID,
+              Tag: asset.Tag,
+              AssetsName: asset.AssetsName,
+              Amount: asset.Amount.toLocaleString(),
+              UpdateTime: asset.UpdateTime,
+            }]);
+            not_assetsnames_p.push([]);
+            not_assetsnames_n.push([]);
+          }
+        }else{
+          if (asset.Flg == 0) {
+            assetsnames_p.push([]);
+            assetsnames_n.push([]);
+            not_assetsnames_p.push([{
+              UserNo: asset.UserNo,
+              UserName: asset.UserName,
+              AssetsID: asset.AssetsID,
+              Tag: asset.Tag,
+              AssetsName: asset.AssetsName,
+              Amount: asset.Amount.toLocaleString(),
+              UpdateTime: asset.UpdateTime,
+            }]);
+            not_assetsnames_n.push([]);
+          } else {
+            assetsnames_p.push([]);
+            assetsnames_n.push([]);
+            not_assetsnames_p.push([]);
+            not_assetsnames_n.push([{
+              UserNo: asset.UserNo,
+              UserName: asset.UserName,
+              AssetsID: asset.AssetsID,
+              Tag: asset.Tag,
+              AssetsName: asset.AssetsName,
+              Amount: asset.Amount.toLocaleString(),
+              UpdateTime: asset.UpdateTime,
+            }]);
+          }
         }
         index++;
       } else {
-        if (asset.Flg == 0) {
-          assetsnames_p[index].push({
-            UserID: asset.UserID,
-            UserName: asset.UserName,
-            AssetsID: asset.AssetsID,
-            AssetsName: asset.AssetsName,
-            UpdateTime: asset.UpdateTime,
-          });
-        } else {
-          assetsnames_n[index].push({
-            UserID: asset.UserID,
-            UserName: asset.UserName,
-            AssetsID: asset.AssetsID,
-            AssetsName: asset.AssetsName,
-            UpdateTime: asset.UpdateTime,
-          });
+        if(!Boolean(asset.Excluded)){
+          if (asset.Flg == 0) {
+            assetsnames_p[index].push({
+              UserNo: asset.UserNo,
+              UserName: asset.UserName,
+              AssetsID: asset.AssetsID,
+              Tag: asset.Tag,
+              AssetsName: asset.AssetsName,
+              Amount: asset.Amount.toLocaleString(),
+              UpdateTime: asset.UpdateTime,
+            });
+          } else {
+            assetsnames_n[index].push({
+              UserNo: asset.UserNo,
+              UserName: asset.UserName,
+              AssetsID: asset.AssetsID,
+              Tag: asset.Tag,
+              AssetsName: asset.AssetsName,
+              Amount: asset.Amount.toLocaleString(),
+              UpdateTime: asset.UpdateTime,
+            });
+          }
+        }else{
+          if (asset.Flg == 0) {
+            not_assetsnames_p[index].push({
+              UserNo: asset.UserNo,
+              UserName: asset.UserName,
+              AssetsID: asset.AssetsID,
+              Tag: asset.Tag,
+              AssetsName: asset.AssetsName,
+              Amount: asset.Amount.toLocaleString(),
+              UpdateTime: asset.UpdateTime,
+            });
+          } else {
+            not_assetsnames_n[index].push({
+              UserNo: asset.UserNo,
+              UserName: asset.UserName,
+              AssetsID: asset.AssetsID,
+              Tag: asset.Tag,
+              AssetsName: asset.AssetsName,
+              Amount: asset.Amount.toLocaleString(),
+              UpdateTime: asset.UpdateTime,
+            });
+          }
         }
       }
     });
@@ -218,6 +290,8 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
     // セット
     setDisAssets_p(assetsnames_p);
     setDisAssets_n(assetsnames_n);
+    setDisNotAssets_p(not_assetsnames_p);
+    setDisNotAssets_n(not_assetsnames_n);
 
     setPCreateData({
       Assets: disAssets,
@@ -469,7 +543,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
         break;
 
       case 2:
-        setAmount2(transferData?.Amount2 || 0);
+        setAmount2(0);
         setAssets(transferData?.Assets || "");
         setAssetsID(transferData?.AssetsID || 0);
         setAssetsUpdateTime(transferData?.AssetsUpdateTime || new Date());
@@ -573,10 +647,14 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
             Assets2UpdateTime: Assets2UpdateTime
           })
 
-          response = await fetch('/api/createtransaction', {
+          response = await fetch('/api/changetransaction', {
             method: 'POST',
             body: JSON.stringify({ Date: disDate,
+              BeforeFlg: beforePageFlg,
               Flg: isPageFlg,
+              TransactionID: transactionID,
+              TransactionInfomationID:transactionInfomationID,
+              TransactionInfomationID2:transactionInfomationID2,
               Amount: disAmount,
               Amount2: disAmount2,
               Assets: disAssets,
@@ -601,7 +679,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
         setErrorMessages('予期しないエラーが発生しました。');
       }
       else {
-        onClose(true, 0)
+        onClose(true, 0, null)
       }
     } catch (error) {
       console.log(error)
@@ -611,6 +689,30 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
         setErrorMessages('予期しないエラーが発生しました。');
       }
     }
+  }
+
+  const CopyTransactionData = async () => {
+    SetNowData(isPageFlg)
+    let move:any = {};
+    
+    move.moveKind = isPageFlg
+    move.moveAmount = disAmount
+    move.moveAssetsID = disAssetsID
+    move.moveMemo = disMemo
+    //時間だけ持ち込む
+    move.moveDate = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), disDate.getHours() - 9, disDate.getMinutes(), disDate.getSeconds())
+
+    switch (isPageFlg) {
+      case 0 || 1:
+        move.moveCategoryID = disCategoryID
+        move.moveSubcategoryID = disSubcategoryID
+        break;
+      case 2:
+        move.moveAmount2 = disAmount2
+        move.moveAssets2ID = disAssets2ID
+        break;
+    }
+    onClose(false, 1, move)
   }
 
   const DeleteTransactionData = async () => {
@@ -631,7 +733,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
         setErrorMessages('予期しないエラーが発生しました。');
       }
       else {
-        onClose(true, 0)
+        onClose(true, 0, null)
       }
     } catch (error) {
       console.log(error)
@@ -655,11 +757,14 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
 
   // モーダルを閉じる処理と、選択された値の保持
   const handleCategoryValue = (category: any, subcategory: any) => {
-    console.log(category)
-    console.log(subcategory)
     if (category === null && subcategory === null) {
+      setCategoryID(0)
+      setCategory("未選択")
+
+      setSubcategoryID(0)
+      setSubcategory("未選択");
+
       fetchData()
-      return
     }
     else if (!(category === undefined && subcategory === undefined)) {
 
@@ -686,7 +791,14 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
   const handleAssetsValue = (value: any) => {
     if (value === undefined) {
       fetchData()
-    } else {
+    } else if(value === false) {
+      setAssetsID(0)
+      setAssets("未選択")
+    }else if(value === true){
+      setAssets2ID(0)
+      setAssets2("未選択")
+    }else {
+      console.log(value)
       if (value.Flg == 0) {
         setAssetsID(value?.AssetsID);
         setAssets(value?.AssetsName);
@@ -721,32 +833,40 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
 
   const NumberCheck1 = (e: string) => {
     let inputValue = e;
-    // 数字のみを抽出（非数字を削除）
+
+    // **全角数字を半角に変換**
+    inputValue = inputValue.replace(/[０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+
+    // **数字のみを抽出（非数字を削除）**
     inputValue = inputValue.replace(/[^0-9]/g, "");
 
-    // 先頭のゼロを削除
-    if (inputValue.startsWith("0") && inputValue !== "0") {
+    // **先頭のゼロを削除**
+    if (inputValue.startsWith("0")) {
       inputValue = inputValue.replace(/^0+/, "");
     }
 
-    // カンマ区切りに変換
+    // **カンマ区切りに変換**
     const formattedValue = inputValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-    setAmount(parseInt(inputValue))
+    setAmount(parseInt(inputValue));
     setDisAmount(formattedValue);
   };
+
   const NumberCheck2 = (e: string) => {
     let inputValue = e;
 
-    // 数字のみを抽出（非数字を削除）
+    // **全角数字を半角に変換**
+    inputValue = inputValue.replace(/[０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+
+    // **数字のみを抽出（非数字を削除）**
     inputValue = inputValue.replace(/[^0-9]/g, "");
 
-    // 先頭のゼロを削除
-    if (inputValue.startsWith("0") && inputValue !== "0") {
+    // **先頭のゼロを削除**
+    if (inputValue.startsWith("0")) {
       inputValue = inputValue.replace(/^0+/, "");
     }
 
-    // カンマ区切りに変換
+    // **カンマ区切りに変換**
     const formattedValue = inputValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
     setAmount2(parseInt(inputValue))
@@ -766,7 +886,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
 
   return (
     <div className='TransactionPopUp'>
-      <h1>入出金履歴入力</h1>
+      <h1>入出金履歴更新</h1>
 
       <div className='Category'>
         <div>
@@ -831,16 +951,18 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
                     className='TransactionValue'
                   />
                 </div>
-                <div className='TransactionGroup'>
-                  <span className='TransactionLabel'>手数料</span>
-                  <input
-                    type="text"
-                    value={dispAmount2}
-                    onChange={(e) => NumberCheck2(e.target.value)}
-                    onBlur={FrontZeroDel}
-                    className='TransactionValue'
-                  />
-                </div>
+                {beforePageFlg !== 2 && (
+                  <div className='TransactionGroup'>
+                    <span className='TransactionLabel'>手数料</span>
+                    <input
+                      type="text"
+                      value={dispAmount2}
+                      onChange={(e) => NumberCheck2(e.target.value)}
+                      onBlur={FrontZeroDel}
+                      className='TransactionValue'
+                    />
+                  </div>
+                )}
                 <div className='TransactionGroup'>
                   <span className='TransactionLabel'>振替元</span>
                   <div className='TransactionValueSelect' onClick={() => handleOpenAssets(false)}>
@@ -849,7 +971,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
                 </div>
                 <div className='TransactionGroup'>
                   <span className='TransactionLabel'>振替先</span>
-                  <div className='TransactionValueSelect' onClick={() => handleOpenAssets(false)}>
+                  <div className='TransactionValueSelect' onClick={() => handleOpenAssets(true)}>
                     <span className='TransactionSelectspan'>{disAssets2}</span>
                   </div>
                 </div>
@@ -871,6 +993,8 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
               assetsID={isAssetsID}
               disAssets_p={disAssets_p}
               disAssets_n={disAssets_n}
+              disNotAssets_p={disNotAssets_p}
+              disNotAssets_n={disNotAssets_n}
               onSelect={(value) => handleAssetsValue(value)}
             />
           </>
@@ -878,8 +1002,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
         {isCategoryOpen && (
           <>
             <CategoryModal
-              isPageFlg={isPageFlg}
-              isCategoryID={isCategoryID}
+              isLockPageFlg={isPageFlg}
               isSubcategoryID={isSubcategoryID}
               disSubcategory_n={disSubcategory_n}
               disSubcategory_p={disSubcategory_p}
@@ -892,9 +1015,10 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, transactionID }
       </div>
 
       <div className='PopUpButtonGroup'>
-        <button onClick={() => SaveTransactionData()} className='btn-style'>登録</button>
+        <button onClick={() => CopyTransactionData()} className='btn-style'>コピー</button>
+        <button onClick={() => SaveTransactionData()} className='btn-style'>更新</button>
         <button onClick={() => DeleteTransactionData()} className='btn-style'>削除</button>
-        <button onClick={() => onClose(false, 0)} className='btn-style'>閉じる</button>
+        <button onClick={() => onClose(false, 0, null)} className='btn-style'>閉じる</button>
       </div>
     </div>
   );

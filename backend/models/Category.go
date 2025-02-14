@@ -8,12 +8,14 @@ import (
 
 // Category モデル
 type Category struct {
-	CategoryID   int       `gorm:"primaryKey;autoIncrement"`  // 主キー
-	BookID       int       `gorm:"not null"`                  // NotNull制約
-	CategoryName string    `gorm:"not null"`                  // NotNull制約
-	Flg          int       `gorm:"default:0"`                 // デフォルト値0(0が+, 1が-, 2が削除)
-	UpdateTime   time.Time `gorm:"default:current_timestamp"` // デフォルト現在の時間
-	Register     time.Time `gorm:"default:current_timestamp"` // デフォルト現在の時間
+	CategoryID      int       `gorm:"primaryKey;autoIncrement"`  // 主キー
+	BookID          int       `gorm:"not null"`                  // NotNull制約
+	CategoryName    string    `gorm:"not null"`                  // NotNull制約
+	Flg             int       `gorm:"default:0"`                 // デフォルト値0(0が+, 1が-)
+	Backgroundcolor string    `gorm:"default:#eeeeee"`           // 色指定
+	IconPath        string    `gorm:"default:MemoIcon.png"`      // アイコン指定
+	UpdateTime      time.Time `gorm:"default:current_timestamp"` // デフォルト現在の時間
+	Register        time.Time `gorm:"default:current_timestamp"` // デフォルト現在の時間
 }
 
 type Category_SubCategory struct {

@@ -4,7 +4,7 @@ import { color } from 'chart.js/helpers';
 import { Colors } from 'chart.js';
 
 interface OpenButtonProps {
-  onClose: (isButton: boolean, number: Number) => void;
+  onClose: (isButton: boolean, number: Number, move:any) => void;
 }
 
 const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
@@ -12,7 +12,6 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
 
   const [date, setDate] = useState<string>(`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`);
   const [time, setTime] = useState<string>(`${String(new Date().getHours()).padStart(2, "0")}:${String(new Date().getMinutes()).padStart(2, "0")}`);
-  const [disDate, setDisDate] = useState<Date>(new Date());
   const [disTitle, setTitle] = useState<string>("");
   const [disMemo, setMemo] = useState<string>("");
 
@@ -23,6 +22,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
       return;
     }
 
+    const disDate = new Date(date + "T" + time + "Z")
     try {
       const response = await fetch('/api/creatememo', {
         method: 'POST',
@@ -52,17 +52,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
       return
     }
     
-    onClose(false, 0)
-  }
-
-  const ChangeDate = (date: string) => {
-    setDate(date);
-    setDisDate(new Date(date + "T" + time + "Z"));
-  }
-
-  const ChangeTime = (time: string) => {
-    setTime(time);
-    setDisDate(new Date(date + "T" + time + "Z"));
+    onClose(false, 0, null)
   }
 
   return (
@@ -76,13 +66,13 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
             className='TransactionValue'
             type="date"
             value={date}
-            onChange={(e) => ChangeDate(e.target.value.toString())}
+            onChange={(e) => setDate(e.target.value.toString())}
           />
           <input
             className='TransactionValue'
             type="time"
             value={time}
-            onChange={(e) => ChangeTime(e.target.value.toString())}
+            onChange={(e) => setTime(e.target.value.toString())}
           />
         </div>
 
@@ -106,7 +96,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {
 
       <div className='PopUpButtonGroup'>
         <button onClick={() => SaveTransactionData()} className='btn-style'>登録</button>
-        <button onClick={() => onClose(false, 0)} className='btn-style'>閉じる</button>
+        <button onClick={() => onClose(false, 0, null)} className='btn-style'>閉じる</button>
       </div>
     </div>
   );

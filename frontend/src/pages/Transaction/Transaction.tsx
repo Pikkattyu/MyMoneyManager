@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '../../styles.css'; // CSSファイルのインポート
 //import TransactionSummary from '../pages/DisCategory';
-//import TransactionCalendar from '../pages/DisCategory';
+import TransactionCalendar from './DisTransactionCalendar';
 import DisTransactionDaily from './DisTransactionDaily';
 import ChangeTransaction from './ChangeTransaction';
 import CreateTransaction from './CreateTransaction';
@@ -19,7 +19,6 @@ const Transaction: React.FC = () => {
     return `${year}${month}`; // "YYYYMM" 形式で文字列を返す
   });
 
-  const [errorMessages, setErrorMessages] = useState<string>('');
   const [TransactionData, setTransactionData] = useState<any[][]>([]);
   const [MemoData, setMemoData] = useState<any[]>([]);
 
@@ -28,9 +27,27 @@ const Transaction: React.FC = () => {
   const [Expenses, setExpenses] = useState<string>('');
   const [Total, setTotal] = useState<string>('');
   const [Balance, setBalance] = useState<string>('');
+  
+  const [UpdateFlg, setUpdateFlg] = useState<number>(0);
+
+  const [moveKind, setMoveKind] = useState<number>(0);
+  const [moveDate, setMoveDate] = useState<Date>(new Date);
+  const [moveAmount, setMoveAmount] = useState<number>(0);
+  const [moveMemo, setMoveMemo] = useState<string>("");
+  const [moveAssetsID, setMoveAssetsID] = useState<number>(0);
+  const [moveCategoryID, setMoveCategoryID] = useState<number>(0);
+  const [moveSubcategoryID, setMoveSubcategoryID] = useState<number>(0);
+  const [moveAmount2, setMoveAmount2] = useState<number>(0);
+  const [moveAssets2ID, setMoveAssets2ID] = useState<number>(0);
+
+  const [startFlg, setStartFlg] = useState<Boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
+      if(!startFlg){
+        setStartFlg(true)
+        setPageFlg(Number(localStorage.getItem('DefaultTransactionDisplay')))
+      }
       try {
         const response = await fetch('/api/gettransactiondata?date=' + DisDate, {
           method: 'GET',
@@ -57,14 +74,18 @@ const Transaction: React.FC = () => {
         });
 
         transactionAll.forEach((ta: any) => {
-          if ((ta.Flg === 0 && ta.Kind === 0) || (ta.Flg === 0 && ta.Kind === 1)) {
-            sum += ta.Amount;
-          } else {
-            sum -= ta.Amount;
+          if ((ta.flg_t1 === 0 && ta.kind === 0) || (ta.flg_t1 === 0 && ta.kind === 1)) {
+            sum += ta.amount;
+          } else if((ta.flg_t1 === 1 && ta.kind === 1) || (ta.flg_t1 === 1 && ta.kind === 0)) {
+            sum -= ta.amount;
+          }else if((ta.flg_t1 === 0 && ta.kind === 2 && ta.flg_a1 === 1) || (ta.flg_t1 === 1 && ta.kind === 2 && ta.flg_a1 === 0)){
+            sum -= ta.amount;
+          }else{
+            sum += ta.amount;
           }
         });
 
-        let sortedData;
+        let sortedData:any[] = [];
         if (transaction !== null) {
           sortedData = transaction.sort((a: any, b: any) => {
             // Date文字列から 'T' を削除して比較します
@@ -87,7 +108,6 @@ const Transaction: React.FC = () => {
         let HozDate = "";// 現在の日付を追跡
         let index = -1;
         let HozTransactionID = 0;
-
         for (let i = 0; i < sortedData.length; i++) {
           if (sortedData[i].Date.split("T")[0] !== HozDate) {
             // 日付が変わった場合、現在のグループを保存し、新しいグループを開始
@@ -100,6 +120,8 @@ const Transaction: React.FC = () => {
             // 同じ日付の場合、現在のグループに追加
             if (sortedData[i].TransactionID !== HozTransactionID) {
               transaction_for_date[index].push(sortedData[i]);
+            }else{
+              transaction_for_date[index][transaction_for_date[index].length - 1].Assets2Name = sortedData[i].AssetsName
             }
           }
           HozTransactionID = sortedData[i].TransactionID;
@@ -107,15 +129,17 @@ const Transaction: React.FC = () => {
 
         let p_sum = 0;
         let n_sum = 0;
-        transaction.forEach((tran: any) => {
-          if (tran.Kind !== 2) {
-            if ((tran.Kind === 0 && tran.Flg === 0) || (tran.Flg === 0 && tran.Kind === 1)) {
-              p_sum += tran.Amount;
-            } else {
-              n_sum += tran.Amount;
+        if(transaction !== null){
+          transaction.forEach((tran: any) => {
+            if (tran.Kind !== 2) {
+              if ((tran.Kind === 0 && tran.Flg === 0) || (tran.Flg === 0 && tran.Kind === 1)) {
+                p_sum += tran.Amount;
+              } else {
+                n_sum += tran.Amount;
+              }
             }
-          }
-        });
+          });
+        }
 
         setIncome(p_sum.toLocaleString());
         setExpenses(n_sum.toLocaleString());
@@ -125,17 +149,18 @@ const Transaction: React.FC = () => {
 
       } catch (error) {
         if (error instanceof Error) {
-          setErrorMessages(error.message);
+          console.log(error.message);
         } else {
-          setErrorMessages('予期しないエラーが発生しました。');
+          console.log(error);
         }
       }
     };
 
     fetchData();
-  }, [DisDate]);
+  }, [DisDate, UpdateFlg]);
 
-  const ChangePage = (button: boolean, number: Number, index: Number) => {
+  const ChangePage = (button: boolean, number: Number, index: Number, move:any) => {
+    setUpdateFlg(UpdateFlg => UpdateFlg + 1)
     //ページが変わるときはbutton:true, ポップアップの時はbutton:false
     if(number === 4){
       if (button) {
@@ -152,12 +177,64 @@ const Transaction: React.FC = () => {
         setTransactionID(index);
       }
     }
+
+    if(move === null){
+      setMoveDate(new Date())
+      setMoveAmount(0)
+      setMoveMemo("")
+      setMoveAssetsID(0)
+      setMoveCategoryID(0)
+      setMoveSubcategoryID(0)
+      setMoveKind(Number(localStorage.getItem('DefaultTransactionType')))
+  
+      setMoveAmount2(0)
+      setMoveAssets2ID(0)
+    }else{
+      setMoveDate(move.moveDate || new Date())
+      setMoveAmount(move.moveAmount || 0)
+      setMoveMemo(move.moveMemo || "")
+      setMoveAssetsID(move.moveAssetsID || 0)
+      setMoveCategoryID(move.moveCategoryID || 0)
+      setMoveSubcategoryID(move.moveSubcategoryID || 0)
+      setMoveKind(move.moveKind)
+  
+      setMoveAmount2(move.moveAmount2 || 0)
+      setMoveAssets2ID(move.moveAssets2ID || 0)
+    }
   };
 
-  const ChangePopUp = (button: boolean, number: Number) => {
+  const ChangePopUp = (button: boolean, number: Number, move:any) => {
     if (button) {
       //保存されましたとか書く
     }
+    
+    if(number === 1){
+      if(move === null){
+        setMoveDate(new Date())
+        setMoveAmount(0)
+        setMoveMemo("")
+        setMoveAssetsID(0)
+        setMoveCategoryID(0)
+        setMoveSubcategoryID(0)
+        setMoveKind(Number(localStorage.getItem('DefaultTransactionType')))
+    
+        setMoveAmount2(0)
+        setMoveAssets2ID(0)
+      }else{
+        setMoveDate(move.moveDate || new Date())
+        setMoveAmount(move.moveAmount || 0)
+        setMoveMemo(move.moveMemo || "")
+        setMoveAssetsID(move.moveAssetsID || 0)
+        setMoveCategoryID(move.moveCategoryID || 0)
+        setMoveSubcategoryID(move.moveSubcategoryID || 0)
+        setMoveKind(move.moveKind)
+    
+        setMoveAmount2(move.moveAmount2 || 0)
+        setMoveAssets2ID(move.moveAssets2ID || 0)
+      }
+    }
+
+    setUpdateFlg(UpdateFlg => UpdateFlg + 1)
     setPopUpFlg(number);
   };
 
@@ -209,7 +286,6 @@ const Transaction: React.FC = () => {
           </div>
         </div>
         <div className='transaction-header'>
-          <button onClick={() => setPageFlg(1)} className={isPageFlg === 1 ? 'active' : ''}>概要</button>
           <button onClick={() => setPageFlg(2)} className={isPageFlg === 2 ? 'active' : ''}>カレンダー</button>
           <button onClick={() => setPageFlg(3)} className={isPageFlg === 3 ? 'active' : ''}>日別</button>
         </div>
@@ -219,7 +295,7 @@ const Transaction: React.FC = () => {
         <img src="MemoIcon.png" alt="MemoIcon" className="icon-style" />
       </div>
 
-      <div onClick={() => setPopUpFlg(1)} className="floating-button">
+      <div onClick={() => ChangePopUp(false, 1, null)} className="floating-button">
         +
       </div>
 
@@ -231,7 +307,7 @@ const Transaction: React.FC = () => {
       )}
       {isPageFlg == 2 && (
         <>
-          <DisTransactionDaily transactionData={TransactionData} memoData={MemoData} onClose={ChangePage} />
+          <TransactionCalendar getdate={DisDate} transactionData={TransactionData} memoData={MemoData} onClose={ChangePage}/>
         </>
       )}
       {isPageFlg == 3 && (
@@ -243,7 +319,17 @@ const Transaction: React.FC = () => {
       {isPopUpFlg == 1 && (
         <>
           <div className="overlay"></div>
-          <CreateTransaction onClose={ChangePopUp} />
+          <CreateTransaction 
+            moveKind={moveKind}
+            moveDate={moveDate} 
+            moveAmount={moveAmount} 
+            moveMemo={moveMemo} 
+            moveAssetsID={moveAssetsID} 
+            moveCategoryID={moveCategoryID} 
+            moveSubcategoryID={moveSubcategoryID} 
+            moveAmount2={moveAmount2} 
+            moveAssets2ID={moveAssets2ID} 
+            onClose={ChangePopUp} />
         </>
       )}
       {isPopUpFlg == 2 && (
@@ -255,7 +341,7 @@ const Transaction: React.FC = () => {
       {isPopUpFlg == 3 && (
         <>
           <div className="overlay"></div>
-          <CreateMemo onClose={ChangePopUp} />
+          <CreateMemo onClose={ChangePopUp}/>
         </>
       )}
       {isPopUpFlg == 4 && (

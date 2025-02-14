@@ -5,6 +5,7 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - ./frontend/public:/app/public  # 静的ファイルの公開用
     ports:
       - "3000:3000"
 
@@ -13,6 +14,7 @@ services:
       context: ./backend
     volumes:
       - ./backend:/app
+      - ./frontend/public:/app/public  # 静的ファイルのマウント
       - /app/tmp
     env_file:
       - .env

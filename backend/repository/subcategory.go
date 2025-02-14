@@ -10,11 +10,6 @@ import (
 
 // 資産情報の作成
 func CreateSubcategory(category *models.Subcategory) error {
-	log.Printf(string(category.CategoryID))
-	log.Printf(string(category.SubcategoryID))
-	log.Printf(string(category.Flg))
-	log.Printf(category.SubcategoryName)
-
 	if err := utils.DB.Create(category).Error; err != nil {
 		log.Printf("fサブカテゴリ情報の作成に失敗しました。")
 		log.Printf(err.Error())
@@ -32,16 +27,20 @@ func UpdateSubcategory(subcategory *models.Subcategory) error {
 	}
 	updatedData["subcategory_id"] = subcategory.SubcategoryID
 
-	// フィールドが空でない場合に、更新データに追加する
-	if subcategory.CategoryID != 0 {
-		updatedData["category_id"] = subcategory.CategoryID
+	if subcategory.DelFlg {
+		updatedData["del_flg"] = subcategory.DelFlg
+	} else {
+		// フィールドが空でない場合に、更新データに追加する
+		if subcategory.CategoryID != 0 {
+			updatedData["category_id"] = subcategory.CategoryID
+		}
+		if subcategory.SubcategoryName != "" {
+			updatedData["subcategory_name"] = subcategory.SubcategoryName
+		}
+
 	}
-	if subcategory.SubcategoryName != "" {
-		updatedData["subcategory_name"] = subcategory.SubcategoryName
-	}
-	if subcategory.Flg != 0 {
-		updatedData["flg"] = subcategory.Flg
-	}
+
+	updatedData["update_user_no"] = subcategory.UpdateUserNo
 	updatedData["update_time"] = time.Now()
 
 	// マップにデータがある場合のみ更新処理を行う
@@ -65,7 +64,7 @@ func CheckSubcategoryConflicting(subcategory *models.Subcategory) int64 {
 
 	// 条件に基づいて件数をカウント
 	err := utils.DB.Table("subcategories").
-		Where("category_id = ? AND subcategory_name = ? AND subcategory_id <> ? AND flg <> 1 ", subcategory.CategoryID, subcategory.SubcategoryName, subcategory.SubcategoryID).
+		Where("category_id = ? AND subcategory_name = ? AND subcategory_id <> ? AND del_flg = false ", subcategory.CategoryID, subcategory.SubcategoryName, subcategory.SubcategoryID).
 		Count(&count).Error
 
 	if err != nil {

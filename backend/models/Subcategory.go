@@ -11,9 +11,10 @@ type Subcategory struct {
 	SubcategoryID   int       `gorm:"primaryKey;autoIncrement"`  // 主キー
 	CategoryID      int       `gorm:"not null"`                  // NotNull制約
 	SubcategoryName string    `gorm:"not null"`                  // NotNull制約
-	Flg             int       `gorm:"default:0"`                 // デフォルト値0(1が削除)
 	UpdateTime      time.Time `gorm:"default:current_timestamp"` // デフォルト現在の時間
 	Register        time.Time `gorm:"default:current_timestamp"` // デフォルト現在の時間
+	UpdateUserNo    int       `gorm:"default:0"`                 // デフォルト0
+	DelFlg          bool      `gorm:"not null;default:false"`    // 更新日時、デフォルトで現在のタイムスタンプ
 }
 
 func (u *Subcategory) BeforeCreate(tx *gorm.DB) (err error) {

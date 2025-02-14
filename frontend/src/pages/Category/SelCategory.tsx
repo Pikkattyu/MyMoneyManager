@@ -71,8 +71,6 @@ const DisCategory: React.FC<OpenButtonProps> = ({ onClose }) => {
           }
         });
 
-        console.log(subcategoryName_p)
-        console.log(subcategoryName_n)
         setDisSubcategory_p(subcategoryName_p);
         setDisSubcategory_n(subcategoryName_n);
         setDisCategory_p(categoryName_p);

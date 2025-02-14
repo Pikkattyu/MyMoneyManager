@@ -35,6 +35,13 @@ func UserRegister(c *gin.Context) {
 		return
 	}
 
+	var userSetting models.UserSetting
+	userSetting.UserNo = user.UserNo
+	if err := repository.CreateUserSetting(&userSetting); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save user"})
+		return
+	}
+
 	// JWTトークンを生成
 	token, err := utils.GenerateJWT(strconv.Itoa(user.UserNo))
 	if err != nil {

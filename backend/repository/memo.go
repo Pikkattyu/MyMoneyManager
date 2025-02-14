@@ -14,7 +14,6 @@ func CreateMemo(memo *models.Memo) error {
 		log.Printf("メモの作成に失敗しました。")
 		return err
 	}
-	log.Printf("挿入後のMemoID: %d", memo.MemoID)
 	return nil
 }
 
@@ -31,8 +30,8 @@ func UpdateMemo(memo models.Memo) error {
 	updatedData["update_user_no"] = memo.UpdateUserNo
 	updatedData["memo_id"] = memo.MemoID
 
-	if memo.Flg == 1 {
-		updatedData["flg"] = memo.Flg
+	if memo.DelFlg {
+		updatedData["del_flg"] = memo.DelFlg
 	} else {
 		// フィールドが空でない場合に、更新データに追加する
 		updatedData["txt"] = memo.Txt
@@ -65,7 +64,6 @@ func GetMemo(MemoID int) ([]models.Memo, error) {
             memos.date, 
             memos.title, 
             memos.txt, 
-            memos.flg,
             memos.update_time
         `).
 		Where("memos.memo_id = ? ", MemoID).
@@ -87,10 +85,9 @@ func GetMemoMonth(BookID int, startDate time.Time, endDate time.Time) ([]models.
             memos.date, 
             memos.title, 
             memos.txt, 
-            memos.flg,
             memos.update_time
         `).
-		Where("memos.flg <> 1 AND memos.book_id = ? AND memos.date >= ? AND memos.date <= ?", BookID, startDate, endDate).
+		Where("memos.del_flg = false AND memos.book_id = ? AND memos.date >= ? AND memos.date <= ?", BookID, startDate, endDate).
 		Order("memos.date DESC, memos.memo_id DESC").
 		Scan(&memoInfomations).Error; err != nil {
 		log.Printf("メモ情報の取得に失敗しました。 BookID: %d, Error: %v", BookID, err)

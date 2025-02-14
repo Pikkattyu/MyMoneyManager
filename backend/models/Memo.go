@@ -13,11 +13,11 @@ type Memo struct {
 	Date           time.Time `gorm:"default:current_timestamp"` // デフォルト現在の時間
 	Title          string    `gorm:"default:''"`                // デフォルト値''
 	Txt            string    `gorm:"default:''"`                // デフォルト値''
-	Flg            int       `gorm:"default:0"`                 // デフォルト値0
 	UpdateUserNo   int       `gorm:"default:0"`                 // デフォルト0
 	RegisterUserNo int       `gorm:"default:0"`                 // デフォルト0
 	UpdateTime     time.Time `gorm:"default:current_timestamp"` // デフォルト現在の時間
 	Register       time.Time `gorm:"default:current_timestamp"` // デフォルト現在の時間
+	DelFlg         bool      `gorm:"default:false"`             // デフォルト値false
 }
 
 func (u *Memo) BeforeCreate(tx *gorm.DB) (err error) {

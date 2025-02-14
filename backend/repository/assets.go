@@ -34,8 +34,8 @@ func GetAssetsAll(BookID int) ([]models.AssetWithUserName, error) {
 	if err := utils.DB.Table("assets").
 		Select("assets.*, users.user_name").
 		Joins("left join users on assets.user_no = users.user_no").
-		Where("assets.book_id = ? AND assets.flg != 2", BookID).
-		Order("assets.user_no").
+		Where("assets.book_id = ? AND assets.del_flg = false", BookID).
+		Order("assets.user_no, assets.tag").
 		Find(&assets).Error; err != nil {
 		log.Printf("資産情報の取得に失敗しました。", BookID, err)
 		return nil, err
@@ -49,7 +49,7 @@ func CheckAssetsConflicting(assets models.Assets) int64 {
 
 	// 条件に基づいて件数をカウント
 	err := utils.DB.Table("assets").
-		Where("book_id = ? AND user_no = ? AND assets_name = ? AND flg != 2", assets.BookID, assets.UserNo, assets.AssetsName).
+		Where("book_id = ? AND user_no = ? AND assets_name = ? AND del_flg = false", assets.BookID, assets.UserNo, assets.AssetsName).
 		Count(&count).Error
 
 	if err != nil {
@@ -63,25 +63,25 @@ func CheckAssetsConflicting(assets models.Assets) int64 {
 // 更新チェック用
 func CheckAssetsUpdate(assetsID int, updateTime time.Time) int64 {
 	var asset models.Assets
-	//一旦後回し
-	return 0
 
 	// 資産情報を取得する
 	if err := utils.DB.Table("assets").
 		Select("flg, update_time").
-		Where("assets_id = ? AND flg <> 2", assetsID).
+		Where("assets_id = ? AND del_flg = false", assetsID).
 		Scan(&asset).Error; err != nil {
 		log.Printf("資産情報の取得に失敗しました。AssetsID: %d, Error: %v", assetsID, err)
 		return 1
 	}
 
 	// 取得した update_time と引数の updateTime を比較
-	if !asset.UpdateTime.Equal(updateTime) {
-		log.Printf("資産情報が更新されています。再度やり直してください。AssetsID: %d", assetsID)
-		return 2
-	}
+	/*
+		if !asset.UpdateTime.Equal(updateTime) {
+			log.Printf("資産情報が更新されています。再度やり直してください。AssetsID: %d", assetsID)
+			return 2
+		}
+	*/
 
-	return 0
+	return int64(asset.Flg)
 }
 
 func GetAssetsSUM(BookID int) ([]models.Assets, error) {
@@ -89,7 +89,7 @@ func GetAssetsSUM(BookID int) ([]models.Assets, error) {
 
 	if err := utils.DB.Table("assets").
 		Select("SUM(amount) as amount, flg").
-		Where("assets.book_id = ? AND assets.excluded = false", BookID).
+		Where("assets.book_id = ? AND assets.excluded = false AND del_flg = false", BookID).
 		Group("flg").
 		Find(&assets).Error; err != nil {
 		log.Printf("資産情報の取得に失敗しました。BookID: %d, Error: %v", BookID, err)
@@ -107,24 +107,35 @@ func UpdateAssets(assets models.Assets) error {
 	}
 	updatedData["assets_id"] = assets.AssetsID
 
-	// フィールドが空でない場合に、更新データに追加する
-	if assets.BookID != 0 {
-		updatedData["book_id"] = assets.BookID
-	}
-	if assets.AssetsName != "" {
-		updatedData["assets_name"] = assets.AssetsName
-	}
-	if assets.Tag != "" {
-		updatedData["tag"] = assets.Tag
-	}
-	if assets.Tag != "" {
-		updatedData["amount"] = assets.Amount
-	}
-	if assets.Tag != "" {
-		updatedData["user_no"] = assets.UserNo
+	if assets.DelFlg {
+		updatedData["del_flg"] = assets.DelFlg
+	} else {
+		// フィールドが空でない場合に、更新データに追加する
+		if assets.BookID != 0 {
+			updatedData["book_id"] = assets.BookID
+		}
+		if assets.AssetsName != "" {
+			updatedData["assets_name"] = assets.AssetsName
+		}
+		if assets.Tag != "" {
+			updatedData["tag"] = assets.Tag
+		}
+		if assets.Tag != "" {
+			updatedData["amount"] = assets.Amount
+		}
+		if assets.Tag != "" {
+			updatedData["user_no"] = assets.UserNo
+		}
+		updatedData["excluded"] = assets.Excluded
+		if assets.IconPath != "" {
+			updatedData["icon_path"] = assets.IconPath
+		}
+		if assets.Backgroundcolor != "" {
+			updatedData["backgroundcolor"] = assets.Backgroundcolor
+		}
 	}
 
-	updatedData["excluded"] = assets.Excluded
+	updatedData["update_user_no"] = assets.UpdateUserNo
 	updatedData["update_time"] = time.Now()
 
 	// マップにデータがある場合のみ更新処理を行う

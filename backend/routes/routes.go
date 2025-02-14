@@ -24,12 +24,15 @@ func InitializeRoutes(router *gin.Engine) {
 	router.GET("/api/getassetsall", handlers.GetAssetsAll)
 	router.POST("/api/changeassets", handlers.ChangeAssets)
 	router.POST("/api/assetsregister", handlers.AssetsRegister)
+	router.POST("/api/deleteassets", handlers.DelAssets)
 
 	/*カテゴリ関連*/
 	router.GET("/api/getcategoryall", handlers.GetCategoryAll)
 	router.GET("/api/getcategory", handlers.GetCategory)
 	router.POST("/api/changecategory", handlers.ChangeCategory)
 	router.POST("/api/createcategory", handlers.CreateCategory)
+	router.POST("/api/deletecategory", handlers.DelCategory)
+	router.POST("/api/deletesubcategory", handlers.DelSubcategory)
 
 	/*入出金関連*/
 	router.GET("/api/gettransactiondata", handlers.GetTransactionsAll)
@@ -40,11 +43,21 @@ func InitializeRoutes(router *gin.Engine) {
 	router.POST("/api/deletetransaction", handlers.DelTransaction)
 
 	/*統計関連*/
-	router.GET("/api/getstatistics", handlers.GetStatisticsAll)
+	//router.GET("/api/getstatistics", handlers.GetStatisticsAll)
+	router.GET("/api/getstatisticsdata", handlers.GetStatisticsAll)
+
+	/*ファイル関連*/
+	router.GET("/api/getfilepath", handlers.GetFilePaths)
+	router.POST("/api/uploadfilepath", handlers.UploadImage)
 
 	/*メモ関連*/
 	router.POST("/api/creatememo", handlers.MemoRegister)
 	router.POST("/api/changememo", handlers.ChangeMemo)
 	router.POST("/api/deletememo", handlers.DelMemo)
 	router.GET("/api/getmemo", handlers.GetMemo)
+
+	/*ユーザ設定関連*/
+	router.GET("/api/getusersetting", handlers.GetUserSetting)
+	router.POST("/api/changeusersetting", handlers.ChangeUserSetting)
+
 }

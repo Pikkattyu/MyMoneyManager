@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import '../../../styles.css'; // CSSファイルのインポート
 
 interface OpenButtonProps {
-  onClose: (isButton: boolean, number: Number) => void;
+  onClose: (isButton: boolean, number: Number, move:any) => void;
   memoID: Number;
 }
 
@@ -28,7 +28,6 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, memoID }) => {
   
           const data = await response.json();
           const memo = data.data;
-          console.log(memo)
 
           const date = memo.Date.split("T")[0]; // "2025-01-15"
           const time = memo.Date.split("T")[1].replace("Z", ""); // "00:00:00"
@@ -88,7 +87,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, memoID }) => {
       return;
     }
 
-    onClose(false, 0)
+    onClose(false, 0, null)
   }
 
   const DeleteMemoData = async () => {
@@ -109,7 +108,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, memoID }) => {
         setErrorMessages('予期しないエラーが発生しました。');
       }
       else {
-        onClose(true, 0)
+        onClose(true, 0, null)
       }
     } catch (error) {
       console.log(error)
@@ -173,7 +172,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose, memoID }) => {
       <div className='PopUpButtonGroup'>
         <button onClick={() => SaveTransactionData()} className='btn-style'>登録</button>
         <button onClick={() => DeleteMemoData()} className='btn-style'>削除</button>
-        <button onClick={() => onClose(false, 0)} className='btn-style'>閉じる</button>
+        <button onClick={() => onClose(false, 0, null)} className='btn-style'>閉じる</button>
       </div>
     </div>
   );

@@ -36,6 +36,7 @@ const CreateBook: React.FC<OpenButtonProps> = ({ onClose }) => {
       } else {
         localStorage.setItem('bookID', result.bookID);
         onClose(true);
+        window.location.reload();
       }
     } catch (error) {
       console.error('Error:', error);

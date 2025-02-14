@@ -1,10 +1,9 @@
 
 import React, { useEffect, useState } from 'react';
-import ChangeCategory from '../../Category/ChangeCategory';
+import ChangeCategory from '../Category/ChangeCategory';
 
 interface SelectModalProps {
-  isPageFlg: number;
-  isCategoryID: number;
+  isLockPageFlg: number;
   isSubcategoryID: number;
   disSubcategory_n: any[][];
   disSubcategory_p: any[][];
@@ -13,16 +12,32 @@ interface SelectModalProps {
   onSelect: (category: any, subcategory: any) => void;
 }
 
-const AssetsModal: React.FC<SelectModalProps> = ({ isPageFlg, isCategoryID, isSubcategoryID, disSubcategory_p, disSubcategory_n, disCategory_p, disCategory_n, onSelect }) => {
+const AssetsModal: React.FC<SelectModalProps> = ({ isLockPageFlg, isSubcategoryID, disSubcategory_p, disSubcategory_n, disCategory_p, disCategory_n, onSelect }) => {
   //const [isPageFlg, setPageFlg] = useState<number>(0);
   const [isCategoryPopUpFlg, setCategoryPopUpFlg] = useState<boolean>(false);
   const [isSelectCategoryID, setSelectCategoryID] = useState<number>(0);
+  const [isPageFlg, setPageFlg] = useState<number>(0);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      if (isLockPageFlg !== 2){
+        setPageFlg(isLockPageFlg)
+      }
+    }
+    fetchData();
+  }, []);
+
+  const SetPageValue = (index:number) => {
+    if (isLockPageFlg === 2){
+      setPageFlg(index)
+    }
+  }
 
   // 値を選択したときの処理
   const SubcategorySelect = (category: any, subcategory: any) => {
     onSelect(category, subcategory); // 親コンポーネントに選択された値を渡す
   };
+  
   const ChangePopUp = (button: boolean, number: Number, index: Number) => {
     if (button) {
       //新しく設定したため開きなおし
@@ -36,8 +51,8 @@ const AssetsModal: React.FC<SelectModalProps> = ({ isPageFlg, isCategoryID, isSu
     <div className='PopUp'>
       <h1>カテゴリ選択</h1>
       <div className='TagSwitcher'>
-        <button onClick={() => { isPageFlg = 0 }} className={isPageFlg == 0 ? 'active' : ''}>資産</button>
-        <button onClick={() => { isPageFlg = 1 }} className={isPageFlg == 1 ? 'active' : ''}>負債</button>
+        <button onClick={() => { SetPageValue(0) }} className={isPageFlg == 0 ? 'active' : ''}>資産</button>
+        <button onClick={() => { SetPageValue(1) }} className={isPageFlg == 1 ? 'active' : ''}>負債</button>
       </div>
 
       <div className='Category'>
@@ -81,6 +96,7 @@ const AssetsModal: React.FC<SelectModalProps> = ({ isPageFlg, isCategoryID, isSu
         ))}
       </div>
       <div className='alignC'>
+        <button onClick={() => SubcategorySelect(null, null)} className='btn-style'>未選択</button>
         <button onClick={() => SubcategorySelect(undefined, undefined)} className='btn-style'>閉じる</button>
       </div>
 

@@ -33,6 +33,12 @@ func UpdateCategory(subcategory *models.Category) error {
 	if subcategory.CategoryName != "" {
 		updatedData["category_name"] = subcategory.CategoryName
 	}
+	if subcategory.IconPath != "" {
+		updatedData["icon_path"] = subcategory.IconPath
+	}
+	if subcategory.Backgroundcolor != "" {
+		updatedData["backgroundcolor"] = subcategory.Backgroundcolor
+	}
 	updatedData["flg"] = subcategory.Flg
 	updatedData["update_time"] = time.Now()
 
@@ -56,7 +62,7 @@ func GetCategoryAll(BookID int) ([]models.Category_SubCategory, error) {
 	if err := utils.DB.Table("categories").
 		Select("categories.*, subcategories.subcategory_id, subcategories.subcategory_name").
 		Joins("INNER JOIN subcategories ON categories.category_id = subcategories.category_id").
-		Where("subcategories.flg = 0 AND categories.flg <> 2 AND categories.book_id = ?", BookID).
+		Where("subcategories.del_flg = false AND categories.book_id = ?", BookID).
 		Order("categories.category_id").
 		Order("subcategories.subcategory_id").
 		Scan(&categorys).Error; err != nil {
@@ -72,7 +78,7 @@ func GetCategory(CategoryID int) ([]models.Category_SubCategory, error) {
 	if err := utils.DB.Table("categories").
 		Select("categories.*, subcategories.subcategory_id, subcategories.subcategory_name").
 		Joins("INNER JOIN subcategories ON categories.category_id = subcategories.category_id").
-		Where("subcategories.flg = 0 AND categories.flg <> 2 AND categories.category_id = ?", CategoryID).
+		Where("subcategories.del_flg = false AND categories.category_id = ?", CategoryID).
 		Order("categories.category_name").
 		Scan(&categorys).Error; err != nil {
 		log.Printf("カテゴリ情報の取得に失敗しました。 CategoryID: %d, Error: %v", CategoryID, err)

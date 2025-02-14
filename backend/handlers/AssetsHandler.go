@@ -3,8 +3,10 @@ package handlers
 import (
 	"MyMoneyManager/backend/models"
 	"MyMoneyManager/backend/repository"
+	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +14,21 @@ import (
 
 func AssetsRegister(c *gin.Context) {
 	var assets models.Assets
+
+	// CookieからUserIDを取得
+	userNoCookie, err := c.Cookie("userNo")
+	if err != nil {
+		log.Printf("ユーザIDの取得に失敗しました。?: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "ユーザIDの取得に失敗しました。?"})
+		return
+	}
+
+	// 文字を数字に変換
+	cuserNo_int, err := strconv.Atoi(userNoCookie)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "文字から数字へ変換中にエラーが発生しました。"})
+		return
+	}
 
 	// JSONを構造体にバインド
 	if err := c.ShouldBindJSON(&assets); err != nil {
@@ -32,6 +49,7 @@ func AssetsRegister(c *gin.Context) {
 		return
 	}
 	assets.BookID = convint
+	assets.UpdateUserNo = cuserNo_int
 
 	errflg := repository.CheckAssetsConflicting(assets)
 
@@ -95,11 +113,62 @@ func GetAssets(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": assets[0]})
+	// CookieからbookIDを取得
+	BookID, err := c.Cookie("bookID")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": err.Error()})
+		return
+	}
+
+	book, err := repository.GetBookByBookname(BookID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "帳簿情報取得時にエラーが発生しました。"})
+		return
+	}
+
+	inputString := book.AttendUserNos
+	const chunkSize = 10
+	var result []string
+
+	// 10桁ごとに区切る
+	for i := 0; i < len(inputString); i += chunkSize {
+		end := i + chunkSize
+		if end > len(inputString) {
+			end = len(inputString)
+		}
+		chunk := inputString[i:end]
+		// 空白を除く
+		chunk = strings.TrimRight(chunk, " ")
+		result = append(result, chunk)
+	}
+
+	users, err := repository.GetUsersByUserNos(result)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "ユーザ情報取得時にエラーが発生しました。"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": assets[0], "users": users})
 }
+
 func ChangeAssets(c *gin.Context) {
 	var requestBody map[string]interface{}
 	assets := models.Assets{} // ポインタの初期化
+
+	// CookieからUserIDを取得
+	userNoCookie, err := c.Cookie("userNo")
+	if err != nil {
+		log.Printf("ユーザIDの取得に失敗しました。?: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "ユーザIDの取得に失敗しました。?"})
+		return
+	}
+
+	// 文字を数字に変換
+	cuserNo_int, err := strconv.Atoi(userNoCookie)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "文字から数字へ変換中にエラーが発生しました。"})
+		return
+	}
 
 	// リクエストボディをバインド
 	if err := c.ShouldBindJSON(&requestBody); err != nil {
@@ -156,6 +225,18 @@ func ChangeAssets(c *gin.Context) {
 		return
 	}
 
+	iconpath, ok := requestBody["IconPath"].(string)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "IconPath の型が不正です"})
+		return
+	}
+
+	backgroundcolor, ok := requestBody["Backgroundcolor"].(string)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "Backgroundcolor の型が不正です"})
+		return
+	}
+
 	assets.Tag = tag
 	assets.AssetsName = assetsName
 	assets.Tag = tag
@@ -165,6 +246,9 @@ func ChangeAssets(c *gin.Context) {
 	assets.Flg = int(flg)
 	assets.AssetsID = int(AssetsID)
 	assets.UpdateTime = parsedTime
+	assets.UpdateUserNo = cuserNo_int
+	assets.IconPath = iconpath
+	assets.Backgroundcolor = backgroundcolor
 
 	errflg := repository.CheckAssetsConflicting(assets)
 	if errflg == 1 {
@@ -184,8 +268,52 @@ func ChangeAssets(c *gin.Context) {
 		return
 	}
 
-	err := repository.UpdateAssets(assets)
+	errtrn := repository.UpdateAssets(assets)
+	if errtrn != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "資産情報の更新に失敗しました。"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "資産情報が更新されました。"})
+}
+
+func DelAssets(c *gin.Context) {
+	var requestBody map[string]interface{}
+	assets := models.Assets{} // ポインタの初期化
+
+	// CookieからUserIDを取得
+	userNoCookie, err := c.Cookie("userNo")
 	if err != nil {
+		log.Printf("ユーザIDの取得に失敗しました。?: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "ユーザIDの取得に失敗しました。?"})
+		return
+	}
+
+	// 文字を数字に変換
+	cuserNo_int, err := strconv.Atoi(userNoCookie)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "文字から数字へ変換中にエラーが発生しました。"})
+		return
+	}
+
+	// bodyの取り出し
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "無効なリクエストデータ"})
+		return
+	}
+
+	assetsID, ok := requestBody["AssetsID"].(float64)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "dateS の型が不正です"})
+		return
+	}
+
+	assets.AssetsID = int(assetsID)
+	assets.DelFlg = true
+	assets.UpdateUserNo = cuserNo_int
+
+	err1 := repository.UpdateAssets(assets)
+	if err1 != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "資産情報の更新に失敗しました。"})
 		return
 	}

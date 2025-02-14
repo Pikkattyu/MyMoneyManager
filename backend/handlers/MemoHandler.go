@@ -207,7 +207,7 @@ func DelMemo(c *gin.Context) {
 	}
 
 	memo.MemoID = int(memoID)
-	memo.Flg = 1
+	memo.DelFlg = true
 	memo.UpdateUserNo = cuserNo_int
 
 	err1 := repository.UpdateMemo(memo)

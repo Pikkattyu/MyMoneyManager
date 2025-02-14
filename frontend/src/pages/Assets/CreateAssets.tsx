@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import IconModal from "../Modal/IconModal"
 import '../../styles.css'; // CSSファイルのインポート
 
 interface OpenButtonProps {
@@ -13,11 +14,16 @@ const CreateAssets: React.FC<OpenButtonProps> = ({ onClose }) => {
   const [assetsName, setAssetsName] = useState<string>('');
   const [userNo, setUserNo] = useState<number>(-1);
   const [Amount, setAmount] = useState<number>(0);
+  const [disAmount, setDisAmount] = useState<string>('0');
   const [Excluded, setIsExcluded] = useState<boolean>(false);
   const [flg, setFlg] = useState<number>(0);
 
   const [getUsersData, setUsersData] = useState<any[]>([]);
 
+  const [isIconFlg, setIconFlg] = useState<boolean>(false);
+  const [disColorCode, setColorCode] = useState<string>("#eeeeee");
+  const [disColor, setColor] = useState<string>("#eeeeee");
+  const [disIconPath, setIconPath] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -100,7 +106,16 @@ const CreateAssets: React.FC<OpenButtonProps> = ({ onClose }) => {
     try {
       const response = await fetch('/api/assetsregister', {
         method: 'POST',
-        body: JSON.stringify({ tag, assetsName, flg, userNo, Amount, Excluded }),
+        body: JSON.stringify({ 
+          tag, 
+          assetsName, 
+          flg, 
+          userNo, 
+          Amount, 
+          Excluded,
+          Backgroundcolor:disColor,
+          IconPath:disIconPath
+         }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -114,6 +129,84 @@ const CreateAssets: React.FC<OpenButtonProps> = ({ onClose }) => {
       }
     } catch (error) {
       setErrorMessages(["例外エラーが発生しました。"]);
+    }
+  };
+
+  const NumberCheck = (e: string) => {
+    let inputValue = e;
+
+    // **全角数字を半角に変換**
+    inputValue = inputValue.replace(/[０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+
+    // **数字のみを抽出（非数字を削除）**
+    inputValue = inputValue.replace(/[^0-9]/g, "");
+
+    // **先頭のゼロを削除**
+    if (inputValue.startsWith("0")) {
+      inputValue = inputValue.replace(/^0+/, "");
+    }
+
+    // **カンマ区切りに変換**
+    const formattedValue = inputValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+    setAmount(parseInt(inputValue));
+    setDisAmount(formattedValue);
+  };
+  
+  const SelectFilePath = (filePath:string) => {
+    if(filePath == "null"){
+      //閉じる
+    }else{
+      setIconPath(filePath)
+    }
+    setIconFlg(false)
+  }
+
+  const ColorCheck = (e: string) => {
+    let inputValue = e.trim(); // 空白を削除
+  
+    // **全角英数字を半角に変換**
+    inputValue = inputValue.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) =>
+      String.fromCharCode(s.charCodeAt(0) - 0xFEE0)
+    );
+  
+    // **カラーコード以外の文字を削除（# を先頭に許可）**
+    inputValue = inputValue.replace(/[^#0-9A-Fa-f]/g, "");
+  
+    // **# を追加（先頭になければ）**
+    if (!inputValue.startsWith("#")) {
+      inputValue = "#" + inputValue;
+    }
+  
+    //表示するカラーコード
+    setColorCode(inputValue);
+
+    // **6桁 or 3桁のカラーコードに制限**
+    if (!/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(inputValue)) {
+      return; // 不正な場合はセットしない
+    }
+    //表示するカラー
+    setColor(inputValue);
+  };
+
+  const handleFileChange = async(event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return alert("ファイルを選択してください");
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("path", "public/Icons")
+
+    try {
+      const response = await fetch("/api/uploadfilepath", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      setIconPath("public" + data.filePath.replace(/\/\//g, "/"));
+    } catch (error) {
+      console.error("アップロード失敗", error);
     }
   };
 
@@ -174,9 +267,8 @@ const CreateAssets: React.FC<OpenButtonProps> = ({ onClose }) => {
       <div className='inputGroup'>
         <span className='label'>初期残高</span>
         <input
-          type="number"
-          value={Amount}
-          onChange={(e) => setAmount(Number(e.target.value))}
+          value={disAmount}
+          onChange={(e) => NumberCheck(e.target.value)}
           placeholder="初期残高を入力してください"
           className='input'
         />
@@ -190,6 +282,37 @@ const CreateAssets: React.FC<OpenButtonProps> = ({ onClose }) => {
           onChange={(e) => setIsExcluded(e.target.checked)}
           className='input'
         />
+      </div>
+
+      <div className="inputGroup">
+        <span className="category-label">カラー</span>
+        <div className="SubGroup">
+          <input
+            type="text"
+            className="category-name-input"
+            value={disColorCode}
+            onChange={(e) => ColorCheck(e.target.value)}
+            placeholder="カラーコードを入力してください"
+          />
+        </div>
+      </div>
+
+      <div className="inputGroup">
+        <span className="label">アイコン設定</span>
+        <div className="category-Image-box" style={{ backgroundColor: disColor }}>
+          {disIconPath !== "" &&(
+            <img className='category-Image' src={disIconPath} alt="画像の説明" width="30"/>
+          )}
+        </div>
+        <div className='category-Image-ButtonBox'>
+          <label>
+            画像登録
+            <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: "none" }} />
+          </label>
+        </div>
+        <div className='category-Image-ButtonBox'>
+          <button onClick={() => setIconFlg(true)}>アイコン</button>
+        </div>
       </div>
 
       <div className='PopUpButtonGroup'>
@@ -206,6 +329,18 @@ const CreateAssets: React.FC<OpenButtonProps> = ({ onClose }) => {
             ))}
           </span>
         </div>
+      )}
+      
+
+      {isIconFlg &&(
+        <>
+          <div className='overlay'  onClick={() => setIconFlg(false)}>
+          </div>
+          <IconModal
+            onSelect={SelectFilePath}
+            disColor={disColor}>
+          </IconModal>
+        </>
       )}
     </div>
   );
