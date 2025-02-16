@@ -27,7 +27,7 @@
 }
 
 .footer {
-    position: absolute;
+    position: fixed;
     bottom: 0;
     text-align: center;
     width: 100%;
@@ -289,12 +289,11 @@ nav ul a:hover {
     background: #0f745b;
 }
 
-/*AssetsCSS*/
 .customContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100vw;
+    width: 98vw;
     height: 65vh;
 }
 
@@ -1343,7 +1342,6 @@ nav ul a:hover {
     width: 100%;
 }
 
-.StatisticsAssetsWrapper,
 .StatisticsLiabilitiesWrapper {
     display: flex;
     flex-direction: column;
@@ -1351,12 +1349,37 @@ nav ul a:hover {
     width: 45%;
 }
 
-.StatisticsAssetTitle,
+.StatisticsTitle{
+    width: 100%;
+    text-align: center;
+}
+
+.StatisticsCompareBox{
+    display: flex;
+    width: 100%;
+}
+
+.StatisticsCompareLeft{
+    width: 40%;
+    margin-left: 10%;
+    text-align: center;
+}
+
+.StatisticsCompareRight{
+    text-align: right;
+    width: 35%;
+    margin-right: 15%;
+}
+
+.StatisticsTitle{
+    width: 100%;
+    text-align: center;
+}
+
 .StatisticsLiabilityTitle {
     font-size: 16px;
 }
 
-.StatisticsAssetAmount,
 .StatisticsLiabilityAmount {
     font-size: 14px;
     font-weight: bold;

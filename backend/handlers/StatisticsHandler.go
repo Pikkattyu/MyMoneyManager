@@ -81,7 +81,7 @@ func GetStatisticsAll(c *gin.Context) {
 		return
 	}
 
-	beforetransactions, err := repository.GetTransactionInfomationMonth(convint, nowMonthDate.AddDate(0, -1, 0), nowMonthDate.AddDate(0, 0, -1))
+	beforetransactions, err := repository.GetTransactionInfomationMonth(convint, nowMonthDate.AddDate(0, -1, 0), nowMonthDate)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "帳簿の取得時にエラーが発生しました。"})
 		return

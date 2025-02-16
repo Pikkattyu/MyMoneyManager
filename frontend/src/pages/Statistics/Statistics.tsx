@@ -33,9 +33,15 @@ const Statistics: React.FC = () => {
   const [beforeTransactionData, setBeforeTransactionData] = useState<any[]>([]);
   const [isFirstFlg, setFirstFlg] = useState<boolean>(false);
 
-  const [inAmount, setInAmount] = useState<string>('');
-  const [outAmount, setOutAmount] = useState<string>('');
-  const [compareAmount, setCompareAmount] = useState<string>('');
+  const [nowInAmount, setNowInAmount] = useState<string>('');
+  const [nowOutAmount, setNowOutAmount] = useState<string>('');
+  const [compareInAmount, setCompareInAmount] = useState<string>('');
+  const [beforeInAmount, setBeforeInAmount] = useState<string>('');
+  const [compareOutAmount, setCompareOutAmount] = useState<string>('');
+  const [sumNowAmount, setSumNowAmount] = useState<string>('');
+  const [beforeOutAmount, setBeforeOutAmount] = useState<string>('');
+  const [sumBeforeAmount, setSumBeforeAmount] = useState<string>('');
+  const [sumCompareAmount, setSumCompareAmount] = useState<string>('');
 
   //合計
   const [disTotal, setDisTotal] = useState<string>('0');
@@ -357,7 +363,6 @@ const Statistics: React.FC = () => {
         }
 
         const data = await response.json();
-        console.log(data)
         setTransactionData(data.transaction);
         setBeforeTransactionData(data.beforetransaction);
       } catch (error) {
@@ -376,7 +381,7 @@ const Statistics: React.FC = () => {
     if (isFirstFlg) {
       UpdateChart();
     }
-  }, [isPageFlg, isFirstFlg, transactionData, chartRefs]);
+  }, [isPageFlg, isFirstFlg, transactionData, beforeTransactionData, chartRefs]);
 
   const UpdateChart = () => {
     let IdArray: number[][] = [[], [], [], [], [], []];
@@ -390,7 +395,15 @@ const Statistics: React.FC = () => {
     if (beforeTransactionData) {
       beforeTransactionData.forEach((transaction) => {
         if (transaction.Kind == 2){
-          return;
+          if(Boolean(transaction.Excluded)){
+            if((transaction.Flg === 0 && transaction.flg_a1 === 1) || (transaction.Flg === 1 && transaction.flg_a1 === 0)){
+              beforeOutAmount += transaction.Amount;
+            }else{
+              beforeInAmount += transaction.Amount;
+            }
+          }else{
+            return;
+          }
         }else if(transaction.Kind == 0){
           beforeInAmount += transaction.Amount;
         }else{
@@ -405,7 +418,17 @@ const Statistics: React.FC = () => {
       transactionData.forEach((transaction) => {
         let ind;
         if (transaction.Kind == 2){
-          return;
+          if(Boolean(transaction.Excluded)){
+            if((transaction.Flg === 0 && transaction.flg_a1 === 1) || (transaction.Flg === 1 && transaction.flg_a1 === 0)){
+              ind = 1;
+              OutAmount += transaction.Amount;
+            }else{
+              ind = 0;
+              InAmount += transaction.Amount;
+            }
+          }else{
+            return;
+          }
         }else if(transaction.Kind == 0){
           ind = 0;
           InAmount += transaction.Amount;
@@ -417,15 +440,28 @@ const Statistics: React.FC = () => {
         const targetCategoryArray = transaction.CategoryID;
         const targetCategoryName = transaction.CategoryName as string;
 
-        if (!IdArray[ind].includes(targetCategoryArray)) {
-          IdArray[ind].push(targetCategoryArray);
-          NameArray[ind].push(targetCategoryName);
-          SumArray[ind].push(transaction.Amount);
-          ColorArray[ind].push(transaction.category_backgroundcolor);
-        } else {
-          const index = IdArray[ind].indexOf(targetCategoryArray);
-          SumArray[ind][index] += transaction.Amount;
+        if (transaction.Kind == 2){
+          if (!IdArray[ind].includes(transaction.AssetsID * -1)) {
+            IdArray[ind].push(transaction.AssetsID * -1);
+            NameArray[ind].push(transaction.AssetsName);
+            SumArray[ind].push(transaction.Amount);
+            ColorArray[ind].push(transaction.assets_backgroundcolor);
+          } else {
+            const index = IdArray[ind].indexOf(transaction.AssetsID * -1);
+            SumArray[ind][index] += transaction.Amount;
+          }
+        }else{
+          if (!IdArray[ind].includes(targetCategoryArray)) {
+            IdArray[ind].push(targetCategoryArray);
+            NameArray[ind].push(targetCategoryName);
+            SumArray[ind].push(transaction.Amount);
+            ColorArray[ind].push(transaction.category_backgroundcolor);
+          } else {
+            const index = IdArray[ind].indexOf(targetCategoryArray);
+            SumArray[ind][index] += transaction.Amount;
+          }
         }
+        
 
         ind += 2
         //資産の値設定
@@ -476,9 +512,15 @@ const Statistics: React.FC = () => {
       }
     })
 
-    setInAmount((InAmount - beforeInAmount).toLocaleString())
-    setOutAmount((OutAmount - beforeOutAmount).toLocaleString())
-    setCompareAmount(((InAmount - OutAmount) - (beforeInAmount - beforeOutAmount)).toLocaleString())
+    setNowInAmount(InAmount.toLocaleString())
+    setNowOutAmount(OutAmount.toLocaleString())
+    setCompareInAmount((InAmount - beforeInAmount).toLocaleString())
+    setBeforeInAmount(beforeInAmount.toLocaleString())
+    setBeforeOutAmount(beforeOutAmount.toLocaleString())
+    setCompareOutAmount((OutAmount - beforeOutAmount).toLocaleString())
+    setSumNowAmount((InAmount - OutAmount).toLocaleString())
+    setSumBeforeAmount((beforeInAmount - beforeOutAmount).toLocaleString())
+    setSumCompareAmount(((InAmount - OutAmount) - (beforeInAmount - beforeOutAmount)).toLocaleString())
 
     // 既存のグラフを破棄
     chartInstances.current.forEach((chart, i) => {
@@ -568,17 +610,54 @@ const Statistics: React.FC = () => {
               <div className="StatisticsHeader">
                 <span className="StatisticsTotalAssetsTitle">先月比</span>
                 <div className="StatisticsAssetsLiabilitiesWrapper">
-                  <div className="StatisticsAssetsWrapper">
-                    <span className="StatisticsLiabilitiesWrapper">収入</span>
-                    <span className={inAmount.slice(0, 1) == "-" ? "StatisticsLiabilityAmount text-red" : "StatisticsLiabilityAmount text-green"}>¥ {inAmount}</span>
+                  <div className="StatisticsLiabilitiesWrapper">
+                    <div className='StatisticsTitle'><span>収入</span></div>
+                    <div className='StatisticsCompareBox'>
+                      <span className='StatisticsCompareLeft'>先月</span>
+                      <span className='StatisticsCompareRight'>¥ {beforeInAmount}</span>
+                    </div>
+                    <div className='StatisticsCompareBox'>
+                      <span className='StatisticsCompareLeft'>今月</span>
+                      <span className='StatisticsCompareRight'>¥ {nowInAmount}</span>
+                    </div>
+                    <div className='StatisticsCompareBox'>
+                      <span className='StatisticsCompareLeft'>増減</span>
+                      <span className={`StatisticsCompareRight ${compareInAmount.startsWith("-") ? "text-red" : "text-green"}`}>¥ {compareInAmount}</span>
+                    </div>
                   </div>
                   <div className="StatisticsLiabilitiesWrapper">
-                    <span className="StatisticsLiabilityTitle">支出</span>
-                    <span className={outAmount.slice(0, 1) == "-" ? "StatisticsLiabilityAmount text-green" : "StatisticsLiabilityAmount text-red"}>¥ {outAmount}</span>
+                    <div className='StatisticsTitle'>
+                      <span>支出</span>
+                    </div>
+                    <div className='StatisticsCompareBox'>
+                      <span className='StatisticsCompareLeft'>先月</span>
+                      <span className='StatisticsCompareRight'>¥ {beforeOutAmount}</span>
+                    </div>
+                    <div className='StatisticsCompareBox'>
+                      <span className='StatisticsCompareLeft'>今月</span>
+                      <span className='StatisticsCompareRight'>¥ {nowOutAmount}</span>
+                    </div>
+                    <div className='StatisticsCompareBox'>
+                      <span className='StatisticsCompareLeft'>増減</span>
+                      <span className={`StatisticsCompareRight ${compareOutAmount.startsWith("-") ? "text-green" : "text-red"}`}>¥ {compareOutAmount}</span>
+                    </div>
                   </div>
                   <div className="StatisticsLiabilitiesWrapper">
-                    <span className="StatisticsLiabilityTitle">合計</span>
-                    <span className={compareAmount.slice(0, 1) == "-" ? "StatisticsLiabilityAmount text-red": "StatisticsLiabilityAmount text-green"}>¥ {compareAmount}</span>
+                    <div className='StatisticsTitle'>
+                      <span>合計額</span>
+                    </div>
+                    <div className='StatisticsCompareBox'>
+                      <span className='StatisticsCompareLeft'>先月</span>
+                      <span className='StatisticsCompareRight'>¥ {sumBeforeAmount}</span>
+                    </div>
+                    <div className='StatisticsCompareBox'>
+                      <span className='StatisticsCompareLeft'>今月</span>
+                      <span className='StatisticsCompareRight'>¥ {sumNowAmount}</span>
+                    </div>
+                    <div className='StatisticsCompareBox'>
+                      <span className='StatisticsCompareLeft'>増減</span>
+                      <span className={`StatisticsCompareRight ${sumCompareAmount.startsWith("-") ? "text-red" : "text-green"}`}>¥ {sumCompareAmount}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -622,7 +701,7 @@ const Statistics: React.FC = () => {
                 <span className="StatisticsTotalAssetsTitle">総資産額</span>
                 <div className="StatisticsAssetsLiabilitiesWrapper">
                   <div className="StatisticsLiabilitiesWrapper">
-                    <span className="StatisticsAssetTitle">資産</span>
+                    <span className="StatisticsLiabilityTitle">資産</span>
                     <span className="StatisticsLiabilityAmount">¥ {disSubtotal_p[0]}</span>
                   </div>
                   <div className="StatisticsLiabilitiesWrapper">
