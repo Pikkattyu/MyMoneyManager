@@ -72,18 +72,19 @@ const Transaction: React.FC = () => {
             sum -= asset.Amount;
           }
         });
-
-        transactionAll.forEach((ta: any) => {
-          if ((ta.flg_t1 === 0 && ta.kind === 0) || (ta.flg_t1 === 0 && ta.kind === 1)) {
-            sum += ta.amount;
-          } else if((ta.flg_t1 === 1 && ta.kind === 1) || (ta.flg_t1 === 1 && ta.kind === 0)) {
-            sum -= ta.amount;
-          }else if((ta.flg_t1 === 0 && ta.kind === 2 && ta.flg_a1 === 1) || (ta.flg_t1 === 1 && ta.kind === 2 && ta.flg_a1 === 0)){
-            sum -= ta.amount;
-          }else{
-            sum += ta.amount;
-          }
-        });
+        if (transactionAll){
+          transactionAll.forEach((ta: any) => {
+            if ((ta.Flg === 0 && ta.Kind === 0) || (ta.Flg === 0 && ta.Kind === 1)) {
+              sum += ta.Amount;
+            } else if((ta.Flg === 1 && ta.Kind === 1) || (ta.Flg === 1 && ta.Kind === 0)) {
+              sum -= ta.Amount;
+            }else if((ta.Flg === 0 && ta.Kind === 2 && ta.flg_a1 === 1) || (ta.Flg === 1 && ta.Kind === 2 && ta.flg_a1 === 0)){
+              sum -= ta.Amount;
+            }else{
+              sum += ta.Amount;
+            }
+          });
+        }
 
         let sortedData:any[] = [];
         if (transaction !== null) {
@@ -122,6 +123,10 @@ const Transaction: React.FC = () => {
               transaction_for_date[index].push(sortedData[i]);
             }else{
               transaction_for_date[index][transaction_for_date[index].length - 1].Assets2Name = sortedData[i].AssetsName
+              //transaction_for_date[index][transaction_for_date[index].length - 1].TransactionInfomation2ID = sortedData[i].TransactionInfomationID
+              transaction_for_date[index][transaction_for_date[index].length - 1].flg_a12 = sortedData[i].flg_a1
+              transaction_for_date[index][transaction_for_date[index].length - 1].Flg2 = sortedData[i].Flg
+              transaction_for_date[index][transaction_for_date[index].length - 1].Excluded2 = sortedData[i].Excluded
             }
           }
           HozTransactionID = sortedData[i].TransactionID;
@@ -132,10 +137,17 @@ const Transaction: React.FC = () => {
         if(transaction !== null){
           transaction.forEach((tran: any) => {
             if (tran.Kind !== 2) {
-              if ((tran.Kind === 0 && tran.Flg === 0) || (tran.Flg === 0 && tran.Kind === 1)) {
+              if ((tran.Kind === 0 && tran.Flg === 0 && !Boolean(tran.Excluded)) || (tran.Flg === 0 && tran.Kind === 1 && !Boolean(tran.Excluded))) {
                 p_sum += tran.Amount;
-              } else {
+              } else if((tran.Kind === 1 && tran.Flg === 1 && !Boolean(tran.Excluded)) || (tran.Flg === 1 && tran.Kind === 0 && !Boolean(tran.Excluded))) {
                 n_sum += tran.Amount;
+              }
+            }else if (Boolean(tran.Excluded)){
+              if((tran.Flg === 0 && tran.flg_a1 === 1) || (tran.Flg === 1 && tran.flg_a1 === 0))
+              {
+                n_sum += tran.Amount;
+              }else{
+                p_sum += tran.Amount;
               }
             }
           });
@@ -148,6 +160,7 @@ const Transaction: React.FC = () => {
         setTransactionData(transaction_for_date);
 
       } catch (error) {
+        console.log(error)
         if (error instanceof Error) {
           console.log(error.message);
         } else {

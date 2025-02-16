@@ -260,10 +260,7 @@ func ChangeAssets(c *gin.Context) {
 	}
 
 	errflg = repository.CheckAssetsUpdate(assets.AssetsID, assets.UpdateTime)
-	if errflg == 1 {
-		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報の取得に失敗しました。"})
-		return
-	} else if errflg == 2 {
+	if errflg == 2 {
 		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "資産情報が更新されています。再度やり直してください。"})
 		return
 	}

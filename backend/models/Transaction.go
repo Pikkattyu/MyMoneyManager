@@ -30,6 +30,8 @@ type Transaction_Infomation struct {
 	SubcategoryName         string
 	AssetsBackgroundColor   string `gorm:"column:backgroundcolor" json:"assets_backgroundcolor"`   // 変更
 	CategoryBackgroundColor string `gorm:"column:backgroundcolor" json:"category_backgroundcolor"` // 変更
+	FlgA1                   int    `json:"flg_a1"`                                                 // a1.flg
+	Excluded                bool
 }
 
 func (u *Transaction) BeforeCreate(tx *gorm.DB) (err error) {

@@ -59,6 +59,31 @@ const TransactionCalendar: React.FC<OpenButtonProps> = ({ getdate, transactionDa
 
           if (td_ymd === nd_ymd){
             reversedTransactionData[j].forEach(transaction => {
+              if (transaction.Kind !== 2) {
+                if ((transaction.Kind === 0 && transaction.Flg === 0 && !Boolean(transaction.Excluded)) || (transaction.Flg === 0 && transaction.Kind === 1 && !Boolean(transaction.Excluded))) {
+                  sum_p += transaction.Amount;
+                } else if((transaction.Kind === 1 && transaction.Flg === 1 && !Boolean(transaction.Excluded)) || (transaction.Flg === 1 && transaction.Kind === 0 && !Boolean(transaction.Excluded))) {
+                  sum_n += transaction.Amount;
+                }
+              }else{
+                if((transaction.Flg === 0 && transaction.flg_a1 === 1 && transaction.Excluded) || (transaction.Flg === 1 && transaction.flg_a1 === 0 && transaction.Excluded))
+                {
+                  sum_n += transaction.Amount;
+                }else if(transaction.Excluded){
+                  console.log("Ver1", transaction)
+                  sum_p += transaction.Amount;
+                }
+
+                if((transaction.Flg2 === 0 && transaction.flg_a12 === 1 && transaction.Excluded2) || (transaction.Flg2 === 1 && transaction.flg_a12 === 0 && transaction.Excluded2))
+                {
+                  sum_n += transaction.Amount;
+                }else if(transaction.Excluded2){
+                  console.log("Ver2", transaction)
+                  sum_p += transaction.Amount;
+                }
+              }
+
+              /* 
               if(transaction.Kind !== 2){
                 if(transaction.Kind === 0){
                   sum_p += transaction.Amount
@@ -66,6 +91,7 @@ const TransactionCalendar: React.FC<OpenButtonProps> = ({ getdate, transactionDa
                   sum_n += transaction.Amount
                 }
               }
+              */
             });
             break;
           }

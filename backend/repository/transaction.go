@@ -113,13 +113,13 @@ func UpdateTransactionInfomation(transaction *models.TransactionInfomation) erro
 	return nil
 }
 
-func GetTransactionInfomationAll(BookID int, endDate time.Time) ([]TransactionSummary, error) {
-	var transactionInfomations []TransactionSummary
+func GetTransactionInfomationAll(BookID int, endDate time.Time) ([]models.Transaction_Infomation, error) {
+	var transactionInfomations []models.Transaction_Infomation
 
 	if err := utils.DB.Table("transaction_infomations t1").
 		Select(`
 		SUM(t1.amount) AS amount, 
-        t1.flg AS flg_t1, 
+        t1.flg, 
         t2.kind AS kind, 
         a1.flg AS flg_a1
 		`).
@@ -160,6 +160,8 @@ func GetTransactionInfomationMonth(BookID int, startDate time.Time, endDate time
             assets.assets_name,
             assets.user_no,
             assets.backgroundcolor,
+			assets.flg AS flg_a1,
+            assets.excluded,
             users.user_name,
             categories.category_name,
             categories.backgroundcolor,
@@ -171,7 +173,7 @@ func GetTransactionInfomationMonth(BookID int, startDate time.Time, endDate time
 		Joins("LEFT JOIN categories ON transactions.category_id = categories.category_id").
 		Joins("LEFT JOIN subcategories ON transactions.subcategory_id = subcategories.subcategory_id").
 		Joins("LEFT JOIN users ON users.user_no = assets.user_no").
-		Where("transactions.del_flg = false AND transaction_infomations.del_flg = false AND transactions.book_id = ? AND transactions.date >= ? AND transactions.date <= ?", BookID, startDate, endDate).
+		Where("transactions.del_flg = false AND transaction_infomations.del_flg = false AND transactions.book_id = ? AND transactions.date >= ? AND transactions.date < ?", BookID, startDate, endDate).
 		Order("transactions.date DESC, transactions.transaction_id DESC, transaction_infomations.transaction_infomation_id DESC").
 		Scan(&transactionInfomations).Error; err != nil {
 		log.Printf("取引情報の取得に失敗しました。 BookID: %d, Error: %v", BookID, err)
