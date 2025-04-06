@@ -70,24 +70,24 @@ const Asset: React.FC<OpenButtonProps> = ({ onClose, MovePageFlg }) => {
         const transactions = data.transactions; // データを状態変数に格納
 
         let hozUserNo = -1;
-        let usernames: string[] = [];
+        const usernames: string[] = [];
 
         let index = -1;
         let total = 0;
-        let subtotal_p: number[] = [];
+        const subtotal_p: number[] = [];
         let subtotal_p_conv: string[] = [];
-        let subtotal_n: number[] = [];
+        const subtotal_n: number[] = [];
         let subtotal_n_conv: string[] = [];
 
-        let amounts_p: string[][] = [];
-        let amounts_n: string[][] = [];
-        let assetsnames_p: string[][] = [];
-        let assetsnames_n: string[][] = [];
+        const amounts_p: string[][] = [];
+        const amounts_n: string[][] = [];
+        const assetsnames_p: string[][] = [];
+        const assetsnames_n: string[][] = [];
 
-        let Examounts_p: string[][] = [];
-        let Examounts_n: string[][] = [];
-        let Exassetsnames_p: string[][] = [];
-        let Exassetsnames_n: string[][] = [];
+        const Examounts_p: string[][] = [];
+        const Examounts_n: string[][] = [];
+        const Exassetsnames_p: string[][] = [];
+        const Exassetsnames_n: string[][] = [];
 
         let subtotal_conv: string[] = [];
 
@@ -126,7 +126,7 @@ const Asset: React.FC<OpenButtonProps> = ({ onClose, MovePageFlg }) => {
             usernames.push(asset.UserName);
             if (asset.Flg == 0) {
               //資産非計上の場合、合計額に含まない
-              if (Boolean(asset.Excluded)){
+              if (asset.Excluded){
                 subtotal_p.push(0)
                 
                 //資産計上は空
@@ -154,7 +154,7 @@ const Asset: React.FC<OpenButtonProps> = ({ onClose, MovePageFlg }) => {
               Exassetsnames_n.push([]);
             } else {
               //資産非計上の場合、合計額に含まない
-              if (Boolean(asset.Excluded)){
+              if (asset.Excluded){
                 subtotal_n.push(0)
                 
                 //資産計上は空
@@ -185,7 +185,7 @@ const Asset: React.FC<OpenButtonProps> = ({ onClose, MovePageFlg }) => {
           } else {
             if (asset.Flg == 0) {
               //資産非計上の場合、合計額に含まない
-              if (Boolean(asset.Excluded)){
+              if (asset.Excluded){
                 Examounts_p[index].push(CorrectVal.toLocaleString());
                 Exassetsnames_p[index].push(asset.AssetsName);
               }else{
@@ -195,7 +195,7 @@ const Asset: React.FC<OpenButtonProps> = ({ onClose, MovePageFlg }) => {
               }
             } else {
               //資産非計上の場合、合計額に含まない
-              if (Boolean(asset.Excluded)){
+              if (asset.Excluded){
                 Examounts_n[index].push(CorrectVal.toLocaleString());
                 Exassetsnames_n[index].push(asset.AssetsName);
               }else{
@@ -207,8 +207,12 @@ const Asset: React.FC<OpenButtonProps> = ({ onClose, MovePageFlg }) => {
           }
 
           //資産非計上の場合、合計額に含まない
-          if (!Boolean(asset.Excluded)){
-            total += CorrectVal;
+          if (!asset.Excluded){
+            if(asset.Flg == 0){
+              total += CorrectVal;
+            }else{
+              total -= CorrectVal;
+            }
           }
         });
 
@@ -251,11 +255,11 @@ const Asset: React.FC<OpenButtonProps> = ({ onClose, MovePageFlg }) => {
 
   const SetAssetsData = (assets: any[]) => {
     let hozUserNo = -1;
-    let usernames: string[] = [];
+    const usernames: string[] = [];
 
     let index = -1;
-    let assetsnames_p: Assets[][] = [];
-    let assetsnames_n: Assets[][] = [];
+    const assetsnames_p: Assets[][] = [];
+    const assetsnames_n: Assets[][] = [];
 
     // ユーザ情報ごとにデータを分ける
     assets.forEach((asset: any) => {

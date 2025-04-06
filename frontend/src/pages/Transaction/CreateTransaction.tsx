@@ -15,7 +15,7 @@ interface OpenButtonProps {
   moveAmount2:        number;
   moveAssets2ID:      number;
 
-  onClose: (isButton: boolean, number: Number, move:any) => void;
+  onClose: (isButton: boolean, number: number, move:any) => void;
 }
 
 interface Category {
@@ -125,7 +125,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ moveKind, moveDate, move
         SetAssetsData(assetses);
         SetCategoryData(categoryies);
 
-        let tran:any = {};
+        const tran:any = {};
         tran.Kind = moveKind;
         tran.Date = moveDate || new Date();
         tran.Memo = moveMemo;
@@ -231,20 +231,20 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ moveKind, moveDate, move
 
   const SetAssetsData = (assets: any) => {
     let hozUserNo = -1;
-    let usernames: string[] = [];
+    const usernames: string[] = [];
 
     let index = -1;
-    let assetsnames_p: Assets[][] = [];
-    let assetsnames_n: Assets[][] = [];
-    let not_assetsnames_p: Assets[][] = [];
-    let not_assetsnames_n: Assets[][] = [];
+    const assetsnames_p: Assets[][] = [];
+    const assetsnames_n: Assets[][] = [];
+    const not_assetsnames_p: Assets[][] = [];
+    const not_assetsnames_n: Assets[][] = [];
 
     // ユーザ情報ごとにデータを分ける
     assets.forEach((asset: any) => {
       if (hozUserNo !== asset.UserNo) {
         hozUserNo = asset.UserNo;
         usernames.push(asset.UserName);
-        if(!Boolean(asset.Excluded)){
+        if(!asset.Excluded){
           if (asset.Flg == 0) {
             assetsnames_p.push([{
               UserNo: asset.UserNo,
@@ -303,7 +303,7 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ moveKind, moveDate, move
         }
         index++;
       } else {
-        if(!Boolean(asset.Excluded)){
+        if(!asset.Excluded){
           if (asset.Flg == 0) {
             assetsnames_p[index].push({
               UserNo: asset.UserNo,
@@ -396,10 +396,10 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ moveKind, moveDate, move
     let CategoryID = -1;
     let pindex = -1;
     let nindex = -1;
-    let categoryName_p: Category[] = [];
-    let categoryName_n: Category[] = [];
-    let subcategoryName_p: Subcategory[][] = [];
-    let subcategoryName_n: Subcategory[][] = [];
+    const categoryName_p: Category[] = [];
+    const categoryName_n: Category[] = [];
+    const subcategoryName_p: Subcategory[][] = [];
+    const subcategoryName_n: Subcategory[][] = [];
 
     category.forEach((cate: any) => {
       if (CategoryID !== cate.CategoryID) {
@@ -770,7 +770,11 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ moveKind, moveDate, move
 
     // **カンマ区切りに変換**
     const formattedValue = inputValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
+    
+    if (inputValue === "") {
+      inputValue = "0";
+    }
+    
     setAmount(parseInt(inputValue));
     setDisAmount(formattedValue);
   };
@@ -792,6 +796,9 @@ const CreateTransaction: React.FC<OpenButtonProps> = ({ moveKind, moveDate, move
     // **カンマ区切りに変換**
     const formattedValue = inputValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
+    if (inputValue === "") {
+      inputValue = "0";
+    }
     setAmount2(parseInt(inputValue))
     setDisAmount2(formattedValue);
   };

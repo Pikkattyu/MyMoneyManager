@@ -38,7 +38,7 @@ const AssetsModal: React.FC<SelectModalProps> = ({ isLockPageFlg, isSubcategoryI
     onSelect(category, subcategory); // 親コンポーネントに選択された値を渡す
   };
   
-  const ChangePopUp = (button: boolean, number: Number, index: Number) => {
+  const ChangePopUp = (button: boolean, number: number, index: number) => {
     if (button) {
       //新しく設定したため開きなおし
       alert('設定を保存しました。')

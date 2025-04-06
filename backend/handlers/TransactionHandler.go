@@ -860,9 +860,7 @@ func GetTransaction(c *gin.Context) {
 	}
 
 	transactionID := c.Query("transactionID")
-	log.Printf("transactionID: %s", transactionID)
 	convint_td, err := strconv.Atoi(transactionID)
-	log.Printf("transactionID2 (int): %d", convint_td)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"errorMessage": "文字から数字へ変換中にエラーが発生しました。"})
 		return

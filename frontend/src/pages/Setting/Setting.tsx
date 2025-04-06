@@ -6,11 +6,11 @@ import UserSetting from './UserSetting';
 const Asset: React.FC = () => {
   const [errorMessages, setErrorMessages] = useState<string>('');
 
-  const [isPopupFlg, setPopupFlg] = useState<Number>(0);
+  const [isPopupFlg, setPopupFlg] = useState<number>(0);
 
   useEffect(() => { }, []);
 
-  const OpenPopup = (number: Number) => {
+  const OpenPopup = (number: number) => {
     setPopupFlg(number);
   };
 

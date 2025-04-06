@@ -23,7 +23,7 @@ const IconModal: React.FC<SelectModalProps> = ({ onSelect, disColor }) => {
         }
 
         const data = await response.json();
-        let fileNames = data.files.map(file => file.replaceAll("/app/public", ""));
+        const fileNames = data.files.map(file => file.replaceAll("/app/public", ""));
         setFiles(fileNames)
       }catch(error){
         if (error instanceof Error) {

@@ -3,7 +3,7 @@ import '../../styles.css'; // CSSファイルのインポート
 import IconModal from "../Modal/IconModal"
 
 interface OpenButtonProps {
-  onClose: (isButton: boolean, number: Number, index: Number) => void;
+  onClose: (isButton: boolean, number: number, index: number) => void;
 }
 
 interface Subcategory {

@@ -6,7 +6,7 @@ interface OpenButtonProps {
   getdate: string;
   transactionData: any[][];
   memoData: any[];
-  onClose: (isButton: boolean, number: Number, index: Number, move:any) => void;
+  onClose: (isButton: boolean, number: number, index: number, move:any) => void;
 }
 
 const TransactionCalendar: React.FC<OpenButtonProps> = ({ getdate, transactionData, memoData, onClose }) => {
@@ -38,7 +38,7 @@ const TransactionCalendar: React.FC<OpenButtonProps> = ({ getdate, transactionDa
     }
 
     // ソート後の結果を格納する新しい変数
-    let reversedTransactionData: any[][] = [...transactionData].reverse();
+    const reversedTransactionData: any[][] = [...transactionData].reverse();
 
     // 今月の日付
     let index = 0
@@ -60,9 +60,9 @@ const TransactionCalendar: React.FC<OpenButtonProps> = ({ getdate, transactionDa
           if (td_ymd === nd_ymd){
             reversedTransactionData[j].forEach(transaction => {
               if (transaction.Kind !== 2) {
-                if ((transaction.Kind === 0 && transaction.Flg === 0 && !Boolean(transaction.Excluded)) || (transaction.Flg === 0 && transaction.Kind === 1 && !Boolean(transaction.Excluded))) {
+                if ((transaction.Kind === 0 && transaction.Flg === 0 && !transaction.Excluded) || (transaction.Flg === 0 && transaction.Kind === 1 && !transaction.Excluded)) {
                   sum_p += transaction.Amount;
-                } else if((transaction.Kind === 1 && transaction.Flg === 1 && !Boolean(transaction.Excluded)) || (transaction.Flg === 1 && transaction.Kind === 0 && !Boolean(transaction.Excluded))) {
+                } else if((transaction.Kind === 1 && transaction.Flg === 1 && !transaction.Excluded) || (transaction.Flg === 1 && transaction.Kind === 0 && !transaction.Excluded)) {
                   sum_n += transaction.Amount;
                 }
               }else{
@@ -97,7 +97,7 @@ const TransactionCalendar: React.FC<OpenButtonProps> = ({ getdate, transactionDa
           }
         }
       }
-      let sum: number[] = [];
+      const sum: number[] = [];
       sum.push(sum_p, sum_n);
 
       days.push({
@@ -123,7 +123,7 @@ const TransactionCalendar: React.FC<OpenButtonProps> = ({ getdate, transactionDa
   }
 
   function OpenCreate(date:Date){
-    let move: any = {}; 
+    const move: any = {}; 
     move.moveDate = date
     onClose(false, 1, 0, move)
   }

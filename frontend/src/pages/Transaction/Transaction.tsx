@@ -5,14 +5,14 @@ import TransactionCalendar from './DisTransactionCalendar';
 import DisTransactionDaily from './DisTransactionDaily';
 import ChangeTransaction from './ChangeTransaction';
 import CreateTransaction from './CreateTransaction';
-import CreateMemo from './Memo/CreateMemo';
-import ChangeMemo from './Memo/ChangeMemo';
+import CreateMemo from '../Memo/CreateMemo';
+import ChangeMemo from '../Memo/ChangeMemo';
 
 const Transaction: React.FC = () => {
-  const [isPageFlg, setPageFlg] = useState<Number>(3);
-  const [TransactionID, setTransactionID] = useState<Number>(0);
-  const [MemoID, setMemoID] = useState<Number>(0);
-  const [isPopUpFlg, setPopUpFlg] = useState<Number>(0);
+  const [isPageFlg, setPageFlg] = useState<number>(3);
+  const [TransactionID, setTransactionID] = useState<number>(0);
+  const [MemoID, setMemoID] = useState<number>(0);
+  const [isPopUpFlg, setPopUpFlg] = useState<number>(0);
   const [DisDate, setDisDate] = useState<string>(() => {
     const year = new Date().getFullYear(); // 現在の年を取得
     const month = String(new Date().getMonth() + 1).padStart(2, '0'); // 現在の月を取得し、2桁にフォーマット
@@ -40,7 +40,7 @@ const Transaction: React.FC = () => {
   const [moveAmount2, setMoveAmount2] = useState<number>(0);
   const [moveAssets2ID, setMoveAssets2ID] = useState<number>(0);
 
-  const [startFlg, setStartFlg] = useState<Boolean>(false);
+  const [startFlg, setStartFlg] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -104,7 +104,7 @@ const Transaction: React.FC = () => {
         }
 
         // 2次元配列を宣言
-        let transaction_for_date: any[][] = [];
+        const transaction_for_date: any[][] = [];
         // ループの初期設定
         let HozDate = "";// 現在の日付を追跡
         let index = -1;
@@ -137,12 +137,12 @@ const Transaction: React.FC = () => {
         if(transaction !== null){
           transaction.forEach((tran: any) => {
             if (tran.Kind !== 2) {
-              if ((tran.Kind === 0 && tran.Flg === 0 && !Boolean(tran.Excluded)) || (tran.Flg === 0 && tran.Kind === 1 && !Boolean(tran.Excluded))) {
+              if ((tran.Kind === 0 && tran.Flg === 0 && !tran.Excluded) || (tran.Flg === 0 && tran.Kind === 1 && !tran.Excluded)) {
                 p_sum += tran.Amount;
-              } else if((tran.Kind === 1 && tran.Flg === 1 && !Boolean(tran.Excluded)) || (tran.Flg === 1 && tran.Kind === 0 && !Boolean(tran.Excluded))) {
+              } else if((tran.Kind === 1 && tran.Flg === 1 && !tran.Excluded) || (tran.Flg === 1 && tran.Kind === 0 && !tran.Excluded)) {
                 n_sum += tran.Amount;
               }
-            }else if (Boolean(tran.Excluded)){
+            }else if (tran.Excluded){
               if((tran.Flg === 0 && tran.flg_a1 === 1) || (tran.Flg === 1 && tran.flg_a1 === 0))
               {
                 n_sum += tran.Amount;
@@ -172,7 +172,7 @@ const Transaction: React.FC = () => {
     fetchData();
   }, [DisDate, UpdateFlg]);
 
-  const ChangePage = (button: boolean, number: Number, index: Number, move:any) => {
+  const ChangePage = (button: boolean, number: number, index: number, move:any) => {
     setUpdateFlg(UpdateFlg => UpdateFlg + 1)
     //ページが変わるときはbutton:true, ポップアップの時はbutton:false
     if(number === 4){
@@ -216,7 +216,7 @@ const Transaction: React.FC = () => {
     }
   };
 
-  const ChangePopUp = (button: boolean, number: Number, move:any) => {
+  const ChangePopUp = (button: boolean, number: number, move:any) => {
     if (button) {
       //保存されましたとか書く
     }

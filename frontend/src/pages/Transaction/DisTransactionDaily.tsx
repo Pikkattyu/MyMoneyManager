@@ -4,13 +4,34 @@ import '../../styles.css'; // CSSファイルのインポート
 interface OpenButtonProps {
   transactionData: any[][];
   memoData: any[];
-  onClose: (isButton: boolean, number: Number, index: Number, move:any) => void;
+  onClose: (isButton: boolean, number: number, index: number, move:any) => void;
 }
 
 const TransactionDaily: React.FC<OpenButtonProps> = ({ transactionData, memoData, onClose }) => {
   const [TransactionData, setTransactionData] = useState<
     { date: string; transactions: any[]; memos: any[] }[]
   >([]);
+  
+  const [filteredTransactionData, setFilteredTransactionData] = useState<
+    { date: string; transactions: any[]; memos: any[] }[]
+  >([]);
+
+  const [filter, setFilter] = useState<string>('');
+
+  // input の値が変更されたら filteredTransactionData を更新
+  useEffect(() => {
+    setFilteredTransactionData(filterTransactionData(TransactionData, filter));
+  }, [filter, TransactionData]);
+
+  const filterTransactionData = (transactionData: any[], input: string): any[] => {
+    return transactionData
+      .map(({ date, transactions, memos }) => ({
+        date,
+        transactions: transactions.filter(t => JSON.stringify(t).includes(input)),
+        memos: memos.filter(m => JSON.stringify(m).includes(input)),
+      }))
+      .filter(({ transactions, memos }) => transactions.length > 0 || memos.length > 0);
+  };
 
   // 日付を日本語フォーマットに変換する関数
   const formatDateToJapanese = (isoString: string): string => {
@@ -77,7 +98,13 @@ const TransactionDaily: React.FC<OpenButtonProps> = ({ transactionData, memoData
   return (
     <div className="DailyTransaction-form">
       <div className="DailyTransaction-frame">
-        {TransactionData.map(({ date, transactions, memos }, index) => (
+      <div>
+          <input 
+            className=''
+            value={filter}
+            onChange={(e) => setFilter(e.target.value.toString())}/>
+        </div>
+        {filteredTransactionData.map(({ date, transactions, memos }, index) => (
           <div key={`transaction-group-${index}`} className="transaction-container">
             <div className="transaction-header">
               <span className="transaction-date">{date}</span>

@@ -3,8 +3,8 @@ import IconModal from "../Modal/IconModal"
 import '../../styles.css'; // CSSファイルのインポート
 
 interface OpenButtonProps {
-  onClose: (isButton: boolean, number: Number, index: Number) => void;
-  CategoryID: Number;
+  onClose: (isButton: boolean, number: number, index: number) => void;
+  CategoryID: number;
 }
 
 interface Subcategory {
@@ -42,11 +42,11 @@ const ChangeCategory: React.FC<OpenButtonProps> = ({ onClose, CategoryID }) => {
         const data = await response.json();
         const category = data.data;
 
-        let categoryName = category[0].CategoryName;
-        let flg = category[0].Flg;
-        let color = category[0].Backgroundcolor;
-        let iconpath = category[0].IconPath;
-        let subcategorys: Subcategory[] = [];
+        const categoryName = category[0].CategoryName;
+        const flg = category[0].Flg;
+        const color = category[0].Backgroundcolor;
+        const iconpath = category[0].IconPath;
+        const subcategorys: Subcategory[] = [];
 
         category.forEach((cate: any, index: number) => {
           subcategorys.push({

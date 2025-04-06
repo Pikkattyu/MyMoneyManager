@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import '../../styles.css'; // CSSファイルのインポート
 
 interface OpenButtonProps {
-  onClose: (isButton: boolean, number: Number, index: Number) => void;
+  onClose: (isButton: boolean, number: number, index: number) => void;
 }
 
 interface Subcategory {
@@ -36,10 +36,10 @@ const DisCategory: React.FC<OpenButtonProps> = ({ onClose }) => {
         let CategoryID = -1;
         let pindex = -1;
         let nindex = -1;
-        let categoryName_p: Subcategory[] = [];
-        let categoryName_n: Subcategory[] = [];
-        let subcategoryName_p: string[][] = [];
-        let subcategoryName_n: string[][] = [];
+        const categoryName_p: Subcategory[] = [];
+        const categoryName_n: Subcategory[] = [];
+        const subcategoryName_p: string[][] = [];
+        const subcategoryName_n: string[][] = [];
 
         category.forEach((cate: any) => {
           if (cate.SubcategoryName === ""){

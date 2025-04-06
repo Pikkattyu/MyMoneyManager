@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import '../../../styles.css'; // CSSファイルのインポート
-import { color } from 'chart.js/helpers';
-import { Colors } from 'chart.js';
+import React, { useState } from 'react';
+import '../../styles.css'; // CSSファイルのインポート
 
 interface OpenButtonProps {
-  onClose: (isButton: boolean, number: Number, move:any) => void;
+  onClose: (isButton: boolean, number: number, move) => void;
 }
 
 const CreateTransaction: React.FC<OpenButtonProps> = ({ onClose }) => {

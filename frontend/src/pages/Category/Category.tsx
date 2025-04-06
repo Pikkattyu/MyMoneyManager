@@ -9,13 +9,10 @@ interface OpenButtonProps {
 }
 
 const Category: React.FC<OpenButtonProps> = ({ onClose }) => {
-  const [isPageFlg, setPageFlg] = useState<Number>(1);
-  const [CategoryID, setCategoryID] = useState<Number>(1);
+  const [isPageFlg, setPageFlg] = useState<number>(1);
+  const [CategoryID, setCategoryID] = useState<number>(1);
 
-  const ChangePopUp = (button: boolean, number: Number, index: Number) => {
-    if (button) {
-    }
-
+  const ChangePopUp = (button: boolean, number: number, index: number) => {
     setCategoryID(index);
 
     if (number == 0) {

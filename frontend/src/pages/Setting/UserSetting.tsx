@@ -4,7 +4,7 @@ import AssetsModal from '../Modal/AssetsModal';
 import CategoryModal from '../Modal/CategoryModal';
 
 interface OpenButtonProps {
-  onClose: (isButton: boolean, number: Number) => void;
+  onClose: (isButton: boolean, number: number) => void;
 }
 
 interface Category {
@@ -136,20 +136,20 @@ const UserSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
 
   const SetAssetsData = (assets: any) => {
     let hozUserNo = -1;
-    let usernames: string[] = [];
+    const usernames: string[] = [];
 
     let index = -1;
-    let assetsnames_p: Assets[][] = [];
-    let assetsnames_n: Assets[][] = [];
-    let not_assetsnames_p: Assets[][] = [];
-    let not_assetsnames_n: Assets[][] = [];
+    const assetsnames_p: Assets[][] = [];
+    const assetsnames_n: Assets[][] = [];
+    const not_assetsnames_p: Assets[][] = [];
+    const not_assetsnames_n: Assets[][] = [];
 
     // ユーザ情報ごとにデータを分ける
     assets.forEach((asset: any) => {
       if (hozUserNo !== asset.UserNo) {
         hozUserNo = asset.UserNo;
         usernames.push(asset.UserName);
-        if(!Boolean(asset.Excluded)){
+        if(!asset.Excluded){
           if (asset.Flg == 0) {
             assetsnames_p.push([{
               UserNo: asset.UserNo,
@@ -208,7 +208,7 @@ const UserSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
         }
         index++;
       } else {
-        if(!Boolean(asset.Excluded)){
+        if(!asset.Excluded){
           if (asset.Flg == 0) {
             assetsnames_p[index].push({
               UserNo: asset.UserNo,
@@ -267,10 +267,10 @@ const UserSetting: React.FC<OpenButtonProps> = ({ onClose }) => {
     let CategoryID = -1;
     let pindex = -1;
     let nindex = -1;
-    let categoryName_p: Category[] = [];
-    let categoryName_n: Category[] = [];
-    let subcategoryName_p: Subcategory[][] = [];
-    let subcategoryName_n: Subcategory[][] = [];
+    const categoryName_p: Category[] = [];
+    const categoryName_n: Category[] = [];
+    const subcategoryName_p: Subcategory[][] = [];
+    const subcategoryName_n: Subcategory[][] = [];
 
     category.forEach((cate: any) => {
       if (CategoryID !== cate.CategoryID) {
