@@ -214,10 +214,11 @@ func GetTransactionInfomationGroup(BookID int) ([]models.Transaction_Infomation,
 	var transactionInfomation []models.Transaction_Infomation
 
 	if err := utils.DB.Table("transactions t").
-		Select("t.kind, ti.assets_id, SUM(ti.amount) AS amount, ti.flg").
+		Select("t.kind, ti.assets_id, SUM(ti.amount) AS amount, ti.flg, a.flg as flg_a1").
 		Joins("INNER JOIN transaction_infomations ti ON t.transaction_id = ti.transaction_id").
+		Joins("INNER JOIN assets a ON a.assets_id = ti.assets_id").
 		Where("t.book_id = ? AND ti.del_flg = false AND t.del_flg = false AND ti.assets_id <> 0", BookID).
-		Group("t.kind, ti.assets_id, ti.flg").
+		Group("t.kind, ti.assets_id, ti.flg, a.flg").
 		Order("ti.assets_id ASC").
 		Find(&transactionInfomation).Error; err != nil {
 		log.Printf("取引情報の取得に失敗しました。 BookID: %d, Error: %v", BookID, err)

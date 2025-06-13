@@ -6,7 +6,9 @@ import (
 	"MyMoneyManager/backend/routes"
 	"MyMoneyManager/backend/utils"
 	"log"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,6 +26,16 @@ func main() {
 
 	// Ginのルーターを設定する
 	router := gin.Default()
+
+	// ← ここに CORS 設定を入れる
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:8082"}, // ← React Native Web or Expo DevTools
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true, // ← ★ これが必要
+		MaxAge:           12 * time.Hour,
+	}))
 
 	// ルーティングを設定する
 	routes.InitializeRoutes(router)

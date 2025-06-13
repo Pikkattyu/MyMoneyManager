@@ -33,10 +33,28 @@ func RunMigrations() error {
 	if err := db.AutoMigrate(&models.Assets{}); err != nil {
 		return fmt.Errorf("failed to migrate: %v", err)
 	}
+	if err := db.AutoMigrate(&models.Calendar{}); err != nil {
+		return fmt.Errorf("failed to migrate: %v", err)
+	}
 	if err := db.AutoMigrate(&models.Category{}); err != nil {
 		return fmt.Errorf("failed to migrate: %v", err)
 	}
+	if err := db.AutoMigrate(&models.Notice{}); err != nil {
+		return fmt.Errorf("failed to migrate: %v", err)
+	}
 	if err := db.AutoMigrate(&models.Subcategory{}); err != nil {
+		return fmt.Errorf("failed to migrate: %v", err)
+	}
+	if err := db.AutoMigrate(&models.ScheduleCategory{}); err != nil {
+		return fmt.Errorf("failed to migrate: %v", err)
+	}
+	if err := db.AutoMigrate(&models.ScheduleSubcategory{}); err != nil {
+		return fmt.Errorf("failed to migrate: %v", err)
+	}
+	if err := db.AutoMigrate(&models.Template{}); err != nil {
+		return fmt.Errorf("failed to migrate: %v", err)
+	}
+	if err := db.AutoMigrate(&models.TemplateInfomation{}); err != nil {
 		return fmt.Errorf("failed to migrate: %v", err)
 	}
 	if err := db.AutoMigrate(&models.Transaction{}); err != nil {
@@ -49,6 +67,9 @@ func RunMigrations() error {
 		return fmt.Errorf("failed to migrate: %v", err)
 	}
 	if err := db.AutoMigrate(&models.UserSetting{}); err != nil {
+		return fmt.Errorf("failed to migrate: %v", err)
+	}
+	if err := db.AutoMigrate(&models.Work{}); err != nil {
 		return fmt.Errorf("failed to migrate: %v", err)
 	}
 

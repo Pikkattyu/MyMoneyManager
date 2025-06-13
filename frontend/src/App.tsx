@@ -1,16 +1,21 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import Home from './pages/other/Home';
+import Home from './pages/MoneyManage/other/Home';
 //import Dashboard from './pages/other/Dashboard';
-import Login from './pages/Login/User/LoginForm';
+import Login from './pages/MoneyManage/Login/User/LoginForm';
 //import ProtectedRoute from './pages/other/ProtectedRoute';
-import RegisterForm from './pages/Login/User/RegisterForm';
+import RegisterForm from './pages/MoneyManage/Login/User/RegisterForm';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import Assets from './pages/Assets/Assets';
-import Setting from './pages/Setting/Setting';
-import Transaction from './pages/Transaction/Transaction';
-import Statistics from './pages/Statistics/Statistics';
+import Assets from './pages/MoneyManage/Assets/Assets';
+import Setting from './pages/MoneyManage/Setting/Setting';
+import Transaction from './pages/MoneyManage/Transaction/Transaction';
+import Statistics from './pages/MoneyManage/Statistics/Statistics';
+
+import Notice from './pages/Schedule/Notice/Notice';
+import ScheduleSetting from './pages/Schedule/Setting/Setting';
+import Calendar from './pages/Schedule/Calendar/Calendar';
+import ScheduleStatistics from './pages/Schedule/Statistics/Statistics';
 
 const GetToken = () => {
   // ここで認証状態を確認するロジックを追加
@@ -33,9 +38,14 @@ const App = () => {
         <Route path="/statistics" element={<Statistics />} />
         <Route path="/setting" element={<Setting />} />
         <Route path="/transaction" element={<Transaction />} />
+
+        <Route path="/schedule/notice" element={<Notice />} />
+        <Route path="/schedule/setting" element={<ScheduleSetting/>} />
+        <Route path="/schedule/calendar" element={<Calendar />} />
+        <Route path="/schedule/statistics" element={<ScheduleStatistics />} />
         <Route
           path="*"
-          element={GetToken() ? <Navigate to="/home" /> : <Navigate to="/login" />}
+          element={GetToken() ? <Navigate to="/transaction" /> : <Navigate to="/login" />}
         />
       </Routes>
       <Footer />

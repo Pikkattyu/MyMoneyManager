@@ -60,4 +60,38 @@ func InitializeRoutes(router *gin.Engine) {
 	router.GET("/api/getusersetting", handlers.GetUserSetting)
 	router.POST("/api/changeusersetting", handlers.ChangeUserSetting)
 
+	/*案件関連*/
+	router.GET("/api/getworkall", handlers.GetWorkAll)
+	router.GET("/api/getwork", handlers.GetWork)
+	router.POST("/api/creatework", handlers.WorkRegister)
+	router.POST("/api/changework", handlers.ChangeWork)
+
+	/*カテゴリ関連*/
+	router.GET("/api/getschedulecategoryall", handlers.GetScheduleCategoryAll)
+	router.GET("/api/getschedulecategory", handlers.GetScheduleCategory)
+	router.POST("/api/changeschedulecategory", handlers.ChangeScheduleCategory)
+	router.POST("/api/createschedulecategory", handlers.CreateScheduleCategory)
+	router.POST("/api/deleteschedulecategory", handlers.DelScheduleCategory)
+	router.POST("/api/deleteschedulesubcategory", handlers.DelScheduleSubcategory)
+
+	/*カレンダー関連*/
+	router.GET("/api/getcalendarall", handlers.GetCalendarsAll)
+	router.POST("/api/changecalendar", handlers.ChangeCalendar)
+	router.POST("/api/createcalendar", handlers.CalendarRegister)
+	router.GET("/api/getcalendar", handlers.GetCalendar)
+
+	/*通知関連*/
+	router.GET("/api/getNotice", handlers.GetNotice)
+	router.POST("/api/changeNotice", handlers.ChangeNotice)
+	router.POST("/api/createNotice", handlers.NoticeRegister)
+	router.GET("/api/getNoticeAll", handlers.GetNoticeAll)
+	router.GET("/api/getNoticeDate", handlers.GetNoticeDate)
+
+	/*テンプレ関連*/
+	router.GET("/api/getTemplateAll", handlers.GetTemplateAll)
+	router.POST("/api/changeTemplate", handlers.ChangeTemplate)
+	router.POST("/api/delTemplate", handlers.DelTemplate)
+	router.POST("/api/createTemplate", handlers.CreateTemplate)
+	router.GET("/api/getTemplate", handlers.GetTemplate)
+	router.POST("/api/setTemplate", handlers.SetTemplate)
 }

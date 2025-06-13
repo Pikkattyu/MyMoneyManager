@@ -41,7 +41,7 @@ func GetUsersByUserNos(userNos []string) ([]models.User, error) {
 func GetUserByUserID(UserID string) (*models.User, error) {
 	var user models.User
 	if err := utils.DB.Where("user_id = ?", UserID).First(&user).Error; err != nil {
-		log.Printf("ユーザデータ取得時にエラーしました。 %s: %v", UserID, err)
+		log.Printf("ユーザIDでデータ取得時にエラーしました。 %s: %v", UserID, err)
 		return nil, err
 	}
 	return &user, nil
@@ -51,7 +51,7 @@ func GetUserByUserID(UserID string) (*models.User, error) {
 func GetUserByEmail(Email string) (*models.User, error) {
 	var user models.User
 	if err := utils.DB.Where("email = ?", Email).First(&user).Error; err != nil {
-		log.Printf("ユーザデータ取得時にエラーしました。 %s: %v", Email, err)
+		log.Printf("Emailでデータ取得時にエラーしました。 %s: %v", Email, err)
 		return nil, err
 	}
 	return &user, nil

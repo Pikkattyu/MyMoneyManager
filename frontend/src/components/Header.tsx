@@ -1,13 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import CreateBook from '../pages/Book/CreateBook';
-import ChangeBook from '../pages/Book/ChangeBook';
+import CreateBook from '../pages/MoneyManage/Book/CreateBook';
+import ChangeBook from '../pages/MoneyManage/Book/ChangeBook';
 import '../styles.css'; // CSSファイルのインポート
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Header: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isScheduleFlg, setIsScheduleFlg] = useState(false);
   const [isCreateBook, setCreateBook] = useState(false);
   const [isChangeBook, setChangeBook] = useState(false);
   const [UserName, setUserName] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const ChangeSite = () => {
+    if(isScheduleFlg){
+      setIsScheduleFlg(false);
+      navigate('/transaction');
+    }else{
+      setIsScheduleFlg(true);
+      navigate('/schedule/notice');
+    }
+  };
+
+  const MovePage = (url: string) => {
+    navigate(url);
+  }
 
   const OpenCreatePopup = () => {
     setCreateBook(true);
@@ -37,7 +55,11 @@ const Header: React.FC = () => {
     setUserName(localStorage.getItem('userName'));
     setIsLoggedIn(!!token); // トークンがあれば true、なければ false を設定
 
-  }, []);
+    if(location.pathname.slice(0, 9) === "/schedule"){
+      setIsScheduleFlg(true);
+    }
+
+  }, [isScheduleFlg]);
 
   const handleLogout = async () => {
     const token = localStorage.getItem('token');
@@ -59,9 +81,22 @@ const Header: React.FC = () => {
   return (
     <header className="header">
       <div className='contents'>
-        <span className='headerh1'>お小遣い帳</span>
+        {!isScheduleFlg ? (
+          <span className='headerh1'>お小遣い帳</span>
+        ):(
+          <span className='headerh1'>スケジュール帳</span>
+        )}
         {isLoggedIn ? (
           <>
+            {!isScheduleFlg ? (
+              <span className='headertxt'>
+                <button onClick={ChangeSite}>スケジュールへ</button>
+              </span>
+            ):(
+              <span className='headertxt'>
+                <button onClick={ChangeSite}>お小遣い帳へ</button>
+              </span>
+            )}
             <span className='headertxt'>
               <button onClick={OpenChangePopup}>帳簿切替</button>
             </span>
@@ -80,10 +115,22 @@ const Header: React.FC = () => {
       {isLoggedIn ? (
         <nav>
           <ul>
-            <a href="/transaction"><li>記録</li></a>
-            <a href="/assets"><li>資産</li></a>
-            <a href="/statistics"><li>統計</li></a>
-            <a href="/setting"><li>設定</li></a>
+            {!isScheduleFlg && (
+              <>
+                <button className='headerNav' onClick={() => MovePage("/transaction")}>記録</button>
+                <button className='headerNav' onClick={() => MovePage("/assets")}>資産</button>
+                <button className='headerNav' onClick={() => MovePage("/statistics")}>統計</button>
+                <button className='headerNav' onClick={() => MovePage("/setting")}>設定</button>
+              </>
+            )}
+            {isScheduleFlg && (
+              <>
+                <button className='headerNav' onClick={() => MovePage("/schedule/notice")}>お知らせ</button>
+                <button className='headerNav' onClick={() => MovePage("/schedule/calendar")}>スケジュール</button>
+                <button className='headerNav' onClick={() => MovePage("/schedule/statistics")}>統計</button>
+                <button className='headerNav' onClick={() => MovePage("/schedule/setting")}>設定</button>
+              </>
+            )}
           </ul>
         </nav>
       ) : null}

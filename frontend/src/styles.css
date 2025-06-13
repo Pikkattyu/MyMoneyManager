@@ -15,7 +15,14 @@
 .headertxt {
     flex: 0 1 auto;
     text-align: right;
-    margin-right: 50px;
+    margin-right: 10px;
+}
+
+.headerNav{
+    list-style: none;
+    display: inline-block;
+    width: 18%;
+    min-width: 90px;
 }
 
 .contents {
@@ -480,7 +487,7 @@ nav ul a:hover {
 }
 
 .Category {
-    max-height: 330px;
+    height: 370px;
     /* スクロール可能な最大高さを指定 */
     overflow-y: auto;
     /* 縦方向のスクロールを有効に */
@@ -850,7 +857,7 @@ nav ul a:hover {
     justify-content: center;
     align-items: center;
     margin-bottom: 10px;
-
+    margin-top: 20px;
 }
 
 .transaction-header-month button {
@@ -1044,6 +1051,11 @@ nav ul a:hover {
     width: 100px;
 }
 
+.TransactionValueTime {
+    display: inline-block;
+    width: 65px;
+}
+
 .TransactionValueSelect {
     display: inline-block;
     white-space: nowrap;
@@ -1145,7 +1157,7 @@ nav ul a:hover {
     justify-content: center;
     align-items: center;
     margin-bottom: 10px;
-
+    margin-top: 20px;
 }
 
 .statistics-header-month button {
@@ -1461,4 +1473,125 @@ nav ul a:hover {
     flex: 1;
     text-align: center;
     overflow: hidden; /* 範囲外の内容を非表示にする */
+}
+
+.WorkBox{
+    width: 800px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.Work {
+    height: 550px;
+    /* スクロール可能な最大高さを指定 */
+    overflow-y: auto;
+    /* 縦方向のスクロールを有効に */
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+}
+
+.Workboard {
+    max-height: 600px;
+    /* スクロール可能な最大高さを指定 */
+    overflow-y: auto;
+    /* 縦方向のスクロールを有効に */
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+}
+
+.Work-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
+}
+
+.Work-contents {
+    height: 24px;
+    flex: 1;
+    text-align: center;
+    overflow: hidden;
+}
+
+.Work-container {
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.calendar-header-month {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    margin-top: 20px;
+    visibility: hidden !important;
+}
+
+.noticePopUp{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1200;
+    background-color: white;
+    padding: 24px;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    font-family: sans-serif;
+    text-align: center;
+}
+
+.noticeTitle{
+    font-size: 20px; 
+    font-weight: bold;
+}
+
+.noticeTxt{
+    font-size: 16px;
+}
+
+.SubTempGroup{
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 150px;
+    margin: 10px;
+}
+
+.TempDiv{
+    height: 30px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    
+    background-color: #e0e0e0;
+    display: flex;
+    margin: 5px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
+}
+
+.TempSpan{
+    height: 24px;
+    flex: 1;
+    text-align: center;
+    overflow: hidden;
+}
+
+.NoticeHeader{
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
